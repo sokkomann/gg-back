@@ -19,6 +19,7 @@ public class StatusHandler implements TypeHandler<Status> {
         return switch (rs.getString(columnIndex)) {
             case "active" -> Status.ACTIVE;
             case "inactive" -> Status.INACTIVE;
+            case "banned" -> Status.BANNED;
             default -> null;
         };
     }
@@ -28,6 +29,7 @@ public class StatusHandler implements TypeHandler<Status> {
         return switch (rs.getString(columnName)) {
             case "active" -> Status.ACTIVE;
             case "inactive" -> Status.INACTIVE;
+            case "banned" -> Status.BANNED;
             default -> null;
         };
     }
@@ -37,6 +39,7 @@ public class StatusHandler implements TypeHandler<Status> {
         return switch (cs.getString(columnIndex)) {
             case "active" -> Status.ACTIVE;
             case "inactive" -> Status.INACTIVE;
+            case "banned" -> Status.BANNED;
             default -> null;
         };
     }

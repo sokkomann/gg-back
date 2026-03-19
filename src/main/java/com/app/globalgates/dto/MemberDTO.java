@@ -22,40 +22,48 @@ public class MemberDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private String memberName;
     private String memberEmail;
-//    화면에서 받는 건 가능
+    //    화면에서 받는 건 가능
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String memberPassword;
-    private boolean memberEmailVerified;
+    private String memberNickname;
+    private String memberHandle;
+    private String memberPhone;
+    private String memberBio;
+    private String memberRegion;
     private Status memberStatus;
     private MemberRole memberRole;
-    private String providerId;
-    private OAuthProvider provider;
-    private String profileURL;
-    private Long memberId;
+    private boolean pushEnabled;
+    private String websiteUrl;
+    private String birthDate;
     private String createdDatetime;
     private String updatedDatetime;
-    private boolean isRemember;
 
     public MemberVO toMemberVO(){
         return MemberVO.builder()
                 .id(id)
-                .memberName(memberName)
                 .memberEmail(memberEmail)
                 .memberPassword(memberPassword)
-                .memberEmailVerified(memberEmailVerified)
+                .memberNickname(memberNickname)
+                .memberHandle(memberHandle)
+                .memberPhone(memberPhone)
+                .memberBio(memberBio)
+                .memberRegion(memberRegion)
                 .memberStatus(memberStatus)
                 .memberRole(memberRole)
+                .pushEnabled(pushEnabled)
+                .websiteUrl(websiteUrl)
+                .birthDate(birthDate)
                 .build();
+
     }
 
-    public OAuthVO toOAuthVO(){
-        return OAuthVO.builder()
-                .providerId(providerId)
-                .provider(provider)
-                .profileURL(profileURL)
-                .memberId(memberId)
-                .build();
-    }
+//    public OAuthVO toOAuthVO(){
+//        return OAuthVO.builder()
+//                .providerId(providerId)
+//                .provider(provider)
+//                .profileURL(profileURL)
+//                .memberId(memberId)
+//                .build();
+//    }
 }

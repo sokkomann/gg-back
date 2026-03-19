@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum Status {
-    ACTIVE("active"), INACTIVE("inactive");
+    ACTIVE("active"), INACTIVE("inactive"), BANNED("banned");
 
     private final String value;
 
