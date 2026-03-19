@@ -1,12 +1,3 @@
----
-name: globalgates
-about: Describe this issue template's purpose here.
-title: ''
-labels: ''
-assignees: ''
-
----
-
 name: Backend Issue
 description: 백엔드 작업 이슈 템플릿
 title: "[BE] "
