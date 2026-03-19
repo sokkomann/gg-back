@@ -8,14 +8,15 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@MybatisTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@SpringBootTest
 class BookmarkMapperTest {
 
     @Autowired
@@ -24,13 +25,31 @@ class BookmarkMapperTest {
     @Autowired
     private BookmarkFolderMapper bookmarkFolderMapper;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     private Long memberId;
     private Long postId;
 
     @BeforeEach
     void setUp() {
-        memberId = 1L;
-        postId = 1L;
+        // 선행 데이터: member 삽입
+        jdbcTemplate.update(
+                "insert into tbl_member (member_email, member_password, member_nickname) values (?, ?, ?) on conflict (member_email) do nothing",
+                "test@test.com", "password123", "테스트유저"
+        );
+        memberId = jdbcTemplate.queryForObject(
+                "select id from tbl_member where member_email = ?", Long.class, "test@test.com"
+        );
+
+        // 선행 데이터: post 삽입
+        jdbcTemplate.update(
+                "insert into tbl_post (member_id, title, content) values (?, ?, ?)",
+                memberId, "테스트 게시글", "테스트 내용"
+        );
+        postId = jdbcTemplate.queryForObject(
+                "select id from tbl_post where member_id = ? order by id desc limit 1", Long.class, memberId
+        );
     }
 
     @Test

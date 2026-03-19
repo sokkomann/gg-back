@@ -249,6 +249,8 @@ constraint fk_bookmark_folder_member foreign key(member_id)
 references tbl_member(id)
 );
 
+
+
 -- [20] tbl_bookmark  ─ 게시글 북마크 (n:n)
 create table tbl_bookmark (
 id bigint generated always as identity primary key,
