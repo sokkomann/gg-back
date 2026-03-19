@@ -15,10 +15,16 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class MemberVO extends Period {
     private Long id;
-    private String memberName;
     private String memberEmail;
     private String memberPassword;
-    private boolean memberEmailVerified;
+    private String memberNickname;
+    private String memberHandle;
+    private String memberPhone;
+    private String memberBio;
+    private String memberRegion;
     private Status memberStatus;
     private MemberRole memberRole;
+    private boolean pushEnabled;
+    private String websiteUrl;
+    private String birthDate;
 }

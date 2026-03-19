@@ -19,6 +19,7 @@ public class OAuthProviderHandler implements TypeHandler<OAuthProvider> {
         return switch (rs.getString(columnIndex)) {
             case "kakao" -> OAuthProvider.KAKAO;
             case "naver" -> OAuthProvider.NAVER;
+            case "facebook" -> OAuthProvider.FACEBOOK;
             default -> null;
         };
     }
@@ -28,6 +29,7 @@ public class OAuthProviderHandler implements TypeHandler<OAuthProvider> {
         return switch (rs.getString(columnName)) {
             case "kakao" -> OAuthProvider.KAKAO;
             case "naver" -> OAuthProvider.NAVER;
+            case "facebook" -> OAuthProvider.FACEBOOK;
             default -> null;
         };
     }
@@ -37,6 +39,7 @@ public class OAuthProviderHandler implements TypeHandler<OAuthProvider> {
         return switch (cs.getString(columnIndex)) {
             case "kakao" -> OAuthProvider.KAKAO;
             case "naver" -> OAuthProvider.NAVER;
+            case "facebook" -> OAuthProvider.FACEBOOK;
             default -> null;
         };
     }
