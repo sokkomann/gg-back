@@ -1052,6 +1052,78 @@
             </div>
         </div>
     </div>
+
+    <!-- 회원가입 확인 모달 -->
+    <div id="modal-submit" class="join-modal-line1 join-select-modal join-select-modal--submit" style="display:none">
+        <div class="join-modal-line2">
+            <div class="join-modal-line3">
+                <div class="join-modal-line4">
+                    <div class="join-modal-line5">
+                        <div class="join-modal-line6">
+                            <div tabindex="0" class="join-modal">
+                                <div class="join-modal-all"></div>
+                                <div class="join-modal-box1" aria-modal="true" role="dialog">
+                                    <div class="join-modal-box2">
+                                        <div class="join-modal-box3">
+                                            <div tabindex="0" class="join-modal-in-line-top"></div>
+                                            <div tabindex="0" class="join-modal-in">
+                                                <div class="join-modal-header">
+                                                    <div class="join-modal-header-in1">
+                                                        <div class="join-modal-header-in2">
+                                                            <div class="join-modal-header-in3">
+                                                                <div class="join-modal-header-in4">
+                                                                    <div class="join-modal-header-left">
+                                                                        <button type="button" aria-label="닫기" class="join-modal-header-close-button">
+                                                                            <div class="join-modal-header-close-button-in">
+                                                                                <svg viewBox="0 0 24 24" aria-hidden="true" class="X-img">
+                                                                                    <g>
+                                                                                        <path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path>
+                                                                                    </g>
+                                                                                </svg>
+                                                                            </div>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="join-modal-header-middle"></div>
+                                                                    <div class="join-modal-header-right"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="join-modal-main join-submit-main">
+                                                    <form id="join-submit-form" class="join-submit-form" action="/member/join" method="post">
+                                                        <input type="hidden" name="memberName">
+                                                        <input type="hidden" name="memberEmail">
+                                                        <input type="hidden" name="memberPhone">
+                                                        <input type="hidden" name="birthDate">
+                                                        <input type="hidden" name="verificationCode">
+                                                        <input type="hidden" name="memberPassword">
+                                                        <input type="hidden" name="memberHandle">
+                                                        <input type="hidden" name="companyName">
+                                                        <input type="hidden" name="businessNumber">
+                                                        <input type="hidden" name="ceoName">
+                                                        <input type="hidden" name="postcode">
+                                                        <input type="hidden" name="addrMain">
+                                                        <input type="hidden" name="addrDetail">
+                                                        <input type="hidden" name="businessType">
+                                                        <input type="hidden" name="memberRegion">
+                                                        <input type="hidden" name="pushEnabled">
+                                                        <p class="join-submit-message">회원가입을 하시겠습니까?</p>
+                                                        <button type="submit" class="join-submit-button">확인</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <div tabindex="0" class="join-modal-in-line-bottom"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://accounts.google.com/gsi/client" async></script>
     <script>
         var finished_rendering = function() {
@@ -1072,5 +1144,6 @@
     <script src="/js/member/join-modal-category.js"></script>
     <script src="/js/member/join-modal-language.js"></script>
     <script src="/js/member/join-modal-notification.js"></script>
+    <script src="/js/member/join-modal-submit.js"></script>
 </body>
 </html>

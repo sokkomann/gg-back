@@ -478,6 +478,53 @@
     animation: join-notification-bounce 220ms ease;
 }
 
+.join-select-modal--submit .join-modal-box1 {
+    width: min(520px, 92vw);
+    min-height: 320px;
+    border-radius: 20px;
+}
+
+.join-select-modal--submit .join-modal-header-in4 {
+    justify-content: space-between;
+}
+
+.join-select-modal--submit .join-submit-main {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 32px 40px;
+}
+
+.join-select-modal--submit .join-submit-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+}
+
+.join-select-modal--submit .join-submit-message {
+    margin: 0;
+    color: #0f1419;
+    font-size: 32px;
+    line-height: 1.25;
+    font-weight: 800;
+    text-align: center;
+}
+
+.join-select-modal--submit .join-submit-button {
+    width: min(280px, 100%);
+    min-height: 52px;
+    border: 1px solid #0f1419;
+    border-radius: 9999px;
+    background: #0f1419;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
 @keyframes join-notification-bounce {
     0% {
         transform: scale(1);
@@ -497,7 +544,8 @@
 
     .join-select-modal--category .join-modal-box1,
     .join-select-modal--language .join-modal-box1,
-    .join-select-modal--notification .join-modal-box1 {
+    .join-select-modal--notification .join-modal-box1,
+    .join-select-modal--submit .join-modal-box1 {
         width: 100vw;
         height: 100vh;
         border-radius: 0;
@@ -508,6 +556,10 @@
     }
 
     .join-select-modal--notification .notification-main {
+        padding: 12px 24px 40px;
+    }
+
+    .join-select-modal--submit .join-submit-main {
         padding: 12px 24px 40px;
     }
 }
@@ -553,5 +605,14 @@
 
     .join-select-modal--notification .notification-desc {
         font-size: 15px;
+    }
+
+    .join-select-modal--submit .join-submit-message {
+        font-size: 28px;
+    }
+
+    .join-select-modal--submit .join-submit-button {
+        min-height: 48px;
+        font-size: 17px;
     }
 }

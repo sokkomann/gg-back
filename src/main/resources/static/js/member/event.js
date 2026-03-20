@@ -5,7 +5,7 @@ window.onload = () => {
         'modal-create', 'overlay-phone', 'overlay-email',
         'modal-code', 'modal-password', 'modal-business',
         'modal-profile', 'modal-username', 'modal-notification',
-        'modal-language', 'modal-category'
+        'modal-language', 'modal-category', 'modal-submit'
     ];
     const hideAll = () => MODALS.forEach(hide);
 
@@ -49,9 +49,17 @@ window.onload = () => {
     // 아이디 → 알림
     document.querySelector('#modal-username .next-button').addEventListener('click', () => { hide('modal-username'); show('modal-notification'); });
 
-    // 알림 → 언어
+    // 알림 → 회원가입 확인
     document.querySelectorAll('#modal-notification .notification-btn').forEach(btn => {
-        btn.addEventListener('click', () => { hide('modal-notification'); show('modal-language'); });
+        btn.addEventListener('click', () => {
+            const submitModal = document.getElementById('modal-submit');
+            if (submitModal) {
+                submitModal.dataset.pushEnabled = String(btn.classList.contains('notification-btn-primary'));
+            }
+
+            hide('modal-notification');
+            show('modal-submit');
+        });
     });
 
     // 언어 → 카테고리

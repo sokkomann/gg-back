@@ -1,8 +1,11 @@
 package com.app.globalgates.dto;
 
+import com.app.globalgates.common.enumeration.FileContentType;
 import com.app.globalgates.common.enumeration.MemberRole;
 import com.app.globalgates.common.enumeration.OAuthProvider;
 import com.app.globalgates.common.enumeration.Status;
+import com.app.globalgates.domain.BusinessMemberVO;
+import com.app.globalgates.domain.FileVO;
 import com.app.globalgates.domain.MemberVO;
 import com.app.globalgates.domain.OAuthVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,12 +41,24 @@ public class MemberDTO implements Serializable {
     private String websiteUrl;
     private String birthDate;
     private String lastLoginAt;
+    private String createdDatetime;
+    private String updatedDatetime;
+//    oauth
     private String providerId;
     private OAuthProvider provider;
     private String profileURL;
     private Long memberId;
-    private String createdDatetime;
-    private String updatedDatetime;
+//     business
+    private String businessNumber;
+    private String companyName;
+    private String ceoName;
+    private String businessType;
+//    file
+    private String originalName;
+    private String fileName;
+    private String filePath;
+    private Long fileSize;
+    private FileContentType contentType;
 
     public MemberVO toMemberVO(){
         return MemberVO.builder()
@@ -72,6 +87,27 @@ public class MemberDTO implements Serializable {
                 .provider(provider)
                 .profileURL(profileURL)
                 .memberId(memberId)
+                .build();
+    }
+
+    public BusinessMemberVO toBusinessMemberVO(){
+        return BusinessMemberVO.builder()
+                .id(memberId)
+                .businessNumber(businessNumber)
+                .companyName(companyName)
+                .ceoName(ceoName)
+                .businessType(businessType)
+                .build();
+    }
+
+    public FileVO toFileVO(){
+        return FileVO.builder()
+                .originalName(originalName)
+                .fileName(fileName)
+                .filePath(filePath)
+                .fileSize(fileSize)
+                .contentType(FileContentType.IMAGE)
+                .createdDatetime(createdDatetime)
                 .build();
     }
 }
