@@ -13,9 +13,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
-@MybatisTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Commit
+@SpringBootTest
 @Slf4j
 public class AdvertisementMapperTests {
     @Autowired
@@ -40,7 +38,6 @@ public class AdvertisementMapperTests {
     @Test
     public void testSelectAll() {
         List<AdvertisementDTO> foundAds = advertisementMapper.selectAll();
-
         log.info("받아온 광고들 : {}", foundAds);
     }
 
