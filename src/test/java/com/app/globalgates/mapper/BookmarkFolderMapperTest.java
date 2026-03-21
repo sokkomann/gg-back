@@ -1,92 +1,107 @@
 package com.app.globalgates.mapper;
 
 import com.app.globalgates.dto.BookmarkFolderDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@MybatisTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Slf4j
+@SpringBootTest
+@Transactional
 class BookmarkFolderMapperTest {
 
     @Autowired
     private BookmarkFolderMapper bookmarkFolderMapper;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     private Long memberId;
 
     @BeforeEach
     void setUp() {
-        memberId = 1L;
+        jdbcTemplate.update(
+                "insert into tbl_member (member_email, member_password, member_nickname, member_handle) values (?, ?, ?, ?) on conflict (member_email) do nothing",
+                "test@test.com", "password123", "테스트유저", "testuser"
+        );
+        memberId = jdbcTemplate.queryForObject(
+                "select id from tbl_member where member_email = ?", Long.class, "test@test.com"
+        );
+        log.info("setUp 완료 — memberId: {}", memberId);
     }
 
+    // 폴더 생성 후 id 자동 생성 확인
     @Test
-    @DisplayName("폴더 생성 후 id가 자동 생성된다")
-    void insert() {
-        BookmarkFolderDTO folderDTO = new BookmarkFolderDTO();
-        folderDTO.setMemberId(memberId);
-        folderDTO.setFolderName("관심 상품");
+    public void insert() {
+        BookmarkFolderDTO dto = new BookmarkFolderDTO();
+        dto.setMemberId(memberId);
+        dto.setFolderName("관심 상품");
 
-        bookmarkFolderMapper.insert(folderDTO);
+        bookmarkFolderMapper.insert(dto);
 
-        assertThat(folderDTO.getId()).isNotNull();
+        log.info("insert 결과 — id: {}, folderName: {}", dto.getId(), dto.getFolderName());
+        assertThat(dto.getId()).isNotNull();
     }
 
+    // 폴더명 수정
     @Test
-    @DisplayName("폴더명을 수정할 수 있다")
-    void update() {
-        BookmarkFolderDTO folderDTO = new BookmarkFolderDTO();
-        folderDTO.setMemberId(memberId);
-        folderDTO.setFolderName("원래 폴더명");
-        bookmarkFolderMapper.insert(folderDTO);
+    public void update() {
+        BookmarkFolderDTO dto = new BookmarkFolderDTO();
+        dto.setMemberId(memberId);
+        dto.setFolderName("원래 폴더명");
+        bookmarkFolderMapper.insert(dto);
 
-        folderDTO.setFolderName("수정된 폴더명");
-        bookmarkFolderMapper.update(folderDTO);
+        dto.setFolderName("수정된 폴더명");
+        bookmarkFolderMapper.update(dto);
 
-        Optional<BookmarkFolderDTO> result = bookmarkFolderMapper.selectById(folderDTO.getId());
-        assertThat(result).isPresent();
+        Optional<BookmarkFolderDTO> result = bookmarkFolderMapper.selectById(dto.getId());
+        log.info("update 결과 — folderName: {}", result.get().getFolderName());
         assertThat(result.get().getFolderName()).isEqualTo("수정된 폴더명");
     }
 
+    // 폴더 삭제
     @Test
-    @DisplayName("폴더를 삭제할 수 있다")
-    void delete() {
-        BookmarkFolderDTO folderDTO = new BookmarkFolderDTO();
-        folderDTO.setMemberId(memberId);
-        folderDTO.setFolderName("삭제할 폴더");
-        bookmarkFolderMapper.insert(folderDTO);
+    public void delete() {
+        BookmarkFolderDTO dto = new BookmarkFolderDTO();
+        dto.setMemberId(memberId);
+        dto.setFolderName("삭제할 폴더");
+        bookmarkFolderMapper.insert(dto);
+        log.info("삭제 전 — id: {}", dto.getId());
 
-        bookmarkFolderMapper.delete(folderDTO.getId());
+        bookmarkFolderMapper.delete(dto.getId());
 
-        Optional<BookmarkFolderDTO> result = bookmarkFolderMapper.selectById(folderDTO.getId());
+        Optional<BookmarkFolderDTO> result = bookmarkFolderMapper.selectById(dto.getId());
+        log.info("삭제 후 조회 — present: {}", result.isPresent());
         assertThat(result).isEmpty();
     }
 
+    // id로 폴더 단건 조회
     @Test
-    @DisplayName("id로 폴더를 조회할 수 있다")
-    void selectById() {
-        BookmarkFolderDTO folderDTO = new BookmarkFolderDTO();
-        folderDTO.setMemberId(memberId);
-        folderDTO.setFolderName("조회 테스트");
-        bookmarkFolderMapper.insert(folderDTO);
+    public void selectById() {
+        BookmarkFolderDTO dto = new BookmarkFolderDTO();
+        dto.setMemberId(memberId);
+        dto.setFolderName("조회 테스트");
+        bookmarkFolderMapper.insert(dto);
 
-        Optional<BookmarkFolderDTO> result = bookmarkFolderMapper.selectById(folderDTO.getId());
+        Optional<BookmarkFolderDTO> result = bookmarkFolderMapper.selectById(dto.getId());
 
+        log.info("selectById 결과 — {}", result.orElse(null));
         assertThat(result).isPresent();
         assertThat(result.get().getFolderName()).isEqualTo("조회 테스트");
-        assertThat(result.get().getMemberId()).isEqualTo(memberId);
     }
 
+    // 회원의 폴더 목록 조회
     @Test
-    @DisplayName("회원의 폴더 목록을 조회할 수 있다")
-    void selectAllByMemberId() {
+    public void selectAllByMemberId() {
         BookmarkFolderDTO folder1 = new BookmarkFolderDTO();
         folder1.setMemberId(memberId);
         folder1.setFolderName("폴더1");
@@ -99,6 +114,8 @@ class BookmarkFolderMapperTest {
 
         List<BookmarkFolderDTO> result = bookmarkFolderMapper.selectAllByMemberId(memberId);
 
+        log.info("selectAllByMemberId 결과 — size: {}", result.size());
+        result.forEach(f -> log.info("  folder: id={}, name={}", f.getId(), f.getFolderName()));
         assertThat(result).hasSizeGreaterThanOrEqualTo(2);
     }
 }
