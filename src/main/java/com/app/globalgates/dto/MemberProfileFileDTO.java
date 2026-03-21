@@ -29,7 +29,6 @@ public class MemberProfileFileDTO {
                 .filePath(filePath)
                 .fileSize(fileSize)
                 .contentType(contentType)
-                .createdDatetime(createdDatetime)
                 .build();
     }
 

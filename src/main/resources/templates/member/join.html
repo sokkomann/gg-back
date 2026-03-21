@@ -432,7 +432,7 @@
                                                                             </div>
                                                                             <div class="phone-placeholder-in3">
                                                                                 <div class="phone-placeholder-text">
-                                                                                    <input maxlength="50" name="password" type="password" class="phone-input" value="">
+                                                                                    <input maxlength="50" name="password" type="password" class="password-input" value="">
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -565,7 +565,7 @@
                                                                             </div>
                                                                             <div class="phone-placeholder-in3">
                                                                                 <div class="phone-placeholder-text">
-                                                                                    <input maxlength="50" name="username" type="text" class="phone-input" value="">
+                                                                                    <input maxlength="50" name="username" type="text" class="handle-input" value="">
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -670,7 +670,7 @@
                                                                             </div>
                                                                             <div class="name-placeholder-in3">
                                                                                 <div class="name-placeholder-text">
-                                                                                    <input maxlength="50" name="bizName" type="text" class="name-input" value="">
+                                                                                    <input maxlength="50" name="bizName" type="text" class="company-name-input" value="">
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -689,7 +689,7 @@
                                                                             </div>
                                                                             <div class="phone-placeholder-in3">
                                                                                 <div class="phone-placeholder-text">
-                                                                                    <input maxlength="50" name="bizRegNo" type="text" class="phone-input" value="">
+                                                                                    <input maxlength="50" name="bizRegNo" type="text" class="business-number-input" value="">
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -708,7 +708,7 @@
                                                                             </div>
                                                                             <div class="phone-placeholder-in3">
                                                                                 <div class="phone-placeholder-text">
-                                                                                    <input maxlength="50" name="bizOwner" type="text" class="phone-input" value="">
+                                                                                    <input maxlength="50" name="bizOwner" type="text" class="ceo-name-input" value="">
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -729,7 +729,7 @@
                                                                                 </div>
                                                                                 <div class="phone-placeholder-in3">
                                                                                     <div class="phone-placeholder-text">
-                                                                                        <input id="postcode" maxlength="10" name="postcode" type="text" class="phone-input" readonly>
+                                                                                        <input id="postcode" maxlength="10" name="postcode" type="text" class="post-input" readonly>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -778,7 +778,7 @@
                                                                             </div>
                                                                             <div class="phone-placeholder-in3">
                                                                                 <div class="phone-placeholder-text">
-                                                                                    <input maxlength="50" name="bizType" type="text" class="phone-input" value="">
+                                                                                    <input id="business-type" maxlength="50" name="bizType" type="text" class="phone-input" value="">
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -1036,7 +1036,7 @@
                                                     <h1 class="notification-title">알림 켜기</h1>
                                                     <p class="notification-desc">지금 일어나는 일에 대한 소식을 받고 X를 최대한 활용해 보세요.</p>
                                                     <div class="notification-actions">
-                                                        <button type="button" class="notification-btn notification-btn-primary js-bounce-btn">알림 허용</button>
+                                                        <button type="button" class="notification-btn notification-btn-primary js-bounce-btn notification-yes">알림 허용</button>
                                                         <button type="button" class="notification-btn notification-btn-secondary js-bounce-btn">지금은 넘어가기</button>
                                                     </div>
                                                 </div>
@@ -1052,7 +1052,81 @@
             </div>
         </div>
     </div>
+
+    <!-- 회원가입 확인 모달 -->
+    <div id="modal-submit" class="join-modal-line1 join-select-modal join-select-modal--submit" style="display:none">
+        <div class="join-modal-line2">
+            <div class="join-modal-line3">
+                <div class="join-modal-line4">
+                    <div class="join-modal-line5">
+                        <div class="join-modal-line6">
+                            <div tabindex="0" class="join-modal">
+                                <div class="join-modal-all"></div>
+                                <div class="join-modal-box1" aria-modal="true" role="dialog">
+                                    <div class="join-modal-box2">
+                                        <div class="join-modal-box3">
+                                            <div tabindex="0" class="join-modal-in-line-top"></div>
+                                            <div tabindex="0" class="join-modal-in">
+                                                <div class="join-modal-header">
+                                                    <div class="join-modal-header-in1">
+                                                        <div class="join-modal-header-in2">
+                                                            <div class="join-modal-header-in3">
+                                                                <div class="join-modal-header-in4">
+                                                                    <div class="join-modal-header-left">
+                                                                        <button type="button" aria-label="닫기" class="join-modal-header-close-button">
+                                                                            <div class="join-modal-header-close-button-in">
+                                                                                <svg viewBox="0 0 24 24" aria-hidden="true" class="X-img">
+                                                                                    <g>
+                                                                                        <path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path>
+                                                                                    </g>
+                                                                                </svg>
+                                                                            </div>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="join-modal-header-middle"></div>
+                                                                    <div class="join-modal-header-right"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="join-modal-main join-submit-main">
+                                                    <form id="join-submit-form" class="join-submit-form" action="/member/join" method="post">
+                                                        <input type="hidden" name="memberName" value="">
+                                                        <input type="hidden" name="memberEmail" value="">
+                                                        <input type="hidden" name="memberPhone" value="">
+                                                        <input type="hidden" name="birthDate" value="">
+                                                        <input type="hidden" name="verificationCode" value="">
+                                                        <input type="hidden" name="memberPassword" value="">
+                                                        <input type="hidden" name="memberHandle" value="">
+                                                        <input type="hidden" name="companyName" value="">
+                                                        <input type="hidden" name="businessNumber" value="">
+                                                        <input type="hidden" name="ceoName" value="">
+                                                        <input type="hidden" name="postcode" value="">
+                                                        <input type="hidden" name="addrMain" value="">
+                                                        <input type="hidden" name="addrDetail" value="">
+                                                        <input type="hidden" name="businessType" value="">
+                                                        <input type="hidden" name="memberRegion" value="">
+                                                        <input type="hidden" name="pushEnabled" value="">
+                                                        <p class="join-submit-message">회원가입을 하시겠습니까?</p>
+                                                        <button type="button" class="join-submit-button">확인</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <div tabindex="0" class="join-modal-in-line-bottom"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://accounts.google.com/gsi/client" async></script>
+    <script async defer crossorigin="anonymous"
+            src="https://connect.facebook.net/ko_KR/sdk.js"></script>
     <script>
         var finished_rendering = function() {
             console.log("finished rendering plugins");
@@ -1063,6 +1137,7 @@
         FB.Event.subscribe('xfbml.render', finished_rendering);
     </script>
     <footer class="join-footer">2026 X Corp.</footer>
+    <script src="/js/member/service.js"></script>
     <script src="/js/member/event.js"></script>
     <script src="/js/member/join-modal.js"></script>
     <script src="/js/member/join-modal-password.js"></script>
@@ -1072,5 +1147,6 @@
     <script src="/js/member/join-modal-category.js"></script>
     <script src="/js/member/join-modal-language.js"></script>
     <script src="/js/member/join-modal-notification.js"></script>
+    <script src="/js/member/join-modal-submit.js"></script>
 </body>
 </html>

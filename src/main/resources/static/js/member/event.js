@@ -5,7 +5,7 @@ window.onload = () => {
         'modal-create', 'overlay-phone', 'overlay-email',
         'modal-code', 'modal-password', 'modal-business',
         'modal-profile', 'modal-username', 'modal-notification',
-        'modal-language', 'modal-category'
+        'modal-language', 'modal-category', 'modal-submit'
     ];
     const hideAll = () => MODALS.forEach(hide);
 
@@ -49,9 +49,17 @@ window.onload = () => {
     // 아이디 → 알림
     document.querySelector('#modal-username .next-button').addEventListener('click', () => { hide('modal-username'); show('modal-notification'); });
 
-    // 알림 → 언어
+    // 알림 → 회원가입 확인
     document.querySelectorAll('#modal-notification .notification-btn').forEach(btn => {
-        btn.addEventListener('click', () => { hide('modal-notification'); show('modal-language'); });
+        btn.addEventListener('click', () => {
+            const submitModal = document.getElementById('modal-submit');
+            if (submitModal) {
+                submitModal.dataset.pushEnabled = String(btn.classList.contains('notification-btn-primary'));
+            }
+
+            hide('modal-notification');
+            show('modal-submit');
+        });
     });
 
     // 언어 → 카테고리
@@ -59,4 +67,81 @@ window.onload = () => {
 
     // 카테고리 → 완료
     document.querySelector('#modal-category .js-next-button').addEventListener('click', () => { hide('modal-category'); });
+
+//     input 받아올 데이터 선언
+    const memberName = document.querySelector('.name-input');
+    const memberEmail = document.querySelector('.email-input');
+    const memberPhone = document.querySelector('.phone-input');
+    const birthDate = document.querySelector('.birth-date-input');
+    const memberPassword = document.querySelector('.password-input');
+    const memberHandle = document.querySelector('.handle-input');
+    const businessNumber = document.querySelector('.business-number-input');
+    const companyName = document.querySelector('.company-name-input');
+    const ceoName = document.querySelector('.ceo-name-input');
+    const postNumber = document.querySelector('.post-input');
+    const address = document.getElementById('addr-main');
+    const addressDetail = document.getElementById('addr-detail');
+    const businessType = document.getElementById('business-type');
+    const profile = document.querySelector('.avatar-upload');
+    const joinBtn = document.querySelector('.join-submit-button');
+    const notificationBtn = document.querySelector('.notification-yes');
+
+    let pushEnabled = false;
+
+    if (notificationBtn) {
+        notificationBtn.addEventListener('click', () => {
+            pushEnabled = true;
+        });
+    }
+
+    joinBtn.addEventListener('click', async () => {
+        console.log("joinBtn");
+        const emailValue = memberEmail?.value || "";
+        const phoneValue = memberPhone?.value || "";
+
+        const file = profile?.files?.[0];
+        const maxSize = 10 * 1024 * 1024;
+
+        if (file && file.size > maxSize) {
+            alert('파일이 너무 큽니다. (최대 10MB)');
+            return;
+        }
+
+        const memberRegion = `${postNumber.value} ${address.value} ${addressDetail.value}`.trim();
+
+        console.log('memberName', memberName.value)
+        console.log('emailValue', emailValue)
+        console.log('phoneValue', phoneValue)
+        console.log('birthDate.value', birthDate.value)
+        console.log('memberPassword.value', memberPassword.value)
+        console.log('memberHandle.value', memberHandle.value)
+        console.log('memberRegion', memberRegion)
+        console.log('pushEnabled', pushEnabled)
+        console.log('businessNumber.value', businessNumber.value)
+        console.log('companyName.value', companyName.value)
+        console.log('ceoName.value', ceoName.value)
+        console.log('file', file)
+        console.log('businessType.value', businessType.value)
+
+        const formData = new FormData();
+        formData.append('memberName', memberName.value);
+        formData.append('memberEmail', emailValue);
+        formData.append('memberPhone', phoneValue);
+        formData.append('birthDate', birthDate.value);
+        formData.append('memberPassword', memberPassword.value);
+        formData.append('memberHandle', memberHandle.value);
+        formData.append('memberRegion', memberRegion);
+        formData.append('pushEnabled', pushEnabled);
+        formData.append('businessNumber', businessNumber.value);
+        formData.append('companyName', companyName.value);
+        formData.append('ceoName', ceoName.value);
+
+        if (file) {
+            formData.append('file', file);
+        }
+
+        await joinService.memberRegister(formData);
+
+    })
+
 };
