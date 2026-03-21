@@ -18,7 +18,7 @@ public class AuthorizationHandler implements AccessDeniedHandler {
         if(request.getRequestURI().startsWith("/api/")){
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, accessDeniedException.getMessage());
         }else{
-            response.sendRedirect("/member/login");
+            response.sendRedirect("/member/join");
         }
     }
 }

@@ -41,6 +41,7 @@ public class MemberDTO implements Serializable {
     private String websiteUrl;
     private String birthDate;
     private String lastLoginAt;
+    private String loginId;
     private String createdDatetime;
     private String updatedDatetime;
 //    oauth

@@ -22,13 +22,14 @@ body {
     inset: 0;
     display: grid;
     place-items: center;
-    padding: 16px;
+    padding: 24px;
 }
 
 .login-modal {
-    width: min(760px, 92vw);
-    min-height: min(760px, 92vh);
-    border-radius: 18px;
+    width: min(600px, 100%);
+    max-height: 92vh;
+    min-height: 620px;
+    border-radius: 16px;
     background: var(--card);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
     position: relative;
@@ -58,110 +59,130 @@ body {
 .login-logo {
     display: flex;
     justify-content: center;
-    margin-top: 18px;
+    margin-top: 8px;
 }
 
 .login-logo svg {
-    width: 72px;
-    height: 72px;
+    width: 28px;
+    height: 28px;
     fill: var(--text);
 }
 
 .login-inner {
-    width: min(540px, calc(100% - 96px));
-    margin: 34px auto 0;
+    width: calc(100% - 160px);
+    margin: 12px auto 0;
+    padding-bottom: 50px;
 }
 
 .login-title {
-    margin: 0 0 34px;
-    font-size: 54px;
-    line-height: 1.05;
+    margin: 0 0 12px;
+    font-size: 26px;
+    line-height: 1.2;
     letter-spacing: -0.03em;
     font-weight: 700;
 }
 
-.social-chip,
+.login-social-btn,
 .btn-primary,
 .btn-secondary {
-    width: 88%;
-    min-height: 64px;
+    width: 100%;
+    min-height: 48px;
     border-radius: 999px;
     border: 1px solid var(--line);
     background: #fff;
     color: var(--text);
 }
 
-.social-chip {
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0 20px;
+.login-social-list {
+    display: grid;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.login-social-btn {
+    padding: 0 14px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 10px;
     cursor: pointer;
 }
 
-.google-chip { margin-bottom: 16px; }
-
-.chip-user { display: flex; align-items: center; gap: 14px; }
-
-.chip-avatar {
-    width: 27px;
-    height: 27px;
-    border-radius: 50%;
-    background: #bb5d34;
-    color: #fff;
-    display: grid;
-    place-items: center;
-    font-size: 14px;
-    font-weight: 700;
+.login-social-btn--image {
+    padding: 0;
+    overflow: hidden;
 }
 
-.chip-meta { display: flex; flex-direction: column; gap: 1px; }
-.chip-meta strong { font-size: 15px; font-weight: 600; }
-.chip-meta span { font-size: 9px; color: #637180; }
-
-.chip-google {
-    color: #4285f4;
-    font-size: 34px;
-    line-height: 1;
-    font-weight: 700;
+.login-social-btn--oauth {
+    padding: 0;
+    overflow: hidden;
 }
 
-.apple-chip {
+.login-social-image {
+    width: 100%;
+    height: 48px;
+    display: block;
+    object-fit: cover;
+}
+
+.login-social-btn--oauth > * {
+    width: 100% !important;
+}
+
+#login-facebook-login #spinner {
+    width: 100% !important;
+    height: 48px !important;
+    border-radius: 999px !important;
+    display: flex;
+    align-items: center;
     justify-content: center;
     gap: 6px;
-    margin-bottom: 16px;
+    font-size: 14px !important;
+    line-height: 18px !important;
+    padding: 0 14px !important;
+    overflow: hidden;
 }
 
-.apple-icon { font-size: 32px; line-height: 1; }
-.apple-chip span:last-child { font-size: 26px; font-weight: 500; }
+#login-facebook-login .fb-login-button {
+    display: inline-flex !important;
+    align-items: center;
+}
+
+#login-google-login .nsm7Bb-HzV7m-LgbsSe {
+    width: 100% !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    font-size: 14px !important;
+    padding: 0 14px !important;
+    border-radius: 999px !important;
+}
 
 .divider {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 16px;
+    gap: 12px;
+    margin-bottom: 8px;
 }
 
 .divider span { flex: 1; height: 1px; background: #c6d0d8; }
-.divider b { font-size: 29px; font-weight: 500; }
+.divider b { font-size: 16px; font-weight: 500; }
 
 .input-wrap {
     display: block;
-    width: 88%;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 14px;
+    margin-bottom: 6px;
 }
 
 .input-wrap input {
     width: 100%;
-    height: 84px;
+    height: 52px;
     border: 1px solid #bcc8d2;
-    border-radius: 10px;
-    padding: 0 20px;
-    font-size: 29px;
+    border-radius: 4px;
+    padding: 14px 12px;
+    font-size: 15px;
+    line-height: 20px;
     color: #5d6f80;
     background: #fff;
     outline: none;
@@ -184,18 +205,16 @@ body {
 .btn-primary,
 .btn-secondary {
     cursor: pointer;
-    font-size: 22px;
+    font-size: 15px;
+    line-height: 18px;
     font-weight: 700;
 }
 
 .btn-primary {
-    margin-left: auto;
-    margin-right: auto;
-    transform: translateX(30px);
     background: #000000;
     border-color: #000000;
     color: #fff;
-    margin-bottom: 16px;
+    margin-bottom: 5px;
 }
 
 .btn-primary:disabled {
@@ -204,16 +223,13 @@ body {
 }
 
 .btn-secondary {
-    margin-left: auto;
-    margin-right: auto;
-    transform: translateX(30px);
     background: #fff;
-    margin-bottom: 34px;
+    margin-bottom: 6px;
 }
 
 .signup-text {
     margin: 0;
-    font-size: 22px;
+    font-size: 14px;
     font-weight: 500;
     color: #5f6f80;
 }
@@ -225,13 +241,32 @@ body {
 
 .input-wrap input::placeholder {
     color: #6a7a89;
-    font-size: 29px;
+    font-size: 15px;
     transition: color 0.18s ease, font-size 0.18s ease;
 }
 
 .input-wrap.is-focus input::placeholder {
     color: #0a84ff;
-    font-size: 22px;
+    font-size: 12px;
+}
+
+@media (max-width: 720px) {
+    .login-overlay {
+        padding: 0;
+    }
+
+    .login-modal {
+        width: 100vw;
+        max-height: 100vh;
+        min-height: 100vh;
+        border-radius: 0;
+    }
+
+    .login-inner {
+        width: calc(100% - 48px);
+        margin-top: 12px;
+        padding-bottom: 32px;
+    }
 }
 
 

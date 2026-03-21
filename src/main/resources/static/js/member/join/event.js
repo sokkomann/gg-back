@@ -1,4 +1,4 @@
-window.onload = () => {
+
     const show = id => document.getElementById(id).style.display = 'flex';
     const hide = id => document.getElementById(id).style.display = 'none';
     const MODALS = [
@@ -144,4 +144,4 @@ window.onload = () => {
 
     })
 
-};
+

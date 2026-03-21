@@ -55,7 +55,6 @@ public class MemberService {
             memberProfileFileDAO.save(memberProfileFileDTO);
         }
 
-        // 광고 정보, 광고 이미지 등록 후 이미지 저장 경로 return
         return path;
     }
 

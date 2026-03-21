@@ -17,7 +17,7 @@ public class MemberRoleHandler implements TypeHandler<MemberRole> {
     @Override
     public MemberRole getResult(ResultSet rs, int columnIndex) throws SQLException {
         return switch (rs.getString(columnIndex)) {
-            case "member" -> MemberRole.BUSINESS;
+            case "business" -> MemberRole.BUSINESS;
             case "expert" -> MemberRole.EXPERT;
             case "admin" -> MemberRole.ADMIN;
             default -> null;
@@ -27,7 +27,7 @@ public class MemberRoleHandler implements TypeHandler<MemberRole> {
     @Override
     public MemberRole getResult(ResultSet rs, String columnName) throws SQLException {
         return switch (rs.getString(columnName)) {
-            case "member" -> MemberRole.BUSINESS;
+            case "business" -> MemberRole.BUSINESS;
             case "expert" -> MemberRole.EXPERT;
             case "admin" -> MemberRole.ADMIN;
             default -> null;
@@ -37,7 +37,7 @@ public class MemberRoleHandler implements TypeHandler<MemberRole> {
     @Override
     public MemberRole getResult(CallableStatement cs, int columnIndex) throws SQLException {
         return switch (cs.getString(columnIndex)) {
-            case "member" -> MemberRole.BUSINESS;
+            case "business" -> MemberRole.BUSINESS;
             case "expert" -> MemberRole.EXPERT;
             case "admin" -> MemberRole.ADMIN;
             default -> null;

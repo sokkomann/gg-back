@@ -15,25 +15,43 @@ import java.util.List;
 @ToString
 public class CustomUserDetails implements UserDetails {
     private Long id;
-    private String memberName;
     private String memberEmail;
+    private String memberName;
     private String memberPassword;
-    private boolean memberEmailVerified;
+    private String memberNickname;
+    private String memberHandle;
+    private String memberPhone;
+    private String memberBio;
+    private String memberRegion;
     private Status memberStatus;
     private MemberRole memberRole;
-    private String createdDate;
-    private String updatedDate;
+    private boolean pushEnabled;
+    private String websiteUrl;
+    private String birthDate;
+    private String lastLoginAt;
+    private String loginId;
+    private String createdDatetime;
+    private String updatedDatetime;
 
     public CustomUserDetails(MemberDTO memberDTO) {
         this.id = memberDTO.getId();
-        this.memberName = memberDTO.getMemberName();
         this.memberEmail = memberDTO.getMemberEmail();
+        this.memberName = memberDTO.getMemberName();
         this.memberPassword = memberDTO.getMemberPassword();
-//        this.memberEmailVerified = memberDTO.isMemberEmailVerified();
+        this.memberNickname = memberDTO.getMemberNickname();
+        this.memberHandle = memberDTO.getMemberHandle();
+        this.memberPhone = memberDTO.getMemberPhone();
+        this.memberBio = memberDTO.getMemberBio();
+        this.memberRegion = memberDTO.getMemberRegion();
         this.memberStatus = memberDTO.getMemberStatus();
         this.memberRole = memberDTO.getMemberRole();
-        this.createdDate = memberDTO.getCreatedDatetime();
-        this.updatedDate = memberDTO.getUpdatedDatetime();
+        this.pushEnabled = memberDTO.isPushEnabled();
+        this.websiteUrl = memberDTO.getWebsiteUrl();
+        this.birthDate = memberDTO.getBirthDate();
+        this.lastLoginAt = memberDTO.getLastLoginAt();
+        this.loginId = memberDTO.getLoginId();
+        this.createdDatetime = memberDTO.getCreatedDatetime();
+        this.updatedDatetime = memberDTO.getUpdatedDatetime();
     }
 
     @Override
@@ -48,6 +66,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return memberEmail;
+        return loginId;
     }
 }

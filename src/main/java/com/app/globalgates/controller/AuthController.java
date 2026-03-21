@@ -42,7 +42,7 @@ public class AuthController implements AuthControllerDocs {
 
             Authentication authentication =
                     authenticationManager.authenticate(
-                            new UsernamePasswordAuthenticationToken(memberDTO.getMemberEmail(), memberDTO.getMemberPassword()));
+                            new UsernamePasswordAuthenticationToken(memberDTO.getLoginId(), memberDTO.getMemberPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 

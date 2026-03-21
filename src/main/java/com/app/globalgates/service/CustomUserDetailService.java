@@ -17,8 +17,8 @@ public class CustomUserDetailService implements UserDetailsService {
     private final MemberDAO memberDAO;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        MemberDTO memberDTO = memberDAO.findMemberByMemberEmail(username)
+    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
+        MemberDTO memberDTO = memberDAO.findMemberByLoginId(loginId)
                 .orElseThrow(() -> new UsernameNotFoundException("소유자를 찾을 수 없습니다."));
         return new CustomUserDetails(memberDTO);
     }

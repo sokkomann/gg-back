@@ -12,6 +12,8 @@ public interface MemberMapper {
     public void insert(MemberDTO memberDTO);
     //    로그인
     public Optional<MemberDTO> selectMemberForLogin(MemberVO memberVO);
+    //    입력받은 이메일 혹은 핸드폰번호를 조회
+    Optional<MemberDTO> selectMemberByLoginId(String loginId);
     //    이메일로 조회
     public Optional<MemberDTO> selectMemberByMemberEmail(String memberEmail);
 }

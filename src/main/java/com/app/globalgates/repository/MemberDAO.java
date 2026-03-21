@@ -21,6 +21,10 @@ public class MemberDAO {
     public Optional<MemberDTO> findMemberForLogin(MemberVO memberVO){
         return memberMapper.selectMemberForLogin(memberVO);
     }
+    //    이메일 혹은 핸드폰 조회
+    public Optional<MemberDTO> findMemberByLoginId(String loginId){
+        return memberMapper.selectMemberByLoginId(loginId);
+    }
     //    이메일로 조회
     public Optional<MemberDTO> findMemberByMemberEmail(String memberEmail){
         return memberMapper.selectMemberByMemberEmail(memberEmail);

@@ -18,7 +18,7 @@ public class AuthenticationHandler implements AuthenticationEntryPoint {
         if(request.getRequestURI().startsWith("/api/")){
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
         }else{
-            response.sendRedirect("/member/login");
+            response.sendRedirect("/member/join");
         }
     }
 }
