@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>global gates 광고 센터</title>
     <link rel="stylesheet" href="/static/css/Advertisement/Advertisement.css"/>
+    <script src="/static/js/Advertisement/event.js"></script>
+    <script src="/static/js/Advertisement/service.js"></script>
+    <script src="/static/js/Advertisement/layout.js"></script>
+    <script src="https://js.bootpay.co.kr/bootpay-5.0.2.min.js"></script>
 </head>
 <body>
 <!-- Top Navigation -->
@@ -39,8 +43,8 @@
                     >
                         <span class="Button-label">회원 이름</span>
                         <span aria-hidden="true" class="Button-adornment">
-                <span class="Icon Icon--caretDown"></span>
-              </span>
+                            <span class="Icon Icon--caretDown"></span>
+                        </span>
                     </button>
                 </div>
                 <div class="NavigationBar-item NavigationBar-item--user">
@@ -51,18 +55,18 @@
                             data-dropdown-trigger="profile"
                             type="button"
                     >
-              <span class="Button-label">
-                <div class="User User--profileImageOnly">
-                  <img
-                          alt=""
-                          class="User-profileImage"
-                          src="https://pbs.twimg.com/profile_images/2029361845321207808/LltLeaLS_reasonably_small.jpg"
-                  />
-                </div>
-              </span>
+                      <span class="Button-label">
+                        <div class="User User--profileImageOnly">
+                          <img
+                                  alt=""
+                                  class="User-profileImage"
+                                  src="https://pbs.twimg.com/profile_images/2029361845321207808/LltLeaLS_reasonably_small.jpg"
+                          />
+                        </div>
+                      </span>
                         <span aria-hidden="true" class="Button-adornment">
-                <span class="Icon Icon--caretDown"></span>
-              </span>
+                            <span class="Icon Icon--caretDown"></span>
+                        </span>
                     </button>
                 </div>
             </div>
@@ -171,24 +175,24 @@
                                         <label class="MarketplaceAdField">
                                             <span>광고 제목</span>
                                             <input class="MarketplaceAdInput" data-form-field="adTitle"
-                                                   placeholder="예: 친환경 담요 OEM 상담" type="text" value="친환경 담요 OEM 상담"/>
+                                                   placeholder="예: 친환경 담요 OEM 상담" type="text" value=""/>
                                         </label>
                                         <label class="MarketplaceAdField">
                                             <span>헤드라인</span>
                                             <input class="MarketplaceAdInput" data-form-field="headline"
                                                    placeholder="예: 해외 바이어 맞춤 생산 가능" type="text"
-                                                   value="해외 바이어 맞춤 생산 가능"/>
+                                                   value=""/>
                                         </label>
                                         <label class="MarketplaceAdField">
                                             <span>URL</span>
                                             <input class="MarketplaceAdInput" data-form-field="landingUrl"
                                                    placeholder="https://globalgates.com/..." type="url"
-                                                   value="https://globalgates.com/store/yunchan"/>
+                                                   value=""/>
                                         </label>
                                         <label class="MarketplaceAdField">
                                             <span>광고 내용</span>
                                             <textarea class="MarketplaceAdTextarea" data-form-field="adBody"
-                                                      placeholder="광고 내용을 입력하세요.">소량 MOQ부터 대량 생산까지 대응하며 샘플 발송과 맞춤 라벨링이 가능합니다. 해외 바이어 문의에 빠르게 응답합니다.</textarea>
+                                                      placeholder="광고 내용을 입력하세요."></textarea>
                                         </label>
                                         <label class="MarketplaceAdField">
                                             <span>광고 예산</span>
@@ -196,9 +200,9 @@
                                                 <span class="MarketplaceAdInputPrefix">₩</span>
                                                 <input class="MarketplaceAdInput MarketplaceAdInput--withPrefix"
                                                        data-form-field="budget" inputmode="numeric"
-                                                       placeholder="예: 300000" type="text" value="300000"/>
+                                                       placeholder="예: 300000" type="text" value=""/>
                                             </div>
-                                            <span class="MarketplaceAdFieldHint" data-summary-field="impressionHelper">예상 노출 1,500회</span>
+                                            <span class="MarketplaceAdFieldHint" data-summary-field="impressionHelper"></span>
                                         </label>
                                         <div class="MarketplaceAdField">
                                             <span>첨부파일</span>
@@ -286,10 +290,11 @@
                                             </div>
                                             <div class="AdCreativePreviewCard">
                                                 <div class="AdCreativePreviewHeader">
+                                                    <!-- 받아온 유저 프로필 이미지 출력 -->
                                                     <img
-                                                            alt="김윤찬 프로필"
+                                                            alt="유저 프로필"
                                                             class="AdCreativePreviewAvatar"
-                                                            src="https://pbs.twimg.com/profile_images/2029361845321207808/LltLeaLS_normal.jpg"
+                                                            src=""
                                                     />
                                                     <div class="AdCreativePreviewMeta">
                                                         <div class="AdCreativePreviewNameRow">
@@ -420,7 +425,6 @@
                                             data-created-at="2026-03-12 14:00"
                                             data-headline="해외 바이어 맞춤 생산 가능"
                                             data-link="https://globalgates.com/store/yunchan"
-                                            data-payment="부트페이 결제 완료"
                                             data-receipt-id="-"
                                             data-status="active"
                                             data-status-label="게시중"
@@ -450,7 +454,6 @@
                                             data-created-at="2026-03-05 10:20"
                                             data-headline="프리미엄 친환경 담요 수출 파트너 모집"
                                             data-link="https://globalgates.com/store/greenfabric"
-                                            data-payment="부트페이 카드 결제"
                                             data-receipt-id="GG-20260305-2201"
                                             data-status="active"
                                             data-status-label="게시중"
@@ -677,8 +680,5 @@
 
     </div>
 </div>
-
-<script src="/static/js/Advertisement/event.js"></script>
-<script src="https://js.bootpay.co.kr/bootpay-5.0.2.min.js"></script>
 </body>
 </html>

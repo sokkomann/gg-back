@@ -55,14 +55,14 @@ public class PostMapperTests {
 
     @Test
     public void testSelectById() {
-        Optional<PostDTO> foundPost = postMapper.selectById(4L, 1L);
+        Optional<PostDTO> foundPost = postMapper.selectById(4L);
         log.info("게시글 단일로 조회하기: {}", foundPost);
     }
 
     @Test
     public void testSelectAll() {
         Criteria criteria = new Criteria(1, postMapper.selectTotal());
-        List<PostDTO> posts = postMapper.selectAll(criteria, 1L);
+        List<PostDTO> posts = postMapper.selectAll(criteria);
         log.info("게시글 목록: {}", posts);
     }
 

@@ -178,6 +178,7 @@ create type post_status as enum (
 'inactive'      -- 삭제됨
 );
 
+-- 게시글 (게시물 + 댓글 대댓글 : reply_post_id)
 create table tbl_post (
 id             bigint          generated always as identity primary key,  -- pk | 게시글 고유 id (자동 증가)
 member_id      bigint          not null,  -- fk → tbl_member.id | 게시글 작성자
@@ -195,7 +196,9 @@ references tbl_post(id)
 );
 
 
--- [13] tbl_post_product  ─ 댓글 / 대댓글 (자기참조)
+-- [13] tbl_post_product -- 게시물 (상품)
+alter table tbl_post_product
+add column product_category_id bigint not null;
 create table tbl_post_product (
 id         bigint    primary key,                -- pk | 댓글 고유 id (자동 증가)
 product_price int   not null,
@@ -491,6 +494,20 @@ create type payment_status as enum (
 'failed'        -- 결제 실패
 );
 
+-- 결제 내역 광고
+create table tbl_payment_advertisement (
+id              bigint         generated always as identity primary key,  -- pk | 결제 고유 id (자동 증가)
+ad_id bigint         not null,
+member_id       bigint         not null,
+amount          numeric(15, 2) not null,                                            -- 결제 금액
+payment_status  payment_status not null default 'pending',                          -- 결제 처리 상태 (enum)
+payment_method  varchar(255),                                                       -- 결제 수단 (라이트 페이)
+receipt_id      varchar(255),                                                       -- pg사 발급 결제 영수증 id
+paid_at         timestamp,                                                          -- 결제 완료 처리 일시
+created_datetime      timestamp      not null default now()
+);
+
+-- 결제 내역 구독
 create table tbl_payment_subscribe (
 id              bigint         generated always as identity primary key,  -- pk | 결제 고유 id (자동 증가)
 subscription_id bigint         not null,  -- fk → tbl_subscription.id | 결제 대상 구독 플랜

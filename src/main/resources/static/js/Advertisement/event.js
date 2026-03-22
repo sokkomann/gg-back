@@ -1,5 +1,24 @@
 window.onload = () => {
-    "use strict";
+    // 화면 로딩되면 가장 먼저 유저 정보 조회하기.
+
+    // 로그인한 유저의 정보를 광고 페이지에 반영
+    // (member) => {
+    //     // 헤더 유저 이름
+    //     document.querySelector('.AccountTriggerButton .Button-label')
+    //         .textContent = member.name;
+    //     // 헤더 프로필 이미지
+    //     document.querySelector('.User-profileImage')
+    //         .src = member.profileImageUrl;
+    //     // 미리보기 아바타 이미지
+    //     document.querySelector('.AdCreativePreviewAvatar')
+    //         .src = member.profileImageUrl;
+    //     // 미리보기 유저 이름
+    //     document.querySelector('.AdCreativePreviewNameRow strong')
+    //         .textContent = member.name;
+    //     // 미리보기 핸들 (@아이디)
+    //     document.querySelector('.AdCreativePreviewHandle')
+    //         .textContent = `@${member.handle}`;
+    // };
 
     // 자주 쓰는 단일/복수 DOM 조회를 짧은 헬퍼로 묶는다.
     const $ = (selector, scope = document) => scope.querySelector(selector);
@@ -28,6 +47,39 @@ window.onload = () => {
                 "선택한 광고의 본문과 결제 접수 정보를 확인할 수 있습니다.",
         },
     };
+
+    // ################# 무한 스크롤 #################
+    let criteria = {hasMore: true}
+
+    // 무한 스크롤 이벤트
+    let page = 1;
+    let checkScroll = true;
+
+    window.addEventListener("scroll", async (e) => {
+        if(!checkScroll || !criteria.hasMore) {
+            return;
+        }
+        // 현재 스크롤 위치
+        const scrollCurrentPosition = window.scrollY;
+        // 화면 높이
+        const windowHeight = window.innerHeight;
+        // 문서 높이
+        const documentHeight = document.documentElement.scrollHeight;
+
+        // 바닥에 닿았을 때 store 요청
+        if(scrollCurrentPosition + windowHeight >= documentHeight - 1) {
+            console.log("바닥!");
+            checkScroll = false;
+            criteria = await advertisementService.list(++page,
+                {},
+                advertisementLayout.showAdList);
+        }
+
+        setTimeout(() => {
+            checkScroll = true;
+        }, 1000);
+    });
+
 
     // 화면 전환, 모달, 드롭다운, 선택 광고, 첨부파일 상태를 한곳에서 관리한다.
     const state = {
@@ -754,16 +806,11 @@ window.onload = () => {
 
     // 결제 버튼 진입점으로, 예산 검증부터 Bootpay 연동/데모 폴백까지 모두 담당한다.
     async function submitPayment() {
-        // 결제 요청 직전의 폼 스냅샷이다.
         const formState = getFormState();
-        // 실제 PG 결제 금액으로 넘길 숫자 예산 값이다.
         const budgetAmount = parseNumber(formState.budget);
-        // 데모 모드와 완료 처리에서 공통으로 쓰는 내부 접수 번호다.
         const receiptId = `GG-${Date.now()}`;
-        // 결제 상태 문구를 보여 주는 모달 내 텍스트 노드다.
         const paymentStatus = $("[data-payment-status]");
 
-        // 금액이 없으면 결제창을 띄우지 않고 즉시 입력 유도 메시지를 보여 준다.
         if (budgetAmount <= 0) {
             setText(paymentStatus, "광고 예산을 입력한 뒤 결제를 진행해 주세요.");
             showToast("광고 예산을 입력해 주세요.");
@@ -772,9 +819,18 @@ window.onload = () => {
 
         setText(paymentStatus, "결제창을 준비 중입니다...");
 
-        // 로컬/테스트 환경에서 SDK가 없을 때도 신청 흐름을 확인할 수 있게 데모로 처리한다.
+        // 데모 모드
         if (typeof Bootpay === "undefined") {
             updateDraftRowFromForm("데모 접수 완료", receiptId);
+
+            // 데모 모드도 서버에 광고 등록
+            await registerAd(formState, state.attachments, {
+                price:        budgetAmount,
+                method:       "데모",
+                receipt_id:   receiptId,
+                purchased_at: new Date().toISOString(),
+            }, state.member.id);
+
             setText(paymentStatus, "부트페이 SDK가 없어 데모 접수로 반영했습니다.");
             closeModal();
             state.selectedAdId = "draft-slot";
@@ -784,8 +840,6 @@ window.onload = () => {
         }
 
         try {
-            // 실제 결제창에 넘길 주문 메타데이터를 여기서 조합한다.
-            // 실제 결제창 호출 결과를 담는 응답 객체다.
             const response = await Bootpay.requestPayment({
                 application_id: "697868f4fc55d934885c2420",
                 price: budgetAmount,
@@ -814,21 +868,25 @@ window.onload = () => {
                 },
             });
 
-            // confirm 이벤트를 주는 PG는 한 번 더 승인 API를 호출해 최종 완료를 확정한다.
             if (response?.event === "confirm") {
-                // confirm 후 최종 승인 결과를 담는 응답 객체다.
                 const confirmed = await Bootpay.confirm();
                 if (confirmed?.event === "done") {
                     updateDraftRowFromForm(
                         "부트페이 결제 완료",
                         confirmed.receipt_id || receiptId,
                     );
+
+                    // confirmed 응답을 그대로 넘김 (기존엔 데모 객체를 잘못 넘기고 있었음)
+                    await advertisementService.write(formState, state.attachments, confirmed, state.member.id);
                 }
             } else {
                 updateDraftRowFromForm(
                     "부트페이 결제 완료",
                     response?.receipt_id || receiptId,
                 );
+
+                // confirm 없이 done으로 오는 PG 응답도 등록 처리
+                await advertisementService.write(formState, state.attachments, response, state.member.id);
             }
 
             setText(paymentStatus, "결제가 완료되어 광고가 접수되었습니다.");
@@ -837,8 +895,6 @@ window.onload = () => {
             setView("detail");
             showToast("광고 신청이 접수되었습니다.");
         } catch (error) {
-            // 사용자 취소와 일반 오류를 구분해 안내 문구를 다르게 보여 준다.
-            // 사용자에게 보여 줄 최종 실패 메시지다.
             const message =
                 error?.event === "cancel"
                     ? "결제가 취소되었습니다."
@@ -849,7 +905,7 @@ window.onload = () => {
     }
 
     // 클릭 이벤트는 이벤트 위임으로 한 곳에서 처리해 동적 요소도 별도 바인딩 없이 대응한다.
-    document.addEventListener("click", (event) => {
+    document.addEventListener("click", async (event) => {
         // 클릭된 요소가 드롭다운 트리거인지 먼저 확인한다.
         const dropdownTrigger = event.target.closest("[data-dropdown-trigger]");
         if (dropdownTrigger) {
@@ -866,7 +922,16 @@ window.onload = () => {
         // 클릭 요소가 화면 전환 버튼이면 대상 view 이름을 읽는다.
         const viewButton = event.target.closest("[data-view-target]");
         if (viewButton) {
-            setView(viewButton.dataset.viewTarget);
+            const target = viewButton.dataset.viewTarget
+            setView(target);
+
+            // 목록 nav를 누르면 광고 조회하기
+            if (target === "list") {
+                page = 1;
+                criteria.hasMore = true;
+                await advertisementService.list(page, advertisementLayout.showAdList);
+            }
+            
             return;
         }
 
@@ -932,7 +997,7 @@ window.onload = () => {
     });
 
     // 실시간 입력은 폼 요약/예산 포맷/목록 검색에 즉시 반영한다.
-    document.addEventListener("input", (event) => {
+    document.addEventListener("input", async (event) => {
         if (event.target.matches("[data-form-field]")) {
             // 예산 필드는 입력 중에도 숫자만 남기고 천 단위 콤마를 유지한다.
             if (event.target.dataset.formField === "budget") {
@@ -947,7 +1012,12 @@ window.onload = () => {
         }
 
         if (event.target.matches("[data-list-search]")) {
-            syncListFilters();
+            // input 값
+            const query = root.listSearch?.value.trim().toLowerCase() || "";
+
+            page = 1;
+            criteria.hasMore = true;
+            await advertisementService.list(page, {memberId: member.id, keyword: query}, advertisementLayout.showAdList);
         }
     });
 
@@ -955,7 +1025,10 @@ window.onload = () => {
     document.addEventListener("change", async (event) => {
         if (event.target.matches("[data-list-status-filter]")) {
             state.listStatusFilter = event.target.value || "all";
-            syncListFilters();
+
+            page = 1;
+            criteria.hasMore = true;
+            await advertisementService.list(page, {memberId: member.id, keyword: query, filter: state.listStatusFilter}, advertisementLayout.showAdList);
             return;
         }
 

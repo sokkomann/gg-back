@@ -42,13 +42,14 @@ public class AdvertisementAPIController implements AdvertisementAPIControllerDoc
 //    광고 검색
     @GetMapping("list/{page}")
     @LogStatus
-    public ResponseEntity<?> list(int page, AdSearch search) {
+    public ResponseEntity<?> list(@PathVariable int page, AdSearch search) {
         AdWithPagingDTO adList = advertisementService.list(page, search);
 
         return ResponseEntity.ok(adList);
     }
 
     @GetMapping("detail")
+    @LogStatus
     public ResponseEntity<?> detail(Long id) {
         AdvertisementDTO adDTO = advertisementService.getAdvertisementDetail(id);
 
