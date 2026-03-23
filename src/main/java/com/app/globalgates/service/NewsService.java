@@ -1,5 +1,6 @@
 package com.app.globalgates.service;
 
+import com.app.globalgates.aop.annotation.LogStatusWithReturn;
 import com.app.globalgates.dto.NewsDTO;
 import com.app.globalgates.repository.NewsDAO;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +22,11 @@ public class NewsService {
     //    뉴스 단건 조회
     public Optional<NewsDTO> getNews(Long id) {
         return newsDAO.findById(id);
+    }
+
+//    메인 사이드바용 최신 뉴스 2개 조회
+    @LogStatusWithReturn
+    public List<NewsDTO> getLatestNewsInMain() {
+        return newsDAO.findLatestInMain();
     }
 }
