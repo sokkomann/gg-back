@@ -23,6 +23,10 @@ public class PostProductDTO {
     private String createdDatetime;
     private String updatedDatetime;
 
+    // tbl_member JOIN 정보
+    private String memberNickname;
+    private String memberHandle;
+
     // tbl_post JOIN 정보
     private String postTitle;
     private String postContent;

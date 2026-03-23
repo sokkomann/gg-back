@@ -44,7 +44,7 @@ public class PostAPIController {
     }
 
     //    게시글 수정 (모달로 수정함)
-    @PostMapping("/{id}")
+    @PostMapping("update/{id}")
     public void update(PostDTO postDTO,
                        @RequestParam(value = "files", required = false) List<MultipartFile> files) {
         if (files == null) {
@@ -54,7 +54,7 @@ public class PostAPIController {
     }
 
     //    게시글 삭제 - 상태만 변경
-    @PostMapping("/{id}")
+    @PostMapping("delete/{id}")
     public void delete(@PathVariable Long id) {
         postService.delete(id);
     }

@@ -27,10 +27,13 @@
                pp.product_category_id,
                pp.created_datetime,
                pp.updated_datetime,
+               m.member_nickname,
+               m.member_handle,
                p.title as post_title,
                p.content as post_content
         from tbl_post_product pp
         join tbl_post p on pp.id = p.id
+        join tbl_member m on p.member_id = m.id
         where p.post_status = 'active'
         order by created_datetime desc
         limit #{criteria.count} offset #{criteria.offset}

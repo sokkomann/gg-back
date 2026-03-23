@@ -7,6 +7,7 @@ import com.app.globalgates.dto.RankedSearchHistoryDTO;
 import com.app.globalgates.service.NewsService;
 import com.app.globalgates.service.PostProductService;
 import com.app.globalgates.service.SearchService;
+import com.app.globalgates.util.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -30,33 +31,24 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
     @GetMapping("products/{page}")
     public ResponseEntity<?> getRecommends(@PathVariable int page) {
         PostProductWithPagingDTO posts = postProductService.getRecommendProducts(page);
-        if(!posts.getPosts().isEmpty()) {
-            return ResponseEntity.ok(posts);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(posts);
     }
 
 //    뉴스 목록 조회
     @GetMapping("news")
     public ResponseEntity<?> getNews() {
-        List<NewsDTO> news = newsService.getNewsList();
-        if(!news.isEmpty()) {
-            return ResponseEntity.ok(news);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        List<NewsDTO> newsList = newsService.getNewsList();
+        newsList.forEach(news -> {
+            news.setCreatedDatetime(DateUtils.toRelativeTime(news.getCreatedDatetime()));
+        });
+        return ResponseEntity.ok(newsList);
     }
 
 //    실시간 검색어 순위 조회 (10위 까지만)
     @GetMapping("trends")
     public ResponseEntity<?> getTrends() {
         List<RankedSearchHistoryDTO> trends = searchService.getTop10Histories();
-        if(!trends.isEmpty()) {
-            return ResponseEntity.ok(trends);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(trends);
     }
 
 }
