@@ -170,7 +170,12 @@ references tbl_category(id)
 -- constraint fk_member_category_rel_category foreign key(category_id)
 -- references tbl_category(id)
 -- );
-
+alter table tbl_member add member_language varchar(255);
+alter table tbl_member drop website_url;
+alter table tbl_member
+    alter column member_email drop not null;
+ALTER TABLE tbl_member
+    ADD CONSTRAINT member_email_unique UNIQUE (member_email);
 
 
 -- [12] tbl_post  ─ 게시글 (피드 / 상품 / 견적 등 통합)
@@ -180,6 +185,9 @@ create type post_status as enum (
 'inactive'      -- 삭제됨
 );
 
+
+alter table tbl_post
+    alter column title drop not null;
 -- 게시글 (게시물 + 댓글 대댓글 : reply_post_id)
 create table tbl_post (
 id             bigint          generated always as identity primary key,  -- pk | 게시글 고유 id (자동 증가)
@@ -198,13 +206,13 @@ references tbl_post(id)
 );
 
 create table tbl_reply_product_rel (
-id              bigint generated always as identity primary key,
-reply_post_id   bigint not null,
-product_post_id bigint not null,
-constraint fk_reply_product_reply foreign key(reply_post_id)
-references tbl_post(id),
-constraint fk_reply_product_product foreign key(product_post_id)
-references tbl_post(id)
+   id              bigint generated always as identity primary key,
+   reply_post_id   bigint not null,
+   product_post_id bigint not null,
+   constraint fk_reply_product_reply foreign key(reply_post_id)
+       references tbl_post(id),
+   constraint fk_reply_product_product foreign key(product_post_id)
+       references tbl_post(id)
 );
 
 select * from tbl_post_product;
@@ -523,6 +531,7 @@ references tbl_advertisement(id),
 constraint fk_payment_advertisement_member foreign key(member_id)
 references tbl_member(id)
 );
+
 
 -- 결제 내역 구독
 create table tbl_payment_subscribe (
