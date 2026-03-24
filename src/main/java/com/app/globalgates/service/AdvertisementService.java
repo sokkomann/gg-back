@@ -160,7 +160,8 @@ public class AdvertisementService {
                 .map(adDTO -> {
                     List<FileAdvertisementDTO> images = fileAdvertisementDAO.findByAdId(adDTO.getId());
                     if (!images.isEmpty()) {
-                        adDTO.setAdImageList(
+                        adDTO.setAdImageList(images);
+                        adDTO.setImgUrls(
                                 images.stream()
                                         .map(FileAdvertisementDTO::getFilePath)
                                         .collect(Collectors.toList())
