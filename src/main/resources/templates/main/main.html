@@ -4,10 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>홈 / G</title>
-    <link rel="stylesheet" href="/static/css/main/main.css">
+    <link rel="stylesheet" href="/css/main/main.css">
+    <script th:inline="javascript">
+        const loginMember = {
+            id: [[${member.id}]],
+            memberNickname: [[${member.memberNickname}]],
+            memberHandle: [[${member.memberHandle}]],
+            memberName: [[${member.memberName}]],
+            fileName: [[${member.fileName}]]
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.0.3/dist/index.min.js"></script>
+    <script src="/js/main/event.js"></script>
+    <script src="/js/main/service.js"></script>
+    <script src="/js/main/layout.js"></script>
 </head>
 <body>
-<script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.0.3/dist/index.min.js"></script>
 <div class="pageLayout">
     <!-- 좌측 글로벌 내비게이션: 홈에서 가장 자주 쓰는 이동 링크와 빠른 작성 진입점, 계정 메뉴가 모여 있다. -->
     <aside class="sidebar-left" id="navigationSidebar">
@@ -71,10 +83,10 @@
             <button class="post-btn" id="createPostButton">게시하기</button>
             <div class="accountMenuWrap" id="accountMenuWrap">
                 <div class="profile-card" id="accountCard">
-                    <div class="profile-avatar" id="accountAvatar">K</div>
+                    <div class="profile-avatar" id="accountAvatar" th:text="${member.memberNickname != null ? member.memberNickname.substring(0,1) : '?'}">K</div>
                     <div class="profile-info">
-                        <span class="profile-name" id="accountName">김윤찬</span>
-                        <span class="profile-handle" id="accountHandle">@CodeKim1218</span>
+                        <span class="profile-name" id="accountName" th:text="${member.memberNickname ?: member.memberName ?: ''}"></span>
+                        <span class="profile-handle" id="accountHandle" th:text="${member.memberHandle ?: ''}"></span>
                     </div>
                     <button class="profile-more">···</button>
                 </div>
@@ -89,472 +101,10 @@
         </nav>
         <!-- 메인 피드 영역: 게시글 카드와 카드별 액션 메뉴, 공유/더보기 드롭다운이 모두 이 리스트를 기준으로 작동한다. -->
         <section class="feedSection isActive" id="feedSection">
-            <div class="postCard" id="101">
-                <div class="postAvatar">T</div>
-                <div class="postBody">
-                    <header class="postHeader">
-                        <div class="postIdentity">
-                            <strong class="postName">TradeHub Official</strong>
-                            <span class="postHandle">@TradeHub_KR</span>
-                            <span class="postTime">2시간</span>
-                        </div>
-                        <button class="postMoreButton">
-                            <svg class="postMoreIcon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></g></svg>
-                        </button>
-                        <div class="post-more-menu off">
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM6 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4zm13 4v3h2v-3h3V8h-3V5h-2v3h-3v2h3zM3.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C13.318 13.65 11.838 13 10 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C5.627 11.85 7.648 11 10 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H1.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46z"></path></g></svg>
-                                <span>@TradeHub_KR 님 팔로우하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 3.75c-4.55 0-8.25 3.69-8.25 8.25 0 1.92.66 3.68 1.75 5.08L17.09 5.5C15.68 4.4 13.92 3.75 12 3.75zm6.5 3.17L6.92 18.5c1.4 1.1 3.16 1.75 5.08 1.75 4.56 0 8.25-3.69 8.25-8.25 0-1.92-.65-3.68-1.75-5.08zM1.75 12C1.75 6.34 6.34 1.75 12 1.75S22.25 6.34 22.25 12 17.66 22.25 12 22.25 1.75 17.66 1.75 12z"></path></g></svg>
-                                <span>@TradeHub_KR 님 차단하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 2h18.61l-3.5 7 3.5 7H5v6H3V2zm2 12h13.38l-2.5-5 2.5-5H5v10z"></path></g></svg>
-                                <span>게시물 신고하기</span>
-                            </button>
-                        </div>
-                    </header>
-                    <p class="postText">2026년 무역 흐름 요약과 함께 이번 주 글로벌 관세 변동 사항을 정리했습니다.</p>
-                    <div class="postMedia">
-                        <img class="postMediaImage" src="../../static/images/main/KakaoTalk_20260310_145435590.jpg">
-                    </div>
-                    <footer class="postMetrics">
-                        <div class="tweet-action-bar">
-                            <button class="tweet-action-btn">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></g></svg>
-                                <span class="tweet-action-count">24</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--like">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></g></svg>
-                                <span class="tweet-action-count">187</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--views">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path></g></svg>
-                                <span class="tweet-action-count">32</span>
-                            </button>
-                            <div class="tweet-action-right">
-                                <button class="tweet-action-btn tweet-action-btn--bookmark">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"></path></g></svg>
-                                </button>
-                                <button class="tweet-action-btn tweet-action-btn--share">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"></path></g></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </footer>
-                </div>
-            </div>
-            <div class="postCard">
-                <div class="postAvatar postAvatar--image">
-                    <img class="postAvatarImage" src="../../static/images/main/ad.png">
-                </div>
-                <div class="postBody">
-                    <header class="postHeader">
-                        <div class="postIdentity">
-                            <strong class="postName">홍성호</strong>
-                            <span class="postHandle">@codingTest0120</span>
-                            <span class="postTime">지금</span>
-                        </div>
-                        <button class="postMoreButton">
-                            <svg class="postMoreIcon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></g></svg>
-                        </button>
-                        <div class="post-more-menu off">
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM6 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4zm13 4v3h2v-3h3V8h-3V5h-2v3h-3v2h3zM3.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C13.318 13.65 11.838 13 10 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C5.627 11.85 7.648 11 10 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H1.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46z"></path></g></svg>
-                                <span>@codingTest0120 님 팔로우하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 3.75c-4.55 0-8.25 3.69-8.25 8.25 0 1.92.66 3.68 1.75 5.08L17.09 5.5C15.68 4.4 13.92 3.75 12 3.75zm6.5 3.17L6.92 18.5c1.4 1.1 3.16 1.75 5.08 1.75 4.56 0 8.25-3.69 8.25-8.25 0-1.92-.65-3.68-1.75-5.08zM1.75 12C1.75 6.34 6.34 1.75 12 1.75S22.25 6.34 22.25 12 17.66 22.25 12 22.25 1.75 17.66 1.75 12z"></path></g></svg>
-                                <span>@codingTest0120 님 차단하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 2h18.61l-3.5 7 3.5 7H5v6H3V2zm2 12h13.38l-2.5-5 2.5-5H5v10z"></path></g></svg>
-                                <span>게시물 신고하기</span>
-                            </button>
-                        </div>
-                    </header>
-                    <p class="postText">요즘 글로벌 공급망 흐름이 꽤 빠르게 바뀌고 있는 것 같습니다. 특히 동남아와 인도 쪽 제조 허브가 확대되면서 기존 중국 중심 물류 구조가 조금씩 분산되는 느낌이에요. 수출입 데이터를 보면 해상 물동량 패턴도 미묘하게 변하고 있는데, 환율과 운임, 통관 리드타임까지 같이 보지 않으면 체감이 안 되는 구간이 많습니다. 현업에서는 생산기지 이전 이슈와 항만 적체, 재고 전략 변화가 동시에 엮여서 판단이 더 어려워진 것 같네요.</p>
-                    <div class="postMediaGrid postMediaGrid--2">
-                        <img class="postMediaImage" src="../../static/images/main/ad.png" >
-                        <img class="postMediaImage" src="../../static/images/main/ad.png" >
-                    </div>
-                    <footer class="postMetrics">
-                        <div class="tweet-action-bar">
-                            <button class="tweet-action-btn">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></g></svg>
-                                <span class="tweet-action-count">12</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--like">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></g></svg>
-                                <span class="tweet-action-count">208</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--views">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path></g></svg>
-                                <span class="tweet-action-count">18만</span>
-                            </button>
-                            <div class="tweet-action-right">
-                                <button class="tweet-action-btn tweet-action-btn--bookmark">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"></path></g></svg>
-                                </button>
-                                <button class="tweet-action-btn tweet-action-btn--share">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"></path></g></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </footer>
-                </div>
-            </div>
-            <div class="postCard">
-                <div class="postAvatar postAvatar--image">
-                    <img class="postAvatarImage" src="../../static/images/main/lown1.jpg" >
-                </div>
-                <div class="postBody">
-                    <header class="postHeader">
-                        <div class="postIdentity">
-                            <strong class="postName">로운이의 일상</strong>
-                            <span class="postHandle">@lown_222</span>
-                            <span class="postTime">3시간</span>
-                        </div>
-                        <button class="postMoreButton">
-                            <svg class="postMoreIcon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></g></svg>
-                        </button>
-                        <div class="post-more-menu off">
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM6 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4zm13 4v3h2v-3h3V8h-3V5h-2v3h-3v2h3zM3.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C13.318 13.65 11.838 13 10 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C5.627 11.85 7.648 11 10 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H1.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46z"></path></g></svg>
-                                <span>@lown_222 님 팔로우하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 3.75c-4.55 0-8.25 3.69-8.25 8.25 0 1.92.66 3.68 1.75 5.08L17.09 5.5C15.68 4.4 13.92 3.75 12 3.75zm6.5 3.17L6.92 18.5c1.4 1.1 3.16 1.75 5.08 1.75 4.56 0 8.25-3.69 8.25-8.25 0-1.92-.65-3.68-1.75-5.08zM1.75 12C1.75 6.34 6.34 1.75 12 1.75S22.25 6.34 22.25 12 17.66 22.25 12 22.25 1.75 17.66 1.75 12z"></path></g></svg>
-                                <span>@lown_222 님 차단하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 2h18.61l-3.5 7 3.5 7H5v6H3V2zm2 12h13.38l-2.5-5 2.5-5H5v10z"></path></g></svg>
-                                <span>게시물 신고하기</span>
-                            </button>
-                        </div>
-                    </header>
-                    <p class="postText">이번 주 로운이 귀여움 최종결산~~</p>
-                    <div class="postMediaGrid postMediaGrid--3">
-                        <img class="postMediaImage" src="../../static/images/main/KakaoTalk_20260310_145435590.jpg" >
-                        <img class="postMediaImage" src="../../static/images/main/KakaoTalk_20260310_145435590_01.jpg" >
-                        <img class="postMediaImage" src="../../static/images/main/KakaoTalk_20260310_145435590_02.jpg" >
-                    </div>
-                    <footer class="postMetrics">
-                        <div class="tweet-action-bar">
-                            <button class="tweet-action-btn">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></g></svg>
-                                <span class="tweet-action-count">21</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--like">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></g></svg>
-                                <span class="tweet-action-count">531</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--views">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path></g></svg>
-                                <span class="tweet-action-count">77만</span>
-                            </button>
-                            <div class="tweet-action-right">
-                                <button class="tweet-action-btn tweet-action-btn--bookmark">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"></path></g></svg>
-                                </button>
-                                <button class="tweet-action-btn tweet-action-btn--share">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"></path></g></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </footer>
-                </div>
-            </div>
-            <div class="postCard">
-                <div class="postAvatar postAvatar--image">
-                    <img class="postAvatarImage" src="../../static/images/main/ad.png">
-                </div>
-                <div class="postBody">
-                    <header class="postHeader">
-                        <div class="postIdentity">
-                            <strong class="postName">트레이드러버</strong>
-                            <span class="postHandle">@trade_lover</span>
-                            <span class="postTime">3시간</span>
-                        </div>
-                        <button class="postMoreButton">
-                            <svg class="postMoreIcon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></g></svg>
-                        </button>
-                        <div class="post-more-menu off">
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM6 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4zm13 4v3h2v-3h3V8h-3V5h-2v3h-3v2h3zM3.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C13.318 13.65 11.838 13 10 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C5.627 11.85 7.648 11 10 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H1.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46z"></path></g></svg>
-                                <span>@trade_lover 님 팔로우하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 3.75c-4.55 0-8.25 3.69-8.25 8.25 0 1.92.66 3.68 1.75 5.08L17.09 5.5C15.68 4.4 13.92 3.75 12 3.75zm6.5 3.17L6.92 18.5c1.4 1.1 3.16 1.75 5.08 1.75 4.56 0 8.25-3.69 8.25-8.25 0-1.92-.65-3.68-1.75-5.08zM1.75 12C1.75 6.34 6.34 1.75 12 1.75S22.25 6.34 22.25 12 17.66 22.25 12 22.25 1.75 17.66 1.75 12z"></path></g></svg>
-                                <span>@trade_lover 님 차단하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 2h18.61l-3.5 7 3.5 7H5v6H3V2zm2 12h13.38l-2.5-5 2.5-5H5v10z"></path></g></svg>
-                                <span>게시물 신고하기</span>
-                            </button>
-                        </div>
-                    </header>
-                    <p class="postText">정리해 둔 자료가 많아서 슬라이드 캡처를 한 번에 올려봅니다. 4장 이상 넘어가면 오히려 집중이 분산돼서 개인적으로는 이 정도 배열이 보기 가장 편하더라고요.</p>
-                    <div class="postMediaGrid postMediaGrid--4">
-                        <img class="postMediaImage" src="../../static/images/main/ad.png">
-                        <img class="postMediaImage" src="../../static/images/main/ad.png">
-                        <img class="postMediaImage" src="../../static/images/main/ad.png">
-                        <img class="postMediaImage" src="../../static/images/main/ad.png">
-                    </div>
-                    <footer class="postMetrics">
-                        <div class="tweet-action-bar">
-                            <button class="tweet-action-btn">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></g></svg>
-                                <span class="tweet-action-count">34</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--like">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></g></svg>
-                                <span class="tweet-action-count">912</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--views">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path></g></svg>
-                                <span class="tweet-action-count">132만</span>
-                            </button>
-                            <div class="tweet-action-right">
-                                <button class="tweet-action-btn tweet-action-btn--bookmark">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"></path></g></svg>
-                                </button>
-                                <button class="tweet-action-btn tweet-action-btn--share">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"></path></g></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </footer>
-                </div>
-            </div>
-            <article class="postCard">
-                <div class="postAvatar postAvatar--image">
-                    <img class="postAvatarImage" src="../../static/images/main/ad.png">
-                </div>
-                <div class="postBody">
-                    <header class="postHeader">
-                        <div class="postIdentity">
-                            <strong class="postName">CodeKim</strong>
-                            <span class="postHandle">@CodeKim1218</span>
-                            <span class="postTime">광고</span>
-                        </div>
-                        <button class="postMoreButton">
-                            <svg class="postMoreIcon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></g></svg>
-                        </button>
-                        <div class="post-more-menu off">
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 3.75c-4.55 0-8.25 3.69-8.25 8.25 0 1.92.66 3.68 1.75 5.08L17.09 5.5C15.68 4.4 13.92 3.75 12 3.75zm6.5 3.17L6.92 18.5c1.4 1.1 3.16 1.75 5.08 1.75 4.56 0 8.25-3.69 8.25-8.25 0-1.92-.65-3.68-1.75-5.08zM1.75 12C1.75 6.34 6.34 1.75 12 1.75S22.25 6.34 22.25 12 17.66 22.25 12 22.25 1.75 17.66 1.75 12z"></path></g></svg>
-                                <span>@CodeKim1218 님 차단하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 2h18.61l-3.5 7 3.5 7H5v6H3V2zm2 12h13.38l-2.5-5 2.5-5H5v10z"></path></g></svg>
-                                <span>광고 신고하기</span>
-                            </button>
-                        </div>
-                    </header>
-                    <p class="postText">요약 리포트 대신 실제로 확인한 영상 하나 올려둡니다. 최근 글로벌 원자재 흐름과 제조업 수요 반응을 같이 보면 생각보다 연결되는 포인트가 많더군요.</p>
-                    <div class="postMedia postMedia--ad">
-                        <video autoplay muted loop playsinline controls class="postMediaVideo">
-                            <source src="../../static/video/Video-Project-2.mp4" type="video/mp4">
-                        </video>
-                    </div>
-                    <footer class="postMetrics">
-                        <div class="tweet-action-bar">
-                            <button class="tweet-action-btn">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></g></svg>
-                                <span class="tweet-action-count">5</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--like">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></g></svg>
-                                <span class="tweet-action-count">644</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--views">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path></g></svg>
-                                <span class="tweet-action-count">524만</span>
-                            </button>
-                            <div class="tweet-action-right">
-                                <button class="tweet-action-btn tweet-action-btn--bookmark">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"></path></g></svg>
-                                </button>
-                                <button class="tweet-action-btn tweet-action-btn--share">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"></path></g></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </footer>
-                </div>
-            </article>
-            <div class="postCard" id="102">
-                <div class="postAvatar">무</div>
-                <div class="postBody">
-                    <header class="postHeader">
-                        <div class="postIdentity">
-                            <strong class="postName">무역 뉴스</strong>
-                            <span class="postHandle">@TradeNewsKR</span>
-                            <span class="postTime">5시간</span>
-                        </div>
-                        <button class="postMoreButton">
-                            <svg class="postMoreIcon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></g></svg>
-                        </button>
-                        <div class="post-more-menu off">
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM6 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4zm13 4v3h2v-3h3V8h-3V5h-2v3h-3v2h3zM3.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C13.318 13.65 11.838 13 10 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C5.627 11.85 7.648 11 10 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H1.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46z"></path></g></svg>
-                                <span>@TradeNewsKR 님 팔로우하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 3.75c-4.55 0-8.25 3.69-8.25 8.25 0 1.92.66 3.68 1.75 5.08L17.09 5.5C15.68 4.4 13.92 3.75 12 3.75zm6.5 3.17L6.92 18.5c1.4 1.1 3.16 1.75 5.08 1.75 4.56 0 8.25-3.69 8.25-8.25 0-1.92-.65-3.68-1.75-5.08zM1.75 12C1.75 6.34 6.34 1.75 12 1.75S22.25 6.34 22.25 12 17.66 22.25 12 22.25 1.75 17.66 1.75 12z"></path></g></svg>
-                                <span>@TradeNewsKR 님 차단하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 2h18.61l-3.5 7 3.5 7H5v6H3V2zm2 12h13.38l-2.5-5 2.5-5H5v10z"></path></g></svg>
-                                <span>게시물 신고하기</span>
-                            </button>
-                        </div>
-                    </header>
-                    <p class="postText">아시아 주요 항만 운임이 다시 상승세를 보이고 있습니다. 공급망 일정 확인이 필요합니다.</p>
-                    <footer class="postMetrics">
-                        <div class="tweet-action-bar">
-                            <button class="tweet-action-btn">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></g></svg>
-                                <span class="tweet-action-count">8</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--like">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></g></svg>
-                                <span class="tweet-action-count">79</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--views">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path></g></svg>
-                                <span class="tweet-action-count">9</span>
-                            </button>
-                            <div class="tweet-action-right">
-                                <button class="tweet-action-btn tweet-action-btn--bookmark">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"></path></g></svg>
-                                </button>
-                                <button class="tweet-action-btn tweet-action-btn--share">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"></path></g></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </footer>
-                </div>
-            </div>
-            <div class="postCard">
-                <div class="postAvatar">수</div>
-                <div class="postBody">
-                    <header class="postHeader">
-                        <div class="postIdentity">
-                            <strong class="postName">수출입 마켓</strong>
-                            <span class="postHandle">@ExportMarket</span>
-                            <span class="postTime">어제</span>
-                        </div>
-                        <button class="postMoreButton">
-                            <svg class="postMoreIcon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></g></svg>
-                        </button>
-                        <div class="post-more-menu off">
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM6 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4zm13 4v3h2v-3h3V8h-3V5h-2v3h-3v2h3zM3.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C13.318 13.65 11.838 13 10 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C5.627 11.85 7.648 11 10 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H1.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46z"></path></g></svg>
-                                <span>@ExportMarket 님 팔로우하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 3.75c-4.55 0-8.25 3.69-8.25 8.25 0 1.92.66 3.68 1.75 5.08L17.09 5.5C15.68 4.4 13.92 3.75 12 3.75zm6.5 3.17L6.92 18.5c1.4 1.1 3.16 1.75 5.08 1.75 4.56 0 8.25-3.69 8.25-8.25 0-1.92-.65-3.68-1.75-5.08zM1.75 12C1.75 6.34 6.34 1.75 12 1.75S22.25 6.34 22.25 12 17.66 22.25 12 22.25 1.75 17.66 1.75 12z"></path></g></svg>
-                                <span>@ExportMarket 님 차단하기</span>
-                            </button>
-                            <button class="post-more-menu__item">
-                                <svg class="post-more-menu__icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 2h18.61l-3.5 7 3.5 7H5v6H3V2zm2 12h13.38l-2.5-5 2.5-5H5v10z"></path></g></svg>
-                                <span>게시물 신고하기</span>
-                            </button>
-                        </div>
-                    </header>
-                    <p class="postText">중소 수출기업을 위한 물류비 절감 체크리스트를 배포합니다. 실무 담당자에게 공유해 보세요.</p>
-                    <footer class="postMetrics">
-                        <div class="tweet-action-bar">
-                            <button class="tweet-action-btn">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></g></svg>
-                                <span class="tweet-action-count">16</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--like">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></g></svg>
-                                <span class="tweet-action-count">204</span>
-                            </button>
-                            <button class="tweet-action-btn tweet-action-btn--views">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path></g></svg>
-                                <span class="tweet-action-count">48</span>
-                            </button>
-                            <div class="tweet-action-right">
-                                <button class="tweet-action-btn tweet-action-btn--bookmark">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"></path></g></svg>
-                                </button>
-                                <button class="tweet-action-btn tweet-action-btn--share">
-                                    <svg class="tweet-action-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"></path></g></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </footer>
-                </div>
-            </div>
         </section>
         <section class="friendsSection" id="friendsSection">
             <div class="friendsSectionInner" id="friendsSectionInner">
                 <div class="friendsList" id="friendsList">
-                    <div class="user-card">
-                        <div class="user-avatar">E</div>
-                        <div class="user-info">
-                            <div class="user-top">
-                                <div class="user-name-group">
-                                    <div class="user-name">elnee</div>
-                                    <div class="user-handle">@elnelunar</div>
-                                    <div class="user-followed-by">22B 님이 팔로우합니다</div>
-                                </div>
-                                <button class="connect-btn default">Connect</button>
-                            </div>
-                            <div class="user-bio">always..</div>
-                        </div>
-                    </div>
-                    <div class="user-card">
-                        <div class="user-avatar">이</div>
-                        <div class="user-info">
-                            <div class="user-top">
-                                <div class="user-name-group">
-                                    <div class="user-name"> 이영지 <svg class="verified-badge"><path/></svg>
-                                    </div>
-                                    <div class="user-handle">@dokgodieinsaeng</div>
-                                </div>
-                                <button class="connect-btn default">Connect</button>
-                            </div>
-                            <div class="user-bio">zz 재밌는걸 어떡해</div>
-                        </div>
-                    </div>
-                    <div class="user-card">
-                        <div class="user-avatar">손</div>
-                        <div class="user-info">
-                            <div class="user-top">
-                                <div class="user-name-group">
-                                    <div class="user-name"> 손흥민 <svg class="verified-badge"><path/></svg>
-                                    </div>
-                                    <div class="user-handle">@Aborainz7</div>
-                                    <div class="user-followed-by">kanye 님이 팔로우합니다</div>
-                                </div>
-                                <button class="connect-btn default">Connect</button>
-                            </div>
-                            <div class="user-bio">Tottenham Hotspur #7 ⚽🇰🇷</div>
-                        </div>
-                    </div>
-                    <div class="user-card">
-                        <div class="user-avatar">무</div>
-                        <div class="user-info">
-                            <div class="user-top">
-                                <div class="user-name-group">
-                                    <div class="user-name"> 무역 전문가 그룹 <svg class="verified-badge"><path/></svg>
-                                    </div>
-                                    <div class="user-handle">@TradeExperts</div>
-                                </div>
-                                <button class="connect-btn default">Connect</button>
-                            </div>
-                            <div class="user-bio">수출입 전문가 네트워크. B2B 매칭 서비스 제공</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -580,43 +130,12 @@
                             <span class="searchResultLabel" id="searchResultLabel">#검색 결과</span>
                         </button>
                         <div class="searchResultList" id="searchResultList">
-                            <div class="searchResultItem">
-                                <div class="searchResultAvatar">T</div>
-                                <div class="searchResultProfile">
-                                    <span class="searchResultName">TradeHub Official</span>
-                                    <span class="searchResultHandle">@TradeHub_KR</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </form>
             <section class="suggestionCard sidebarCard">
                 <h2 class="suggestionTitle" id="suggestionTitle">팔로우 추천</h2>
-                <div class="suggestionItem trend-item">
-                    <div class="suggestionAvatar">T</div>
-                    <div class="suggestionProfile">
-                        <span class="suggestionName">TradeHub Official</span>
-                        <span class="sidebar-user-handle">@TradeHub_KR</span>
-                    </div>
-                    <button class="connect-btn-sm default">Connect</button>
-                </div>
-                <div class="suggestionItem trend-item">
-                    <div class="suggestionAvatar">무</div>
-                    <div class="suggestionProfile">
-                        <span class="suggestionName">무역 뉴스</span>
-                        <span class="sidebar-user-handle">@TradeNewsKR</span>
-                    </div>
-                    <button class="connect-btn-sm default">Connect</button>
-                </div>
-                <div class="suggestionItem trend-item">
-                    <div class="suggestionAvatar">수</div>
-                    <div class="suggestionProfile">
-                        <span class="suggestionName">수출입 마켓</span>
-                        <span class="sidebar-user-handle">@ExportMarket</span>
-                    </div>
-                    <button class="connect-btn-sm default">Connect</button>
-                </div>
                 <a class="suggestionLink sidebarMoreLink">더 보기</a>
             </section>
             <section class="exchangeRateFeedCard sidebarCard" id="exchangeRateFeedCard">
@@ -631,18 +150,6 @@
             <section class="newsFeedCard sidebarCard">
                 <h2 class="newsFeedTitle" id="newsFeedTitle">주요 뉴스</h2>
                 <div class="newsFeedList" id="newsFeedList">
-                    <div class="newsFeedItem">
-                        <div class="newsFeedContent">
-                            <h3 class="newsFeedHeadline">AI가 요약한 무역 헤드라인이 여기에 들어갑니다</h3>
-                            <p class="newsFeedSummary">크롤링한 기사 본문을 바탕으로 생성한 짧은 요약 문장이 이 영역에 표시됩니다.</p>
-                        </div>
-                    </div>
-                    <div class="newsFeedItem">
-                        <div class="newsFeedContent">
-                            <h3 class="newsFeedHeadline">산업 동향 또는 실시간 이슈 제목이 여기에 표시됩니다</h3>
-                            <p class="newsFeedSummary">스프링에서 바인딩한 뉴스 요약 데이터가 2~3줄 내에서 자연스럽게 노출되는 영역입니다.</p>
-                        </div>
-                    </div>
                 </div>
                 <a class="newsFeedLink sidebarMoreLink">더 보기</a>
             </section>
@@ -665,7 +172,10 @@
             </div>
             <div class="tweet-modal__body">
                 <div class="tweet-modal__composer">
-                    <img src="https://pbs.twimg.com/profile_images/2029361845321207808/LltLeaLS_bigger.jpg" alt="" class="tweet-modal__avatar-image" />
+                    <div class="tweet-modal__avatar-wrap" id="composeAvatar">
+                        <img th:if="${member.fileName != null}" th:src="${member.fileName}" alt="" />
+                        <span th:if="${member.fileName == null}" th:text="${member.memberNickname != null ? member.memberNickname.substring(0,1) : '?'}"></span>
+                    </div>
                     <div class="tweet-modal__input-wrap">
                         <!-- 게시판/커뮤니티 선택 영역 -->
                         <div class="composerAudience">
@@ -737,6 +247,9 @@
                             </button>
                             <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime" multiple class="tweet-modal__file-input" />
                         </div>
+                        <button type="button" class="tweet-modal__tool-btn tweet-modal__tool-btn--product">
+                            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5S3.5 15.135 3.5 11z"></path></g><g><path d="M7 9h10v1.5H7zm0 3h7v1.5H7z"></path></g></svg>
+                        </button>
                         <button type="button" class="tweet-modal__tool-btn tweet-modal__tool-btn--emoji">
                             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><g><path d="M12 22.75C6.072 22.75 1.25 17.928 1.25 12S6.072 1.25 12 1.25 22.75 6.072 22.75 12 17.928 22.75 12 22.75zm0-20c-5.109 0-9.25 4.141-9.25 9.25s4.141 9.25 9.25 9.25 9.25-4.141 9.25-9.25S17.109 2.75 12 2.75zM9 11.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25zm6 0c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25zm-8.071 3.971c.307-.298.771-.397 1.188-.253C9.07 16.154 10.52 16.75 12 16.75s2.93-.596 3.883-.982c.417-.144.88-.044 1.188.253a.846.846 0 01-.149 1.34c-1.254.715-3.059 1.139-4.922 1.139s-3.668-.424-4.922-1.139a.847.847 0 01-.149-1.39z"></path></g></svg>
                         </button>
@@ -908,7 +421,7 @@
             </div>
             <div class="draft-panel__content">
                 <div class="draft-panel__list" data-product-select-list></div>
-                <div class="draft-panel__empty" data-product-empty hidden>
+                <div class="draft-panel__empty off" data-product-empty>
                     <p class="draft-panel__empty-title">등록된 상품이 없습니다</p>
                     <p class="draft-panel__empty-body">마이페이지에서 상품을 먼저 등록해 주세요.</p>
                 </div>
@@ -932,21 +445,24 @@
             </div>
             <!-- 답글 작성 본문: 원본 게시물 + 에디터 + 첨부 미리보기 -->
             <div class="tweet-modal__body">
-                <button type="button" class="tweet-modal__context-button"> test의 @sokkomann 님과 @tmtsugar 님에게 보내는 답글 </button>
+                <button type="button" class="tweet-modal__context-button" id="replyContextButton"></button>
                 <article class="tweet-modal__source-tweet">
-                    <img src="https://pbs.twimg.com/profile_images/2029093315963158528/9_GGpfuL_bigger.png" alt="" class="tweet-modal__source-avatar" />
+                    <div class="tweet-modal__source-avatar-wrap" id="replySourceAvatar"></div>
                     <div class="tweet-modal__source-body">
                         <div class="tweet-modal__source-meta">
-                            <span class="tweet-modal__source-name">김민중</span>
-                            <span class="tweet-modal__source-handle">@sokkomann</span>
+                            <span class="tweet-modal__source-name" id="replySourceName"></span>
+                            <span class="tweet-modal__source-handle" id="replySourceHandle"></span>
                             <span class="tweet-sep" aria-hidden="true">·</span>
-                            <span class="tweet-modal__source-time">3월 6일</span>
+                            <span class="tweet-modal__source-time" id="replySourceTime"></span>
                         </div>
-                        <p class="tweet-modal__source-text">hello</p>
+                        <p class="tweet-modal__source-text" id="replySourceText"></p>
                     </div>
                 </article>
                 <div class="tweet-modal__composer">
-                    <img src="https://pbs.twimg.com/profile_images/2029361845321207808/LltLeaLS_bigger.jpg" alt="" class="tweet-modal__avatar-image" />
+                    <div class="tweet-modal__avatar-wrap" id="replyAvatar">
+                        <img th:if="${member.fileName != null}" th:src="${member.fileName}" alt="" />
+                        <span th:if="${member.fileName == null}" th:text="${member.memberNickname != null ? member.memberNickname.substring(0,1) : '?'}"></span>
+                    </div>
                     <div class="tweet-modal__input-wrap">
                         <div class="tweet-modal__editor" contenteditable="true" aria-multiline="true" data-placeholder="답글 등록하기" ></div>
                         <!-- 첨부 미리보기 영역: event.js가 [data-attachment-preview] hidden을 토글하고 [data-attachment-media] 안에 이미지/동영상/파일 카드를 동적으로 채운다 -->
@@ -1195,7 +711,7 @@
                 <div class="draft-panel__list" data-product-select-list>
                     <!-- JS에서 동적으로 상품 목록 렌더링 -->
                 </div>
-                <div class="draft-panel__empty" data-product-empty hidden>
+                <div class="draft-panel__empty off" data-product-empty>
                     <p class="draft-panel__empty-title">등록된 상품이 없습니다</p>
                     <p class="draft-panel__empty-body">마이페이지에서 상품을 먼저 등록해 주세요.</p>
                 </div>
@@ -1224,7 +740,7 @@
 <div class="mediaPreviewOverlay off" id="mediaPreviewOverlay">
     <div class="mediaPreviewDialog" id="mediaPreviewDialog">
         <button class="mediaPreviewClose" id="mediaPreviewClose">
-            <svg class="mediaPreviewCloseIcon"><g><path></path></g></svg>
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="mediaPreviewCloseIcon"><g><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g></svg>
         </button>
         <img class="mediaPreviewImage" id="mediaPreviewImage"/>
     </div>
@@ -1301,18 +817,18 @@
 <!-- 공유용 채팅 시트: 사용자 목록만 JS가 `#mainShareChatUserList` 안에서 다시 그린다. -->
 <div class="share-sheet off" id="mainShareChatSheet">
     <div class="share-sheet__backdrop"></div>
-    <div class="share-sheet__card">
+    <div class="share-sheet__card" role="dialog" aria-modal="true">
         <div class="share-sheet__header">
-            <button class="share-sheet__icon-btn">
-                <svg><g><path></path></g></svg>
+            <button type="button" class="share-sheet__icon-btn" aria-label="돌아가기">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path></g></svg>
             </button>
-            <h2 class="share-sheet__title">공유하기</h2>
+            <h2 class="share-sheet__title">사용자 찾기</h2>
             <span class="share-sheet__header-spacer"></span>
         </div>
         <div class="share-sheet__search">
-            <input class="share-sheet__search-input"/>
+            <input type="text" class="share-sheet__search-input" id="shareChatSearchInput" placeholder="검색" aria-label="검색"/>
         </div>
-        <div class="share-sheet__list"></div>
+        <div class="share-sheet__list" id="shareChatUserList"></div>
     </div>
 </div>
 <!-- 전역 레이어 마운트: 더보기/공유 드롭다운과 계정 팝업이 이 루트에 올라온다. -->
@@ -1350,22 +866,7 @@
         <div class="boardMenuSection">
             <h4 class="boardMenuSectionTitle">내 커뮤니티</h4>
             <div class="communityMenuList" id="communityMenuList">
-                <button class="communityMenuItem">
-                    <img src="../../static/images/main/ad.png" class="communityMenuAvatar">
-                    <span class="communityMenuText">
-                                <span class="communityMenuName">무역 토크</span>
-                                <span class="communityMenuMeta">1.2만 멤버</span>
-                            </span>
-                    <span class="communityMenuCheck">✓</span>
-                </button>
-                <button class="communityMenuItem">
-                    <img src="../../static/images/main/ad.png" class="communityMenuAvatar">
-                    <span class="communityMenuText">
-                                <span class="communityMenuName">상품 연구소</span>
-                                <span class="communityMenuMeta">8.7천 멤버</span>
-                            </span>
-                    <span class="communityMenuCheck">✓</span>
-                </button>
+                <p class="communityMenuEmpty">가입된 커뮤니티가 없습니다</p>
             </div>
         </div>
     </div>
@@ -1428,7 +929,5 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.0.3/dist/index.min.js"></script>
-<script src="../../static/js/main/main.js"></script>
 </body>
 </html>

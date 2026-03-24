@@ -1,13 +1,12 @@
 package com.app.globalgates.domain;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Getter
 @ToString
 @EqualsAndHashCode(of = "id")
+@NoArgsConstructor(access= AccessLevel.PROTECTED)
 @SuperBuilder
 public class FollowVO {
     private Long id;

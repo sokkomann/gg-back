@@ -12,6 +12,7 @@
 html {
     margin: 0;
     min-height: 100%;
+    scrollbar-gutter: stable;
 }
 
 body {
@@ -1137,12 +1138,34 @@ a.menu-item:visited {
 }
 
 .tweet-modal__source-avatar,
-.tweet-modal__avatar-image {
+.tweet-modal__avatar-image,
+.tweet-modal__source-avatar-wrap,
+.tweet-modal__avatar-wrap {
     width: 36px;
     height: 36px;
     border-radius: 9999px;
     object-fit: cover;
     flex-shrink: 0;
+}
+
+.tweet-modal__source-avatar-wrap,
+.tweet-modal__avatar-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1d9bf0;
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    overflow: hidden;
+}
+
+.tweet-modal__source-avatar-wrap img,
+.tweet-modal__avatar-wrap img {
+    width: 100%;
+    height: 100%;
+    border-radius: 9999px;
+    object-fit: cover;
 }
 
 .tweet-modal__source-body,
@@ -2644,7 +2667,9 @@ a.menu-item:visited {
 }
 
 [data-reply-modal] .tweet-modal__source-avatar,
-[data-reply-modal] .tweet-modal__avatar-image {
+[data-reply-modal] .tweet-modal__avatar-image,
+[data-reply-modal] .tweet-modal__source-avatar-wrap,
+[data-reply-modal] .tweet-modal__avatar-wrap {
     width: 36px;
     height: 36px;
     border-radius: 9999px;
@@ -3582,6 +3607,14 @@ a.menu-item:visited {
     flex-direction: column;
 }
 
+.communityMenuEmpty {
+    padding: 16px 20px;
+    color: #71767b;
+    font-size: 14px;
+    text-align: center;
+    margin: 0;
+}
+
 .communityMenuItem {
     display: flex;
     align-items: center;
@@ -3820,6 +3853,16 @@ a.menu-item:visited {
     background: #f7f9f9;
 }
 
+.postAdBadge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #71767b;
+    padding: 0 6px;
+    border-radius: 4px;
+    line-height: 20px;
+    margin-right: 4px;
+}
+
 .postBody {
     flex: 1;
     min-width: 0;
@@ -3863,6 +3906,19 @@ a.menu-item:visited {
     overflow: hidden;
 }
 
+a.postHashtag {
+    font-size: 11px;
+    color: #1d9bf0;
+}
+
+div.postHashtags {
+    font-size: 11px;
+    color: #1d9bf0;
+    display: flex;
+    gap: 3px;
+    margin-bottom: 8px;
+}
+
 .postText.expanded {
     -webkit-line-clamp: unset;
     overflow: visible;
@@ -3886,14 +3942,6 @@ a.menu-item:visited {
 }
 
 .postMedia {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 180px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #d7efff 0%, #f3f9ff 100%);
-    color: #1d9bf0;
-    font-weight: 700;
     margin-bottom: 12px;
 }
 
@@ -4009,7 +4057,6 @@ a.menu-item:visited {
 .postMediaGrid {
     display: grid;
     gap: 2px;
-    margin-bottom: 12px;
     overflow: hidden;
     border-radius: 16px;
     background: #e9eef2;
