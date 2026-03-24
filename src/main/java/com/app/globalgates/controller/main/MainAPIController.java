@@ -31,16 +31,14 @@ public class MainAPIController {
     private final S3Service s3Service;
     private final AdvertisementService advertisementService;
 
-//    광고 목록 조회 (피드 삽입용)
+    //    피드에 광고
     @GetMapping("/ads")
     public List<AdvertisementDTO> getAds() {
         log.info("광고 목록 조회 (피드 삽입용)");
-        AdWithPagingDTO result = advertisementService.list(1, new com.app.globalgates.common.search.AdSearch());
-        List<AdvertisementDTO> ads = result.getAdvertisements();
-        ads.forEach(ad -> ad.setAdImageList(convertToPresignedUrl(ad.getAdImageList())));
+        List<AdvertisementDTO> ads = advertisementService.getAdsInMain();
+        ads.forEach(ad -> ad.setImgUrls(convertToPresignedUrl(ad.getImgUrls())));
         return ads;
     }
-
 //    게시글 목록 조회
     @GetMapping("/posts/list/{page}")
     public PostWithPagingDTO getPostList(@PathVariable int page, @RequestParam Long memberId) {
