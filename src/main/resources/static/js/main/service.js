@@ -1,15 +1,170 @@
 const service = (() => {
 
-    const getList = async (page, memberId, callback) => {
-        let url = `/api/posts/list/${page}`;
-        if (memberId) {
-            url += `?memberId=${memberId}`;
-        }
-        const response = await fetch(url);
-        const posts = await response.json();
-        if (callback) return callback(posts);
-        return posts;
+    const getPostList = async (page, memberId, callback) => {
+        const response = await fetch(`/api/main/posts/list/${page}?memberId=${memberId}`);
+        const data = await response.json();
+        if (callback) return callback(data);
+        return data;
     };
 
-    return { getList };
+    const getExpertList = async (page, memberId, callback) => {
+        const response = await fetch(`/api/main/experts/list/${page}?memberId=${memberId}`);
+        const data = await response.json();
+        if (callback) return callback(data);
+        return data;
+    };
+
+    const writePost = async (formData) => {
+        await fetch('/api/main/posts/write', { method: 'POST', body: formData });
+    };
+
+    const addLike = async (memberId, postId) => {
+        await fetch('/api/main/likes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ memberId: memberId, postId: postId })
+        });
+    };
+
+    const deleteLike = async (memberId, postId) => {
+        await fetch(`/api/main/likes/members/${memberId}/posts/${postId}/delete`, { method: 'POST' });
+    };
+
+    const addBookmark = async (memberId, postId) => {
+        await fetch('/api/main/bookmarks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ memberId: memberId, postId: postId })
+        });
+    };
+
+    const deleteBookmark = async (memberId, postId) => {
+        await fetch(`/api/main/bookmarks/members/${memberId}/posts/${postId}/delete`, { method: 'POST' });
+    };
+
+    const follow = async (followerId, followingId) => {
+        await fetch('/api/main/follows', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ followerId: followerId, followingId: followingId })
+        });
+    };
+
+    const unfollow = async (followerId, followingId) => {
+        await fetch(`/api/main/follows/${followerId}/${followingId}/delete`, { method: 'POST' });
+    };
+
+    const block = async (blockerId, blockedId) => {
+        await fetch('/api/main/blocks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ blockerId: blockerId, blockedId: blockedId })
+        });
+    };
+
+    const report = async (reporterId, targetId, targetType, reason) => {
+        await fetch('/api/main/reports', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                reporterId: reporterId,
+                targetId: targetId,
+                targetType: targetType,
+                reason: reason
+            })
+        });
+    };
+
+    const writeReply = async (postId, memberId, postContent, productPostId) => {
+        let url = `/api/main/posts/${postId}/replies`;
+        if (productPostId) url += `?productPostId=${productPostId}`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ memberId: memberId, postContent: postContent })
+        });
+    };
+
+    const getLatestNews = async (callback) => {
+        const response = await fetch('/api/main/news/latest');
+        const data = await response.json();
+        if (callback) return callback(data);
+        return data;
+    };
+
+    const searchMembers = async (keyword, callback) => {
+        const response = await fetch(`/api/main/search/members?keyword=${keyword}`);
+        const data = await response.json();
+        if (callback) return callback(data);
+        return data;
+    };
+
+    const getSearchHistories = async (memberId, callback) => {
+        const response = await fetch(`/api/main/search/histories/${memberId}`);
+        const data = await response.json();
+        if (callback) return callback(data);
+        return data;
+    };
+
+    const saveSearchHistory = async (memberId, searchKeyword) => {
+        await fetch('/api/main/search/histories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ memberId: memberId, searchKeyword: searchKeyword })
+        });
+    };
+
+    const deleteSearchHistory = async (id) => {
+        await fetch(`/api/main/search/histories/${id}/delete`, { method: 'POST' });
+    };
+
+    const deleteAllSearchHistories = async (memberId) => {
+        await fetch(`/api/main/search/histories/members/${memberId}/delete-all`, { method: 'POST' });
+    };
+
+    const getMyProducts = async (memberId, callback) => {
+        const response = await fetch(`/api/main/products/members/${memberId}`);
+        const data = await response.json();
+        if (callback) return callback(data);
+        return data;
+    };
+
+    const getFollowings = async (memberId, callback) => {
+        const response = await fetch(`/api/main/follows/${memberId}/followings`);
+        const data = await response.json();
+        if (callback) return callback(data);
+        return data;
+    };
+
+    const getAds = async (callback) => {
+        const response = await fetch('/api/main/ads');
+        const data = await response.json();
+        if (callback) return callback(data);
+        return data;
+    };
+
+    const getSuggestions = async (memberId, callback) => {
+        const response = await fetch(`/api/main/follows/${memberId}/suggestions`);
+        const data = await response.json();
+        if (callback) return callback(data);
+        return data;
+    };
+
+    const deletePost = async (postId) => {
+        await fetch(`/api/main/posts/delete/${postId}`, { method: 'POST' });
+    };
+
+    return {
+        getPostList, getExpertList, writePost, deletePost,
+        addLike, deleteLike,
+        addBookmark, deleteBookmark,
+        follow, unfollow, getFollowings,
+        block, report,
+        writeReply,
+        getLatestNews,
+        searchMembers, getSearchHistories, saveSearchHistory, deleteSearchHistory, deleteAllSearchHistories,
+        getMyProducts,
+        getSuggestions,
+        getAds
+    };
 })();

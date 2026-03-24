@@ -34,4 +34,9 @@ public class BlockService {
     public List<BlockDTO> getBlockList(Long blockerId) {
         return blockDAO.findAllByBlockerId(blockerId);
     }
+
+//    양방향 차단 여부 조회 (채팅 연동용)
+    public boolean isBlockedEither(Long memberId1, Long memberId2) {
+        return blockDAO.isBlockedEither(memberId1, memberId2);
+    }
 }

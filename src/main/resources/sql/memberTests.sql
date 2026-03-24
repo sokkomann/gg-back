@@ -13,10 +13,14 @@ where member_phone = '01099139076' and member_password = '$2a$10$tq3cPX5qJaxrWcG
 and member_status = 'active';
 
 
+select * from tbl_oauth;
 select * from tbl_member;
 select * from tbl_member_profile_file;
 select * from tbl_file;
 select * from tbl_business_member;
+select * from tbl_category;
+select * from tbl_member_category_rel;
+
 alter table tbl_member add member_language varchar(255);
 alter table tbl_member drop website_url;
 alter table tbl_member
@@ -35,6 +39,10 @@ select
 from tbl_member_profile_file pf
          join tbl_file f on pf.id = f.id;
 
+
+select *
+from tbl_oauth o join tbl_member m on o.member_id = m.id;
+
 create view vw_category_member as
 select *
 from tbl_member_category_rel mc join tbl_category c on mc.category_id = c.id;
@@ -42,6 +50,8 @@ select * from vw_category_member;
 
 select * from tbl_category;
 select * from tbl_member_category_rel;
+
+drop view  vw_category_member;
 
 drop table tbl_oauth
 drop type oauth_provider;

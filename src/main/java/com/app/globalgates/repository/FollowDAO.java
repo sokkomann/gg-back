@@ -1,6 +1,7 @@
 package com.app.globalgates.repository;
 
 import com.app.globalgates.dto.FollowDTO;
+import com.app.globalgates.dto.MemberDTO;
 import com.app.globalgates.mapper.FollowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -36,5 +37,10 @@ public class FollowDAO {
     //    팔로잉 목록
     public List<FollowDTO> findAllFollowings(Long followerId) {
         return followMapper.selectAllFollowings(followerId);
+    }
+
+    //    미팔로우 회원 3명
+    public List<MemberDTO> findUnfollowedMembers(Long memberId) {
+        return followMapper.selectUnfollowedMembers(memberId);
     }
 }

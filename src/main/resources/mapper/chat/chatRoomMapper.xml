@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.globalgates.mapper.chat.ChatRoomMapper">
+
+    <select id="selectAllByMemberId">
+        with ranked as (
+            select
+                v.conversation_id as id,
+                v.display_name as title,
+                v.partner_id as invited_id,
+                v.partner_name as invited_name,
+                v.partner_handle as invited_handle,
+                sub_msg.content as last_message,
+                sub_msg.created_datetime as last_message_time,
+                coalesce(unread_msg.cnt, 0) as unread_count,
+                coalesce(v.is_muted, false) as muted,
+                v.created_datetime,
+                v.updated_datetime,
+                row_number() over (
+                    partition by least(v.member_id, v.partner_id),
+                                 greatest(v.member_id, v.partner_id)
+                    order by coalesce(sub_msg.created_datetime, v.created_datetime) desc,
+                             v.conversation_id desc
+                ) as rn
+            from v_my_chat v
+            left join lateral (
+                select content, created_datetime
+                from tbl_message
+                where conversation_id = v.conversation_id and is_deleted = false
+                order by created_datetime desc limit 1
+            ) sub_msg on true
+            left join lateral (
+                select count(*) as cnt
+                from tbl_message
+                where conversation_id = v.conversation_id
+                  and is_deleted = false
+                  and sender_id != #{memberId}
+                  and id > coalesce(v.my_last_read, 0)
+            ) unread_msg on true
+            where v.member_id = #{memberId}
+              and coalesce(v.is_deleted, false) = false
+              and not exists (
+                  select 1 from tbl_block
+                  where (blocker_id = #{memberId} and blocked_id = v.partner_id)
+                     or (blocker_id = v.partner_id and blocked_id = #{memberId})
+              )
+        )
+        select id, title, invited_id, invited_name, invited_handle,
+               last_message, last_message_time, unread_count, muted,
+               created_datetime, updated_datetime
+        from ranked
+        where rn = 1
+        order by coalesce(last_message_time, created_datetime) desc, id desc
+    </select>
+
+    <select id="selectByMembers">
+        select c.id, c.title, rel.sender_id, rel.invited_id, c.created_datetime
+        from tbl_conversation c
+        join tbl_conversation_member_rel rel on c.id = rel.conversation_id
+        where (rel.sender_id = #{senderId} and rel.invited_id = #{invitedId})
+           or (rel.sender_id = #{invitedId} and rel.invited_id = #{senderId})
+        order by c.created_datetime desc, c.id desc
+        limit 1
+    </select>
+
+    <insert id="insertConversation">
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            select currval('tbl_conversation_id_seq')
+        </selectKey>
+        insert into tbl_conversation (title) values (#{title})
+    </insert>
+
+    <insert id="insertConversationMemberRel">
+        insert into tbl_conversation_member_rel (conversation_id, sender_id, invited_id)
+        values (#{conversationId}, #{senderId}, #{invitedId})
+    </insert>
+
+    <insert id="insertSetting">
+        insert into tbl_conversation_setting (conversation_id, member_id)
+        values (#{conversationId}, #{memberId})
+        on conflict (conversation_id, member_id) do nothing
+    </insert>
+
+    <update id="restoreConversation">
+        update tbl_conversation_setting
+        set is_deleted = false, updated_datetime = now()
+        where conversation_id = #{conversationId} and member_id = #{memberId} and is_deleted = true
+    </update>
+
+    <select id="selectDeletedMemberIds" resultType="long">
+        select member_id
+        from tbl_conversation_setting
+        where conversation_id = #{conversationId} and is_deleted = true
+    </select>
+
+    <update id="restoreAllMembers">
+        update tbl_conversation_setting
+        set is_deleted = false, updated_datetime = now()
+        where conversation_id = #{conversationId} and is_deleted = true
+    </update>
+
+    <select id="selectPartnerByConversation">
+        select v.partner_id as invited_id,
+               v.partner_name as invited_name,
+               v.partner_handle as invited_handle,
+               v.alias,
+               v.conversation_id as id,
+               v.display_name as title
+        from v_my_chat v
+        where v.conversation_id = #{conversationId}
+          and v.member_id = #{memberId}
+        limit 1
+    </select>
+
+    <select id="selectLastMessageId" resultType="java.lang.Long">
+        select max(id)
+        from tbl_message
+        where conversation_id = #{conversationId} and is_deleted = false
+    </select>
+
+    <insert id="upsertLastReadMessageId">
+        insert into tbl_conversation_setting (
+            conversation_id, member_id, last_read_message_id,
+            created_datetime, updated_datetime
+        )
+        values (#{conversationId}, #{memberId}, #{lastReadMessageId}, now(), now())
+        on conflict (conversation_id, member_id) do update
+        set last_read_message_id = greatest(
+                coalesce(tbl_conversation_setting.last_read_message_id, 0),
+                excluded.last_read_message_id
+            ),
+            updated_datetime = now()
+    </insert>
+
+    <update id="updateAlias">
+        update tbl_conversation_setting
+        set alias = #{alias}, updated_datetime = now()
+        where conversation_id = #{conversationId} and member_id = #{memberId}
+    </update>
+
+    <update id="updateMuted">
+        update tbl_conversation_setting
+        set is_muted = #{muted}, updated_datetime = now()
+        where conversation_id = #{conversationId} and member_id = #{memberId}
+    </update>
+
+    <select id="selectMuted" resultType="boolean">
+        select coalesce(is_muted, false)
+        from tbl_conversation_setting
+        where conversation_id = #{conversationId} and member_id = #{memberId}
+    </select>
+
+    <update id="softDeleteConversation">
+        update tbl_conversation_setting
+        set is_deleted = true,
+            is_muted = false,
+            alias = null,
+            is_pinned = false,
+            deleted_after_message_id = (
+                select max(id) from tbl_message where conversation_id = #{conversationId}
+            ),
+            updated_datetime = now()
+        where conversation_id = #{conversationId} and member_id = #{memberId}
+    </update>
+
+</mapper>

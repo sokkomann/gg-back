@@ -20,4 +20,7 @@ public interface BlockMapper {
 
     //    차단 목록 조회
     public List<BlockDTO> selectAllByBlockerId(Long blockerId);
+
+//    양방향 차단 여부 조회 (A가 B를 차단했거나, B가 A를 차단했는지)
+    public boolean selectIsBlockedEither(@Param("memberId1") Long memberId1, @Param("memberId2") Long memberId2);
 }

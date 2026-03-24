@@ -32,4 +32,9 @@ public class BlockDAO {
     public List<BlockDTO> findAllByBlockerId(Long blockerId) {
         return blockMapper.selectAllByBlockerId(blockerId);
     }
+
+//    양방향 차단 여부 조회
+    public boolean isBlockedEither(Long memberId1, Long memberId2) {
+        return blockMapper.selectIsBlockedEither(memberId1, memberId2);
+    }
 }

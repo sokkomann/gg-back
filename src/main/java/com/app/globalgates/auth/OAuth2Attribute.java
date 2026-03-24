@@ -72,15 +72,13 @@ public class OAuth2Attribute {
 
     //  facebook
     private static OAuth2Attribute ofFacebook(String provider, String userNameAttribute, Map<String, Object> attributes) {
-        Map<String, Object> facebookResponse = (Map<String, Object>) attributes.get("response");
-
         return OAuth2Attribute.builder()
-                .id((String)facebookResponse.get("id"))
+                .id((String) attributes.get("id"))
                 .provider(provider)
-                .email((String)facebookResponse.get("email"))
-                .name((String) facebookResponse.get("name"))
-                .profile((String)facebookResponse.get("picture"))
-                .attributes(facebookResponse)
+                .email((String) attributes.get("email"))
+                .name((String) attributes.get("name"))
+                .profile((String) attributes.get("public_profile"))
+                .attributes(attributes)
                 .userNameAttributeName(userNameAttribute)
                 .build();
     }
@@ -88,15 +86,13 @@ public class OAuth2Attribute {
     //  google
 
     private static OAuth2Attribute ofGoogle(String provider, String userNameAttribute, Map<String, Object> attributes) {
-        Map<String, Object> googleResponse = (Map<String, Object>) attributes.get("response");
-
         return OAuth2Attribute.builder()
-                .id((String)googleResponse.get("sub"))
+                .id((String) attributes.get("sub"))
                 .provider(provider)
-                .email((String)googleResponse.get("email"))
-                .name((String) googleResponse.get("name"))
-                .profile((String)googleResponse.get("picture"))
-                .attributes(googleResponse)
+                .email((String) attributes.get("email"))
+                .name((String) attributes.get("name"))
+                .profile((String) attributes.get("picture"))
+                .attributes(attributes)
                 .userNameAttributeName(userNameAttribute)
                 .build();
     }

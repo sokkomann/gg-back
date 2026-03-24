@@ -2,6 +2,7 @@
 package com.app.globalgates.repository;
 
 import com.app.globalgates.common.pagination.Criteria;
+import com.app.globalgates.dto.chat.ChatExpertDTO;
 import com.app.globalgates.dto.ExpertDTO;
 import com.app.globalgates.mapper.ExpertMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,13 @@ public class ExpertDAO {
         return expertMapper.selectAll(criteria, memberId);
     }
 
-
     //    전문가 명수
     public int findTotal() {
         return expertMapper.selectTotal();
+    }
+
+    //    채팅 연결된 전문가 목록 조회
+    public List<ChatExpertDTO> findConnectedForChat(Long memberId, String keyword) {
+        return expertMapper.selectConnectedForChat(memberId, keyword);
     }
 }
