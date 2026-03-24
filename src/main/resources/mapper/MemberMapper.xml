@@ -100,4 +100,26 @@
         set member_status = 'inactive'
         where id = #{id}
     </update>
+
+    <!-- 채팅 유저 검색 (차단 사용자 제외) -->
+    <select id="searchByKeyword" resultType="com.app.globalgates.dto.MemberDTO">
+        select
+            id, member_name, member_email, member_nickname,
+            member_handle, member_bio, member_region
+        from tbl_member
+        where member_status = 'active'
+          and id != #{memberId}
+          and (
+            lower(member_name) like lower(concat('%', #{keyword}, '%'))
+            or lower(member_handle) like lower(concat('%', #{keyword}, '%'))
+            or lower(member_nickname) like lower(concat('%', #{keyword}, '%'))
+          )
+          and not exists (
+              select 1 from tbl_block
+              where (blocker_id = #{memberId} and blocked_id = tbl_member.id)
+                 or (blocker_id = tbl_member.id and blocked_id = #{memberId})
+          )
+        order by member_name
+        limit 20
+    </select>
 </mapper>

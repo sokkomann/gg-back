@@ -25,4 +25,12 @@
         where b.blocker_id = #{blockerId}
         order by b.created_datetime desc
     </select>
+
+    <select id="selectIsBlockedEither" resultType="boolean">
+        select exists(
+            select 1 from tbl_block
+            where (blocker_id = #{memberId1} and blocked_id = #{memberId2})
+               or (blocker_id = #{memberId2} and blocked_id = #{memberId1})
+        )
+    </select>
 </mapper>

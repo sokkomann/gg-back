@@ -1,6 +1,7 @@
 package com.app.globalgates.service;
 
 import com.app.globalgates.common.pagination.Criteria;
+import com.app.globalgates.dto.ChatExpertDTO;
 import com.app.globalgates.dto.ExpertDTO;
 import com.app.globalgates.dto.ExpertWithPagingDTO;
 import com.app.globalgates.repository.ExpertDAO;
@@ -36,5 +37,14 @@ public class ExpertService {
         expertWithPagingDTO.setExperts(experts);
         expertWithPagingDTO.setCriteria(criteria);
         return expertWithPagingDTO;
+    }
+
+    //    채팅 연결된 전문가 목록 조회
+    public List<ChatExpertDTO> getConnectedExpertsForChat(Long memberId, String keyword) {
+        String normalizedKeyword = keyword == null ? null : keyword.trim();
+        if (normalizedKeyword != null && normalizedKeyword.isEmpty()) {
+            normalizedKeyword = null;
+        }
+        return expertDAO.findConnectedForChat(memberId, normalizedKeyword);
     }
 }

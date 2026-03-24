@@ -1,0 +1,36 @@
+package com.app.globalgates.dto;
+
+import com.app.globalgates.domain.ChatRoomVO;
+import lombok.*;
+
+@Getter @Setter @ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ChatRoomDTO {
+    private Long id;
+    private String title;
+    private Long senderId;
+    private Long invitedId;
+    private String senderName;
+    private String invitedName;
+    private String invitedHandle;
+    private String alias;
+    private String lastMessage;
+    private String lastMessageTime;
+    private Long unreadCount;
+    private boolean muted;
+    private String createdDatetime;
+    private String updatedDatetime;
+
+    public ChatRoomVO toVO() {
+        return ChatRoomVO.builder()
+                .id(id)
+                .title(title)
+                .senderId(senderId)
+                .invitedId(invitedId)
+                .createdDatetime(createdDatetime)
+                .updatedDatetime(updatedDatetime)
+                .build();
+    }
+}

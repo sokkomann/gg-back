@@ -1,97 +1,314 @@
 window.onload = () => {
-    // 상담 받기 버튼
-    const newChatBtn = document.querySelector(".ChatContent-Button");
-    // 새 채팅방 div
-    const newChatDiv = document.querySelector(".Chat-ChatContent");
-    // 채팅방 div
-    const chatDiv = document.querySelector(".ChatPage-Layout");
-    // 채팅방 유저
-    const chatUser = chatDiv.querySelector(".ChatPage-UserInfo");
+    // 1.DOM 요소 선언
 
-    // 좌측의 채팅방이 있는 유저들
-    const chats = document.querySelectorAll(".UserList-EachUser") || null;
-    // 모달 백드롭
+    // 1-1.채팅방 관련 DOM
+    const newChatBtn = document.querySelector(".ChatContent-Button");
+    const newChatDiv = document.querySelector(".Chat-ChatContent");
+    const chatDiv = document.querySelector(".ChatPage-Layout");
+    const chatUser = chatDiv.querySelector(".ChatPage-UserInfo");
+    const userListContainer = document.querySelector(".UserList-Container");
+    const scrollContainer = document.querySelector(".ChatPage-Main-Container");
+
+    // 1-2.모달 관련 DOM
     const modalBackDrop = document.querySelector(".Modal-BackDrop");
-    // 전문가 검색 모달
     const searchExpertModal = document.querySelector(".Search-Modal");
-    // 상대방 정보 모달
+    const searchExpertCloseBtn = searchExpertModal?.querySelector(".Modal-Header-Button");
+    const searchExpertInput = searchExpertModal?.querySelector(".Search-Modal-SearchBar input");
+    const searchExpertList = searchExpertModal?.querySelector(".Modal-ExpertList");
     const userInfoModal = document.querySelector(".Big-Modal.Info");
-    // 상대방 별명 변경 모달
     const changeAliasModal = document.querySelector(".Big-Modal.ChangeAlias");
-    // 사라진 메세지 설정 모달
     const removedMsgModal = document.querySelector(".Big-Modal.RemovedMsg");
-    // 모든 대화 지우기 모달
     const removeAllMsgModal = document.querySelector(".Small-Modal.RemoveAll");
-    // 스크린샷 차단 설정 모달
-    const banScreanShotModal = document.querySelector(
-        ".Big-Modal.BanScreanShot",
-    );
-    // 전달 전용 검색 모달
-    const postChatModal = document.querySelector(".Small-Modal.PostChat");
-    // 특정 채팅 지우기 모달
+    const banScreanShotModal = document.querySelector(".Big-Modal.BanScreanShot");
     const deleteChatModal = document.querySelector(".Small-Modal.DeleteChat");
-    // 채팅방 나가기 모달
     const leaveModal = document.querySelector(".Small-Modal.Leave");
-    // 대화 차단 모달
     const banUserModal = document.querySelector(".Small-Modal.Ban-User");
 
-    // 반응형 js -----------------------------------
+    // 1-3.반응형 관련 DOM
     const userListWrapper = document.querySelector(".Chat-UserList-Wrapper");
     const backBtn = document.getElementById("chat-back-btn");
     const bottomNav = document.querySelector(".mobile-nav");
+    const mobileMessageBadge = document.querySelector(".Chat-MobMessageBadge");
 
-    // 좌측 검색바
-    const searchBarPlaceholder = document.querySelector(
-        ".Header-SearchBar:not(.Input)",
-    );
+    // 1-4.좌측 검색바 관련 DOM
+    const searchBarPlaceholder = document.querySelector(".Header-SearchBar:not(.Input)");
     const searchBarInput = document.querySelector(".Header-SearchBar.Input");
     const searchInput = document.querySelector(".Search-Conversation-Input");
     const searchClearBtn = document.querySelector(".Search-Clear-Btn");
     const searchConvPanel = document.querySelector(".Search-Conversation");
     const searchConvEmpty = document.querySelector(".Search-Conv-Empty");
     const searchConvResults = document.querySelector(".Search-Conv-Results");
+    const searchConvGrid = document.querySelector(".Search-Conv-Grid");
+    const searchConvList = document.querySelector(".Search-Conv-List");
     const userListEl = document.querySelector(".UserList-Wrapper");
 
-    // 모바일 여부 판단
-    function isMobile() {
-        return window.innerWidth <= 600;
+    // 1-5.채팅 메뉴 관련 DOM
+    const chatMenu = document.querySelector(".Chat-Extend-Menu");
+    const emojiPicker = document.querySelector(".Chat-Emoji-Picker");
+    const toast = document.querySelector(".Clipboard-Toast");
+
+    // 1-6.하단 입력란 관련 DOM
+    const chatForm = document.getElementById("chatSubmit");
+    const chatInput = document.getElementById("chat-input");
+    const chatAttach = document.getElementById("chat-image");
+    const inputImageContainer = document.querySelector(".Input-Image-Container");
+    const inputImageCard = inputImageContainer?.querySelector(".Input-Image-Card");
+    const inputImageEl = inputImageCard?.querySelector("img");
+    const removeImageBtn = inputImageCard?.querySelector(".Remove-Image-Button");
+    const chatSubmit = document.querySelector(".Submit-Button-Wrapper");
+
+    // 1-7.상태 변수
+    let expertSearchTimer = null;
+    let roomRefreshTimer = null;
+    let stageOneRooms = [];
+    let activeBtn = null;
+    let activeEmoteBtn = null;
+    let picker = null;
+    let isCurrentRoomMuted = false;
+
+    // 2.채팅방 목록 관련 함수
+
+    // 2-1.채팅방 목록 DOM 배열 반환
+    function getStageOneRoomItems() {
+        return Array.from(document.querySelectorAll(".UserList-EachUser"));
     }
 
-    // 채팅방 열기
-    function openChatRoom() {
-        newChatDiv.classList.add("off");
-        chatDiv.classList.remove("off");
-        bottomNav.style.display = "none";
-        if (isMobile()) {
-            userListWrapper.classList.add("off");
-        }
+    // 2-2.현재 방 표시
+    function markCurrentStageOneRoom(roomId) {
+        let activeRoom = null;
+        getStageOneRoomItems().forEach((roomItem) => {
+            const isCurrent = Number(roomItem.dataset.conversationId || 0) === Number(roomId);
+            roomItem.classList.toggle("current", isCurrent);
+            if (isCurrent) activeRoom = roomItem;
+        });
+        return activeRoom;
     }
 
-    // 채팅방 닫기
-    function closeChatRoom() {
-        chatDiv.classList.add("off");
-        newChatDiv.classList.remove("off");
-        bottomNav.style.display = "flex";
-        if (isMobile()) {
-            userListWrapper.classList.remove("off");
-        }
+    // 2-3.서버 응답 데이터 정규화
+    function normalizeStageOneRoom(room) {
+        const conversationId = Number(room?.conversationId || room?.id || 0);
+        const partnerId = Number(room?.partnerId || room?.invitedId || 0);
+        const partnerName = String(room?.partnerName || room?.invitedName || room?.displayName || room?.title || "").trim();
+        const displayName = String(room?.displayName || room?.title || partnerName).trim();
+        const partnerHandle = String(room?.partnerHandle || room?.invitedHandle || "").trim();
+
+        if (!conversationId || !displayName) return null;
+
+        return {
+            conversationId,
+            partnerId,
+            partnerName,
+            displayName,
+            partnerHandle,
+            lastMessage: String(room?.lastMessage || "").trim(),
+            lastMessageTime: room?.lastMessageTime ? ChatLayout.formatRoomTime(room.lastMessageTime) : "",
+            unreadCount: Math.max(Number(room?.unreadCount || 0), 0),
+            muted: Boolean(room?.muted),
+        };
     }
 
-    backBtn.addEventListener("click", () => {
-        closeChatRoom();
-    });
+    // 2-4.방 목록 복사본 반환
+    function buildStageOneConversationRooms() {
+        return [...stageOneRooms];
+    }
 
-    window.addEventListener("resize", () => {
-        if (!isMobile()) {
-            userListWrapper.classList.remove("off");
-        } else {
-            if (!chatDiv.classList.contains("off")) {
-                userListWrapper.classList.add("off");
-            }
+    // 2-5.방 목록 클릭 이벤트 바인딩
+    function bindStageOneRoomClicks() {
+        getStageOneRoomItems().forEach((chat) => {
+            chat.addEventListener("click", () => selectStageOneRoom(chat));
+        });
+    }
+
+    // 2-6.방 목록 HTML 렌더링
+    function renderStageOneRoomList(rooms) {
+        if (!userListContainer) return;
+        userListContainer.innerHTML = ChatLayout.renderRoomListMarkup(rooms);
+        bindStageOneRoomClicks();
+    }
+
+    // 2-7.모바일 하단 네비게이션 unread 뱃지 갱신
+    function updateStageOneTotalUnreadBadge() {
+        if (!mobileMessageBadge) return;
+        const totalUnreadCount = stageOneRooms.reduce(
+            (sum, room) => sum + Math.max(Number(room?.unreadCount || 0), 0), 0,
+        );
+        const unreadLabel = ChatLayout.formatUnreadCount(totalUnreadCount);
+        mobileMessageBadge.textContent = unreadLabel;
+        mobileMessageBadge.classList.toggle("off", !unreadLabel);
+    }
+
+    // 2-8.개별 방 unread 뱃지 UI 갱신
+    function updateStageOneRoomUnreadUi(roomId) {
+        const targetRoom = stageOneRooms.find((room) => room.conversationId === Number(roomId));
+        const roomItem = getStageOneRoomItems().find(
+            (item) => Number(item.dataset.conversationId || 0) === Number(roomId),
+        );
+        const infoBottom = roomItem?.querySelector(".Info-Bottom");
+
+        if (!targetRoom || !infoBottom) {
+            updateStageOneTotalUnreadBadge();
+            return;
         }
-    });
 
-    // 좌측 대화 검색 -----------------------------------
+        const unreadLabel = ChatLayout.formatUnreadCount(targetRoom.unreadCount);
+        const existingBadge = infoBottom.querySelector(".Room-UnreadCount");
+
+        if (!unreadLabel) {
+            existingBadge?.remove();
+            updateStageOneTotalUnreadBadge();
+            return;
+        }
+
+        if (existingBadge) {
+            const badgeText = existingBadge.querySelector(".UnreadCount-Badge");
+            if (badgeText) badgeText.textContent = unreadLabel;
+            updateStageOneTotalUnreadBadge();
+            return;
+        }
+
+        infoBottom.insertAdjacentHTML("beforeend", `
+            <div class="Room-UnreadCount">
+                <span class="UnreadCount-Badge">${ChatLayout.escapeHtml(unreadLabel)}</span>
+            </div>
+        `);
+        updateStageOneTotalUnreadBadge();
+    }
+
+    // 2-9.특정 방 unread 카운트 설정
+    function setStageOneRoomUnreadCount(roomId, unreadCount) {
+        let didUpdate = false;
+        stageOneRooms = stageOneRooms.map((room) => {
+            if (room.conversationId !== Number(roomId)) return room;
+            didUpdate = true;
+            return { ...room, unreadCount: Math.max(Number(unreadCount || 0), 0) };
+        });
+
+        if (!didUpdate) {
+            updateStageOneTotalUnreadBadge();
+            return;
+        }
+        updateStageOneRoomUnreadUi(roomId);
+        refreshSearchConversationPanel(searchInput?.value || "");
+    }
+
+    // 2-10.특정 방 unread 카운트 1 증가
+    function incrementStageOneRoomUnreadCount(roomId) {
+        const targetRoom = stageOneRooms.find((room) => room.conversationId === Number(roomId));
+        if (!targetRoom) {
+            updateStageOneTotalUnreadBadge();
+            return;
+        }
+        setStageOneRoomUnreadCount(roomId, Number(targetRoom.unreadCount || 0) + 1);
+    }
+
+    // 2-11.서버에서 방 목록 조회 후 렌더링
+    async function loadStageOneRoomList() {
+        try {
+            const rooms = await ChatService.getRooms(currentMemberId);
+            stageOneRooms = (Array.isArray(rooms) ? rooms : [])
+                .map(normalizeStageOneRoom)
+                .filter(Boolean);
+        } catch (error) {
+            console.error("채팅방 목록 조회 실패", error);
+            stageOneRooms = [];
+        }
+        renderStageOneRoomList(stageOneRooms);
+        syncStageOneRoomSubscriptions();
+        updateStageOneTotalUnreadBadge();
+        refreshSearchConversationPanel(searchInput?.value || "");
+        return stageOneRooms;
+    }
+
+    // 2-12.방 목록 미리보기 동기화
+    function syncStageOneRoomPreview(messages) {
+        const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+        const currentRoomItem = getStageOneRoomItems().find(
+            (roomItem) => Number(roomItem.dataset.conversationId || 0) === Number(currentRoomId),
+        );
+
+        stageOneRooms = stageOneRooms.map((room) =>
+            room.conversationId === Number(currentRoomId)
+                ? {
+                    ...room,
+                    lastMessage: lastMessage ? lastMessage.content || "" : "",
+                    lastMessageTime: lastMessage ? ChatLayout.formatRoomTime(lastMessage.createdDatetime) : "",
+                }
+                : room,
+        );
+
+        refreshSearchConversationPanel(searchInput?.value || "");
+        if (!currentRoomItem) return;
+
+        const preview = currentRoomItem.querySelector(".Talk-Content");
+        const time = currentRoomItem.querySelector(".Lastest-ChatTime-Text");
+        if (preview) preview.textContent = lastMessage ? lastMessage.content || "" : "";
+        if (time) time.textContent = lastMessage ? ChatLayout.formatRoomTime(lastMessage.createdDatetime) : "";
+    }
+
+    // 2-13.다른 방에서 수신한 메시지의 미리보기 로컬 갱신
+    function updateStageOneRoomPreviewLocally(roomId, message) {
+        const roomItem = getStageOneRoomItems().find(
+            (item) => Number(item.dataset.conversationId || 0) === Number(roomId),
+        );
+        if (!roomItem) return;
+
+        const preview = roomItem.querySelector(".Talk-Content");
+        const time = roomItem.querySelector(".Lastest-ChatTime-Text");
+        if (preview) preview.textContent = message.content || "";
+        if (time) time.textContent = ChatLayout.formatRoomTime(message.createdDatetime);
+
+        stageOneRooms = stageOneRooms.map((room) =>
+            room.conversationId === Number(roomId)
+                ? { ...room, lastMessage: message.content || "", lastMessageTime: ChatLayout.formatRoomTime(message.createdDatetime) }
+                : room,
+        );
+    }
+
+    // 2-14.방 목록 갱신 디바운스
+    function scheduleStageOneRoomRefresh() {
+        clearTimeout(roomRefreshTimer);
+        roomRefreshTimer = setTimeout(async () => {
+            const activeRoomId = currentRoomId;
+            await loadStageOneRoomList();
+            markCurrentStageOneRoom(activeRoomId);
+        }, 100);
+    }
+
+    // 3.좌측 대화 검색 관련 함수
+
+    // 3-1.검색 결과 클릭 이벤트 바인딩
+    function bindSearchConversationClicks(container, selector) {
+        container.querySelectorAll(selector).forEach((item) => {
+            item.addEventListener("click", () => openConversationFromSearch(item.dataset.conversationId));
+        });
+    }
+
+    // 3-2.검색 결과 그리드 렌더링
+    function renderSearchConversationGrid(rooms) {
+        if (!searchConvGrid) return;
+        searchConvGrid.innerHTML = ChatLayout.renderSearchConversationGridMarkup(rooms);
+        bindSearchConversationClicks(searchConvGrid, ".Search-Conv-Item");
+    }
+
+    // 3-3.검색 결과 리스트 렌더링
+    function renderSearchConversationList(rooms) {
+        if (!searchConvList) return;
+        searchConvList.innerHTML = ChatLayout.renderSearchConversationListMarkup(rooms);
+        bindSearchConversationClicks(searchConvList, ".Search-Conv-Row");
+    }
+
+    // 3-4.검색 패널 갱신
+    function refreshSearchConversationPanel(keyword = "") {
+        const rooms = buildStageOneConversationRooms();
+        const trimmedKeyword = keyword.trim();
+        if (!trimmedKeyword) {
+            renderSearchConversationGrid(rooms);
+            return;
+        }
+        renderSearchConversationList(ChatLayout.filterSearchConversationRooms(rooms, trimmedKeyword));
+    }
+
+    // 3-5.검색 패널 열기
     function openSearchPanel() {
         searchBarPlaceholder.style.display = "none";
         searchBarInput.style.display = "flex";
@@ -99,9 +316,11 @@ window.onload = () => {
         searchConvPanel.classList.remove("off");
         searchConvEmpty.style.display = "flex";
         searchConvResults.classList.add("off");
+        refreshSearchConversationPanel();
         setTimeout(() => searchInput.focus(), 50);
     }
 
+    // 3-6.검색 패널 닫기
     function closeSearchPanel() {
         searchBarPlaceholder.style.display = "";
         searchBarInput.style.display = "none";
@@ -111,6 +330,7 @@ window.onload = () => {
         searchClearBtn.classList.add("off");
     }
 
+    // 3-7.검색 이벤트 바인딩
     searchBarPlaceholder.addEventListener("click", (e) => {
         e.stopPropagation();
         openSearchPanel();
@@ -121,6 +341,7 @@ window.onload = () => {
         searchClearBtn.classList.toggle("off", !hasValue);
         searchConvEmpty.style.display = hasValue ? "none" : "flex";
         searchConvResults.classList.toggle("off", !hasValue);
+        refreshSearchConversationPanel(searchInput.value);
     });
 
     searchClearBtn.addEventListener("click", () => {
@@ -128,6 +349,7 @@ window.onload = () => {
         searchClearBtn.classList.add("off");
         searchConvEmpty.style.display = "flex";
         searchConvResults.classList.add("off");
+        refreshSearchConversationPanel();
         searchInput.focus();
     });
 
@@ -146,36 +368,94 @@ window.onload = () => {
         }
     });
 
-    // -----------------------------------------------
+    // 4.채팅방 열기 닫기
 
-    // EmojiButton 라이브러리가 로드된 경우에만 초기화
-    let picker = null;
+    // 4-1.모바일 여부 판단
+    function isMobile() {
+        return window.innerWidth <= 600;
+    }
+
+    // 4-2.채팅방 열기
+    function openChatRoom() {
+        chatDiv.style.visibility = "hidden";
+        newChatDiv.classList.add("off");
+        chatDiv.classList.remove("off");
+        bottomNav.style.display = "none";
+        if (isMobile()) userListWrapper.classList.add("off");
+    }
+
+    // 4-3.채팅방 닫기
+    function closeChatRoom() {
+        currentRoomId = 0;
+        pendingSubscriptionRoomId = null;
+        if (currentReadSubscription) {
+            currentReadSubscription.unsubscribe();
+            currentReadSubscription = null;
+        }
+        markCurrentStageOneRoom(0);
+        delete document.body.dataset.conversationId;
+        // URL에서 conversationId, partnerId 파라미터 제거
+        const url = new URL(window.location.href);
+        url.searchParams.delete("conversationId");
+        url.searchParams.delete("partnerId");
+        window.history.replaceState({}, "", url.toString());
+        chatDiv.classList.add("off");
+        newChatDiv.classList.remove("off");
+        bottomNav.style.display = "flex";
+        if (isMobile()) userListWrapper.classList.remove("off");
+    }
+
+    // 4-4.채팅방 선택
+    function selectStageOneRoom(chat) {
+        const roomId = Number(chat?.dataset.conversationId || 0);
+        if (!roomId) return;
+        openChatRoom();
+        activateStageOneRoom(roomId);
+    }
+
+    // 4-5.검색에서 대화방 열기
+    function openConversationFromSearch(conversationId) {
+        const targetRoom = getStageOneRoomItems().find(
+            (roomItem) => Number(roomItem.dataset.conversationId || 0) === Number(conversationId),
+        );
+        if (!targetRoom) return;
+        closeSearchPanel();
+        selectStageOneRoom(targetRoom);
+    }
+
+    // 4-6.뒤로가기 버튼
+    backBtn.addEventListener("click", () => closeChatRoom());
+
+    // 4-7.반응형 리사이즈 처리
+    window.addEventListener("resize", () => {
+        if (!isMobile()) {
+            userListWrapper.classList.remove("off");
+        } else {
+            if (!chatDiv.classList.contains("off")) userListWrapper.classList.add("off");
+        }
+    });
+
+    // 5.이모지 관련
+
+    // 5-1.하단 입력란 이모지 버튼
     const emoteButton = document.getElementById("emoji-btn");
 
     if (typeof EmojiButton !== "undefined") {
-        picker = new EmojiButton({
-            position: "top-start",
-            zIndex: 9999,
-        });
+        picker = new EmojiButton({ position: "top-start", zIndex: 9999 });
         picker.on("emoji", (emoji) => {
             const textBox = document.getElementById("chat-input");
             textBox.value += emoji;
-            // 입력값 생기면 전송 버튼 활성화
             chatSubmit.classList.remove("off");
         });
-
         emoteButton.addEventListener("click", (e) => {
             e.stopPropagation();
             picker.togglePicker(emoteButton);
         });
     } else {
-        // 라이브러리가 없을 경우 버튼 숨김 처리
         if (emoteButton) emoteButton.style.display = "none";
     }
 
-    const emojiPicker = document.querySelector(".Chat-Emoji-Picker");
-    let activeEmoteBtn = null;
-
+    // 5-2.메시지별 이모지 피커 열기
     function openEmojiPicker(btn) {
         emojiPicker.classList.remove("off");
         const rect = btn.getBoundingClientRect();
@@ -184,11 +464,8 @@ window.onload = () => {
 
         let top = rect.top - pickerHeight - 8;
         let left = rect.left;
-
         if (top < 8) top = rect.bottom + 8;
-        if (left + pickerWidth > window.innerWidth) {
-            left = window.innerWidth - pickerWidth - 8;
-        }
+        if (left + pickerWidth > window.innerWidth) left = window.innerWidth - pickerWidth - 8;
         if (left < 8) left = 8;
 
         emojiPicker.style.position = "fixed";
@@ -198,12 +475,13 @@ window.onload = () => {
         activeEmoteBtn = btn;
     }
 
+    // 5-3.메시지별 이모지 피커 닫기
     function closeEmojiPicker() {
         emojiPicker.classList.add("off");
         activeEmoteBtn = null;
     }
 
-    // 이모지 선택 이벤트
+    // 5-4.이모지 피커 선택 이벤트
     emojiPicker.querySelectorAll(".Emoji-Button").forEach((btn) => {
         btn.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -214,7 +492,7 @@ window.onload = () => {
         });
     });
 
-    // 외부 클릭 시 이모지 피커 닫기
+    // 5-5.이모지 피커 외부 클릭시 닫기
     document.addEventListener("click", (e) => {
         if (
             !emojiPicker.classList.contains("off") &&
@@ -225,44 +503,71 @@ window.onload = () => {
         }
     });
 
-    // -----------------------------------------------
+    // 6.전문가 검색 모달
 
-    // 상담 받기 클릭시 전문가 검색창 표시
-    function openSearchExpertModal() {
-        openModal(searchExpertModal);
-
-        const closeBtn = searchExpertModal.querySelector(
-            ".Modal-Header-Button",
-        );
-        const searchInputModal = document.querySelector(
-            ".Search-Modal-SearchBar input",
-        );
-
-        let timer;
-        const delay = 1000;
-
-        searchInputModal.addEventListener("keyup", (e) => {
-            e.preventDefault();
-            clearTimeout(timer);
-            timer = setTimeout(() => {
-                // REST API 요청 작성
-            }, delay);
-        });
-
-        const experts = searchExpertModal.querySelectorAll(".Each-Expert");
-        experts.forEach((expert) => {
-            expert.addEventListener("click", (e) => {
-                closeModal(searchExpertModal);
-                openChatRoom();
+    // 6-1.전문가 클릭 이벤트 바인딩 (비동기 방식)
+    function bindConnectedExpertClicks() {
+        searchExpertList?.querySelectorAll(".Each-Expert[data-expert-id]").forEach((expert) => {
+            expert.addEventListener("click", async () => {
+                const expertId = Number(expert.dataset.expertId || 0);
+                if (!expertId) return;
+                try {
+                    const room = await ChatService.createRoom("", currentMemberId, expertId);
+                    closeModal(searchExpertModal);
+                    await loadStageOneRoomList();
+                    const roomId = Number(room.id);
+                    const targetRoom = getStageOneRoomItems().find(
+                        (item) => Number(item.dataset.conversationId || 0) === roomId,
+                    );
+                    if (targetRoom) {
+                        selectStageOneRoom(targetRoom);
+                    }
+                } catch (error) {
+                    console.error("전문가 채팅방 생성 실패", error);
+                }
             });
-        });
-
-        closeBtn.addEventListener("click", (e) => {
-            closeModal(searchExpertModal);
         });
     }
 
-    newChatBtn.addEventListener("click", (e) => {
+    // 6-2.전문가 목록 렌더링
+    function renderConnectedExperts(experts) {
+        if (!searchExpertList) return;
+        searchExpertList.innerHTML = ChatLayout.renderInviteExpertListMarkup(experts);
+        bindConnectedExpertClicks();
+    }
+
+    // 6-3.전문가 목록 서버 조회
+    async function loadConnectedExpertsForModal(keyword = "") {
+        try {
+            const experts = await ChatService.getConnectedExperts(currentMemberId, keyword);
+            renderConnectedExperts(experts);
+        } catch (error) {
+            console.error("연결된 전문가 조회 실패", error);
+            renderConnectedExperts([]);
+        }
+    }
+
+    // 6-4.전문가 검색 모달 열기
+    function openSearchExpertModal() {
+        openModal(searchExpertModal);
+        if (searchExpertInput) searchExpertInput.value = "";
+        loadConnectedExpertsForModal();
+        setTimeout(() => searchExpertInput?.focus(), 50);
+    }
+
+    // 6-5.전문가 검색 입력 이벤트
+    if (searchExpertInput) {
+        searchExpertInput.addEventListener("input", () => {
+            clearTimeout(expertSearchTimer);
+            expertSearchTimer = setTimeout(() => {
+                loadConnectedExpertsForModal(searchExpertInput.value);
+            }, 200);
+        });
+    }
+
+    searchExpertCloseBtn?.addEventListener("click", () => closeModal(searchExpertModal));
+
+    newChatBtn?.addEventListener("click", (e) => {
         e.preventDefault();
         openSearchExpertModal();
     });
@@ -275,41 +580,24 @@ window.onload = () => {
         });
     }
 
-    // 채팅방 이벤트 -----------------------------------
-    if (chats) {
-        chats.forEach((chat) => {
-            chat.addEventListener("click", (e) => {
-                chats.forEach((c) => c.classList.remove("current"));
-                chat.classList.add("current");
-                openChatRoom();
-            });
-        });
-    }
-
+    // 7.채팅방 상단 버튼 이벤트
     const buttons = chatDiv.querySelectorAll(".ChatPage-Button");
     buttons.forEach((button) => {
-        button.addEventListener("click", (e) => {
+        button.addEventListener("click", () => {
             const divName = button.classList[1];
             switch (divName) {
-                case "VideoCall":
-                    alert("추후 업데이트 예정입니다.");
-                    break;
-                case "UserInfo":
-                    openModal(userInfoModal);
-                    break;
+                case "VideoCall": return;
+                case "UserInfo": openModal(userInfoModal); break;
             }
         });
     });
 
-    const conversations = chatDiv.querySelectorAll(
-        ".Left, .Right, .MyReply, .Reply",
-    );
-    const replyCons = chatDiv.querySelectorAll(".MyReply, .Reply");
+    // 8.채팅 메뉴 관련
 
-    // 채팅 메뉴 관련
-    const chatMenu = document.querySelector(".Chat-Extend-Menu");
-    let activeBtn = null;
+    // 8-1.HTML에 하드코딩된 샘플 메시지에 대한 hover 이벤트
+    const conversations = chatDiv.querySelectorAll(".Left, .Right");
 
+    // 8-2.메뉴 닫기
     function closeMenu() {
         if (activeBtn) {
             const menu = activeBtn.closest(".Message-Buttons");
@@ -320,9 +608,21 @@ window.onload = () => {
         activeBtn = null;
     }
 
+    // 8-3.더보기 메뉴 항목 가시성 갱신
+    function updateMenuVisibility() {
+        if (!activeBtn) return;
+        const targetMsg = activeBtn.closest(".Each-Main-Content");
+        const hasContent = targetMsg?.querySelector(".Message-Content");
+        const hasFile = targetMsg?.querySelector(".Message-File");
+        const copyBtn = chatMenu.querySelector('[name="copy"]');
+        const downloadBtn = chatMenu.querySelector('[name="download"]');
+        if (copyBtn) copyBtn.style.display = hasContent ? "" : "none";
+        if (downloadBtn) downloadBtn.style.display = hasFile ? "" : "none";
+    }
+
+    // 8-4.메뉴 위치 갱신
     function updateMenuPosition() {
         if (!activeBtn) return;
-
         const rect = activeBtn.getBoundingClientRect();
 
         if (rect.top < 0 || rect.bottom > window.innerHeight) {
@@ -335,26 +635,15 @@ window.onload = () => {
         const spaceBelow = window.innerHeight - rect.bottom;
         const spaceRight = window.innerWidth - rect.left;
 
-        let top;
-        if (spaceBelow >= menuHeight) {
-            top = rect.bottom + 8;
-        } else {
-            top = rect.top - menuHeight - 8;
-        }
-
-        let left;
-        if (spaceRight >= menuWidth) {
-            left = rect.left;
-        } else {
-            left = rect.right - menuWidth;
-        }
-        left = Math.max(8, left);
-        left = Math.min(left, window.innerWidth - menuWidth - 8);
+        let top = spaceBelow >= menuHeight ? rect.bottom + 8 : rect.top - menuHeight - 8;
+        let left = spaceRight >= menuWidth ? rect.left : rect.right - menuWidth;
+        left = Math.max(8, Math.min(left, window.innerWidth - menuWidth - 8));
 
         chatMenu.style.top = `${top}px`;
         chatMenu.style.left = `${left}px`;
     }
 
+    // 8-4.하드코딩 메시지에 hover, 이모지, 더보기 메뉴 이벤트 바인딩
     conversations.forEach((c) => {
         const menu = c.querySelector(".Message-Buttons");
         if (!menu) return;
@@ -362,47 +651,22 @@ window.onload = () => {
         const emojiBtn = menu.querySelector(".Message-Button.Emote");
         const moreBtn = menu.querySelector(".Message-Button.Menu");
 
-        c.addEventListener("mouseover", () => {
-            menu.classList.remove("off");
-        });
-
-        c.addEventListener(
-            "touchstart",
-            () => {
-                menu.classList.remove("off");
-            },
-            {passive: true},
-        );
-
+        c.addEventListener("mouseover", () => menu.classList.remove("off"));
+        c.addEventListener("touchstart", () => menu.classList.remove("off"), { passive: true });
         c.addEventListener("mouseleave", () => {
-            // 이 채팅의 버튼이 activeBtn이거나 이모지 피커가 이 채팅에 연결된 경우 숨기지 않음
             if (activeBtn === moreBtn) return;
-            if (
-                activeEmoteBtn === emojiBtn &&
-                !emojiPicker.classList.contains("off")
-            )
-                return;
+            if (activeEmoteBtn === emojiBtn && !emojiPicker.classList.contains("off")) return;
             menu.classList.add("off");
         });
 
         if (emojiBtn) {
             emojiBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-
-                // 더보기 메뉴가 열려있으면 닫기
-                if (chatMenu.classList.contains("on")) {
-                    closeMenu();
-                }
-
-                // 같은 버튼 다시 클릭 시 닫기
-                if (
-                    activeEmoteBtn === emojiBtn &&
-                    !emojiPicker.classList.contains("off")
-                ) {
+                if (chatMenu.classList.contains("on")) closeMenu();
+                if (activeEmoteBtn === emojiBtn && !emojiPicker.classList.contains("off")) {
                     closeEmojiPicker();
                     return;
                 }
-
                 openEmojiPicker(emojiBtn);
             });
         }
@@ -410,272 +674,194 @@ window.onload = () => {
         if (moreBtn) {
             moreBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-
-                // 이모지 피커가 열려있으면 닫기
-                if (!emojiPicker.classList.contains("off")) {
-                    closeEmojiPicker();
-                }
-
-                // 같은 버튼 다시 클릭 시 닫기
-                if (
-                    activeBtn === moreBtn &&
-                    chatMenu.classList.contains("on")
-                ) {
+                if (!emojiPicker.classList.contains("off")) closeEmojiPicker();
+                if (activeBtn === moreBtn && chatMenu.classList.contains("on")) {
                     closeMenu();
                     return;
                 }
-
-                // 이전에 열린 메뉴의 Message-Buttons 숨기기
                 if (activeBtn) {
                     const prevMenu = activeBtn.closest(".Message-Buttons");
                     if (prevMenu) prevMenu.classList.add("off");
                 }
-
                 menu.classList.remove("off");
                 activeBtn = moreBtn;
                 chatMenu.classList.remove("off");
                 chatMenu.classList.add("on");
+                updateMenuVisibility();
                 updateMenuPosition();
             });
         }
     });
 
-    const scrollContainer = document.querySelector(".ChatPage-Main-Container");
+    // 8-5.스크롤시 메뉴 위치 갱신
     if (scrollContainer) {
-        scrollContainer.addEventListener(
-            "scroll",
-            () => {
-                if (chatMenu.classList.contains("on")) {
-                    updateMenuPosition();
-                }
-            },
-            {passive: true},
-        );
+        scrollContainer.addEventListener("scroll", () => {
+            if (chatMenu.classList.contains("on")) updateMenuPosition();
+        }, { passive: true });
     }
 
+    // 8-6.메뉴 외부 클릭시 닫기
     document.addEventListener("click", (e) => {
-        // 채팅 더보기 메뉴 외부 클릭 시 닫기
-        if (!chatMenu.contains(e.target)) {
-            closeMenu();
-        }
+        if (!chatMenu.contains(e.target)) closeMenu();
     });
 
-    // 채팅 메뉴 이벤트
-    const toast = document.querySelector(".Clipboard-Toast");
-
-    // 답글 컨테이너
-    const replyContainer = chatDiv.querySelector(".ChatPage-Reply-Container");
-    const replyTextUser = replyContainer.querySelector(".Reply-Text-User");
-    const replyTextContent = replyContainer.querySelector(
-        ".Reply-Text-Content",
-    );
-    const replyCloseBtn = replyContainer.querySelector(".Reply-Close");
-
-    function openReply(userName, content) {
-        replyTextUser.textContent = userName;
-        replyTextContent.textContent = content;
-        replyContainer.classList.remove("off");
-    }
-
-    function closeReply() {
-        replyContainer.classList.add("off");
-        replyTextUser.textContent = "";
-        replyTextContent.textContent = "";
-    }
-
-    replyCloseBtn.addEventListener("click", () => closeReply());
-
+    // 8-7.메뉴 버튼 클릭 이벤트
     const chatMenuBtns = chatMenu.querySelectorAll(".Extend-Menu-Button");
     chatMenuBtns.forEach((button) => {
-        button.addEventListener("click", (e) => {
+        button.addEventListener("click", () => {
             const name = button.getAttribute("name");
-
             switch (name) {
-                case "reply":
-                    const targetChat = activeBtn?.closest(".Each-Main-Content");
-                    const isLeft =
-                        targetChat?.classList.contains("Left") ||
-                        targetChat?.classList.contains("Reply");
-                    const userName = isLeft
-                        ? (chatDiv
-                            .querySelector(
-                                ".ChatPage-UserInfo .UserName-Text",
-                            )
-                            ?.textContent.trim() ?? "상대방")
-                        : "나";
-                    const content =
-                        targetChat
-                            ?.querySelector(".Message-Content")
-                            ?.textContent.trim() ?? "";
-                    closeMenu(); // [FIX 1] 메뉴 먼저 닫기
-                    openReply(userName, content);
-                    break;
-                case "trans":
-                    closeMenu(); // [FIX 1] 메뉴 먼저 닫기
-                    openModal(postChatModal);
+                case "download":
+                    const downloadTarget = activeBtn?.closest(".Each-Main-Content");
+                    const fileId = downloadTarget?.querySelector(".Message-File")?.dataset.fileId;
+                    closeMenu();
+                    if (fileId) {
+                        ChatService.getFileDownloadUrl(fileId).then((url) => {
+                            window.open(url, "_blank");
+                        }).catch(() => alert("파일 다운로드에 실패했습니다."));
+                    }
                     break;
                 case "copy":
                     const messageContent = activeBtn
                         ?.closest(".Each-Main-Content")
                         ?.querySelector(".Message-Content")?.innerText;
-                    closeMenu(); // [FIX 1] 메뉴 먼저 닫기
+                    closeMenu();
                     if (!messageContent) break;
-                    navigator.clipboard
-                        .writeText(messageContent)
+                    navigator.clipboard.writeText(messageContent)
                         .then(() => {
                             toast.classList.remove("show");
                             void toast.offsetWidth;
                             toast.classList.add("show");
-                            setTimeout(() => {
-                                toast.classList.remove("show");
-                            }, 4000);
+                            setTimeout(() => toast.classList.remove("show"), 4000);
                         })
-                        .catch(() => {
-                            console.error("클립보드 복사 실패");
-                        });
+                        .catch(() => console.error("클립보드 복사 실패"));
                     break;
                 case "delete":
-                    closeMenu(); // [FIX 1] 메뉴 먼저 닫기
+                    const deleteTarget = activeBtn?.closest(".Each-Main-Content");
+                    const deleteMessageId = deleteTarget?.dataset.messageId || null;
+                    closeMenu();
+                    if (deleteMessageId) deleteChatModal.dataset.targetMessageId = deleteMessageId;
                     openModal(deleteChatModal);
                     break;
             }
         });
     });
 
-    // 답변 채팅 클릭 시 해당 채팅으로 이동
-    replyCons.forEach((reply) => {
-        const replyWrapper = reply.querySelector(".MyReply-Wrapper");
-        if (!replyWrapper) return;
+    // 9.하단 입력란 이벤트
 
-        replyWrapper.addEventListener("click", (e) => {
-            const targetId = reply.dataset.replyTo;
-            if (!targetId) return;
-
-            const targetLi = document.querySelector(
-                `[data-chat-id="${targetId}"]`,
-            );
-            if (!targetLi) return;
-
-            targetLi.scrollIntoView({behavior: "smooth", block: "center"});
-
-            setTimeout(() => {
-                const messageContainer = targetLi.closest(".Each-Main-Content");
-                if (!messageContainer) return;
-
-                const isLeft = targetLi.classList.contains("Left");
-                const animClass = isLeft ? "chat-pop-right" : "chat-pop-left";
-
-                messageContainer.classList.remove(
-                    "chat-pop-right",
-                    "chat-pop-left",
-                );
-                void messageContainer.offsetWidth;
-                messageContainer.classList.add(animClass);
-
-                messageContainer.addEventListener(
-                    "animationend",
-                    () => {
-                        messageContainer.classList.remove(animClass);
-                    },
-                    {once: true},
-                );
-            }, 400);
-        });
-    });
-
-    // 하단 입력란 부분 -----------------------------------
-    const chatInputDiv = document.querySelector(".Input-TextArea-Container");
-    const chatForm = document.getElementById("chatSubmit");
-    const chatInput = document.getElementById("chat-input");
-    // [FIX 4] 이미지 첨부 관련 요소
-    const chatAttach = document.getElementById("chat-image");
-    const inputImageContainer = document.querySelector(
-        ".Input-Image-Container",
-    );
-    const inputImageCard =
-        inputImageContainer?.querySelector(".Input-Image-Card");
-    const inputImageEl = inputImageCard?.querySelector("img");
-    const removeImageBtn = inputImageCard?.querySelector(
-        ".Remove-Image-Button",
-    );
-    const chatSubmit = document.querySelector(".Submit-Button-Wrapper");
-
-    // 채팅 input 값 변화 시 전송 버튼 활성화
-    chatInput.addEventListener("keyup", (e) => {
+    // 9-1.입력값 변화시 전송 버튼 토글
+    chatInput.addEventListener("keyup", () => {
         if (chatInput.value) {
             chatSubmit.classList.remove("off");
-        } else if (
-            !inputImageContainer ||
-            inputImageContainer.classList.contains("off")
-        ) {
-            // 이미지도 없고 텍스트도 없으면 버튼 비활성화
+        } else if (!inputImageContainer || inputImageContainer.classList.contains("off")) {
             chatSubmit.classList.add("off");
         }
     });
 
+    // 9-2.파일 첨부
     if (chatAttach) {
-        chatAttach.addEventListener("change", (e) => {
+        chatAttach.addEventListener("change", () => {
             const file = chatAttach.files[0];
             if (!file) return;
-
-            // 이미지 파일만 허용
-            if (!file.type.startsWith("image/")) {
-                alert("이미지 파일만 첨부할 수 있습니다.");
-                chatAttach.value = "";
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                if (inputImageEl) {
-                    inputImageEl.src = ev.target.result;
-                }
-                if (inputImageContainer) {
-                    inputImageContainer.classList.remove("off");
-                }
-                // 이미지 첨부되면 전송 버튼 활성화
+            if (file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    if (inputImageEl) inputImageEl.src = ev.target.result;
+                    if (inputImageContainer) inputImageContainer.classList.remove("off");
+                    chatSubmit.classList.remove("off");
+                };
+                reader.readAsDataURL(file);
+            } else {
+                if (inputImageEl) inputImageEl.src = "";
+                if (inputImageContainer) inputImageContainer.classList.add("off");
                 chatSubmit.classList.remove("off");
-            };
-            reader.readAsDataURL(file);
+            }
         });
     }
 
-    // [FIX 4] 이미지 제거 버튼
+    // 9-3.이미지 제거 버튼
     if (removeImageBtn) {
         removeImageBtn.addEventListener("click", () => {
             if (inputImageEl) inputImageEl.src = "";
             if (inputImageContainer) inputImageContainer.classList.add("off");
             if (chatAttach) chatAttach.value = "";
-            // 텍스트도 없으면 전송 버튼 비활성화
-            if (!chatInput.value) {
-                chatSubmit.classList.add("off");
-            }
+            if (!chatInput.value) chatSubmit.classList.add("off");
         });
     }
 
-    // 채팅 보내기 이벤트
+    // 9-4.전송 버튼 클릭, 엔터 이벤트
     chatSubmit.addEventListener("keyup", (e) => {
         e.preventDefault();
-        if (e.key === "Enter") {
-            chatForm.submit();
-        }
+        if (e.key === "Enter") chatForm.dispatchEvent(new Event("submit"));
     });
     chatSubmit.addEventListener("click", (e) => {
         e.preventDefault();
-        chatForm.submit();
+        chatForm.dispatchEvent(new Event("submit"));
     });
 
-    // 모달 이벤트 부분 -----------------------------------
-    chatUser.addEventListener("click", (e) => {
-        openModal(userInfoModal);
+    // 10.모달 이벤트
+
+    // 10-1.모달 열기
+    function openModal(modal) {
+        modal.querySelector(".Extend-Menu-Wrapper")?.classList.add("off");
+        modalBackDrop.classList.remove("off");
+        modal.classList.remove("off");
+        if (modal.classList.contains("Big-Modal") || modal.classList.contains("Small-Modal")) {
+            requestAnimationFrame(() => modal.classList.add("on"));
+        }
+        if (modal.classList.contains("Small-Modal")) {
+            modalBackDrop.style.zIndex = "53";
+        }
+    }
+
+    // 10-2.모달 닫기
+    function closeModal(modal) {
+        if (modal.classList.contains("Big-Modal")) {
+            modal.classList.remove("on");
+            modal.addEventListener("transitionend", () => {
+                modal.classList.add("off");
+                const anyOpen = document.querySelectorAll(".Big-Modal.on, .Small-Modal.on");
+                if (anyOpen.length === 0) modalBackDrop.classList.add("off");
+            }, { once: true });
+        } else if (modal.classList.contains("Small-Modal")) {
+            modal.classList.remove("on");
+            modal.classList.add("off");
+            modalBackDrop.style.zIndex = "";
+            const anyOpen = document.querySelectorAll(".Big-Modal.on");
+            if (anyOpen.length === 0) modalBackDrop.classList.add("off");
+        } else {
+            modalBackDrop.classList.add("off");
+            modal.classList.add("off");
+        }
+    }
+
+    // 10-3.백드롭 클릭시 모든 모달 닫기
+    modalBackDrop.addEventListener("click", () => {
+        const modals = document.querySelectorAll(".Big-Modal, .Small-Modal, .Search-Modal");
+        modals.forEach((modal) => {
+            modal.classList.remove("on");
+            modal.classList.add("off");
+        });
+        modalBackDrop.style.zIndex = "";
+        modalBackDrop.classList.add("off");
     });
 
-    const userInfoClose = userInfoModal.querySelector(
-        ".Big-Modal-Button.Close",
-    );
-    userInfoClose.addEventListener("click", (e) => {
-        closeModal(userInfoModal);
+    // 10-4.닫기 버튼 이벤트
+    document.querySelectorAll(".Big-Modal-Button.Close").forEach((back) => {
+        const currentModal = back.closest(".Big-Modal");
+        back.addEventListener("click", () => closeModal(currentModal));
     });
+
+    document.querySelectorAll(".Close-Button, .Cancel").forEach((closeBtn) => {
+        const currentModal = closeBtn.closest(".Small-Modal");
+        closeBtn.addEventListener("click", () => closeModal(currentModal));
+    });
+
+    // 10-5.상대방 정보 모달 이벤트
+    chatUser.addEventListener("click", () => openModal(userInfoModal));
+
+    const userInfoClose = userInfoModal.querySelector(".Big-Modal-Button.Close");
+    userInfoClose.addEventListener("click", () => closeModal(userInfoModal));
 
     userInfoModal.addEventListener("click", (e) => {
         let toggle = false;
@@ -685,75 +871,81 @@ window.onload = () => {
         const menuBtns = userInfoModal.querySelectorAll(".Menu-Icon");
 
         if (btn?.classList.contains("Close")) return closeModal(userInfoModal);
-        if (btn?.classList.contains("Alias"))
-            return openModal(changeAliasModal);
+        if (btn?.classList.contains("Alias")) return openModal(changeAliasModal);
 
         if (upperBtn) {
-            if (upperBtn.classList.contains("Call"))
-                return alert("추후 업데이트 예정입니다.");
+            if (upperBtn.classList.contains("Call")) return alert("추후 업데이트 예정입니다.");
             if (upperBtn.classList.contains("Profile")) return;
             if (upperBtn.classList.contains("More")) {
-                userInfoModal
-                    .querySelector(".Extend-Menu-Wrapper")
-                    .classList.toggle("off");
+                userInfoModal.querySelector(".Extend-Menu-Wrapper").classList.toggle("off");
                 return;
             }
         }
 
-        menuBtns.forEach((button) => {
-            button.addEventListener("click", (e) => {
-                const name = button.classList[1];
-                switch (name) {
-                    case "Mute":
-                        toggle = !toggle;
-                        const text = `
-                        ${
-                            toggle
-                                ? `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" data-icon="icon-notifications-stroke" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img" class="h-5 w-5"><path d="M19.993 9.042C19.48 5.017 16.054 2 11.996 2s-7.49 3.021-7.999 7.051L2.866 18H7.1c.463 2.282 2.481 4 4.9 4s4.437-1.718 4.9-4h4.236l-1.143-8.958zM12 20c-1.306 0-2.417-.835-2.829-2h5.658c-.412 1.165-1.523 2-2.829 2zm-6.866-4l.847-6.698C6.364 6.272 8.941 4 11.996 4s5.627 2.268 6.013 5.295L18.864 16H5.134z"></path></svg>`
-                                : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" data-icon="icon-notifications-off" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img" class="h-5 w-5"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.375 17C16.375 19.2091 14.5841 21 12.375 21C10.1659 21 8.375 19.2091 8.375 17"></path><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.375 17H6.42522C5.21013 17 4.27578 15.9254 4.44462 14.7221L5.18254 9.46301C5.31208 8.25393 5.73464 7.14098 6.375 6.19173M9.375 3.65027C10.2917 3.23195 11.3086 3 12.375 3C16.0717 3 19.1736 5.78732 19.5675 9.46301L20.0536 14"></path><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.375 3L21.375 21"></path></svg>`
-                        }
-                            <div class="Menu-Text">
-                            ${toggle ? "뮤트" : "언뮤트"}
-                            </div>
-                            `;
-                        button.innerHTML = text;
-                        break;
-                    case "Delete":
-                        userInfoModal
-                            .querySelector(".Extend-Menu-Wrapper")
-                            .classList.add("off");
-                        openModal(leaveModal);
-                        break;
-                }
-            });
-        });
+        // 다른 항목 클릭 시 더보기 드롭다운 닫기
+        const extendMenu = userInfoModal.querySelector(".Extend-Menu-Wrapper");
+        if (extendMenu && !extendMenu.contains(e.target)) {
+            extendMenu.classList.add("off");
+        }
 
         if (setting) {
+            // 사용자 차단 해제 (이미 차단된 상태면 모달 없이 바로 해제)
+            if (setting.classList.contains("BanUser") && setting.classList.contains("banned")) {
+                setting.classList.remove("banned");
+                const banText = setting.querySelector(".BanUser-Text");
+                if (banText) banText.textContent = "사용자 차단하기";
+                return;
+            }
+
             const modalMap = {
                 RemovedMsg: removedMsgModal,
                 BanScreanShot: banScreanShotModal,
                 BanUser: banUserModal,
             };
-            const key = Object.keys(modalMap).find((k) =>
-                setting.classList.contains(k),
-            );
+            const key = Object.keys(modalMap).find((k) => setting.classList.contains(k));
             if (key) return openModal(modalMap[key]);
         }
     });
 
-    // 별명 변경 모달 이벤트
+    // 10-5-1.상대방 정보 모달 더보기 메뉴 버튼 이벤트
+    const menuBtns = userInfoModal.querySelectorAll(".Menu-Icon");
+    menuBtns.forEach((button) => {
+        button.addEventListener("click", async () => {
+            const name = button.classList[1];
+            switch (name) {
+                case "Mute":
+                    if (!currentRoomId) break;
+                    try {
+                        const result = await ChatService.toggleMute(currentRoomId, currentMemberId);
+                        isCurrentRoomMuted = result.muted;
+                        button.innerHTML = `
+                            ${isCurrentRoomMuted
+                                ? `<svg xmlns="http://www.w3.org/2000/svg" fill="none" data-icon="icon-notifications-off" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img" class="h-5 w-5"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.375 17C16.375 19.2091 14.5841 21 12.375 21C10.1659 21 8.375 19.2091 8.375 17"></path><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.375 17H6.42522C5.21013 17 4.27578 15.9254 4.44462 14.7221L5.18254 9.46301C5.31208 8.25393 5.73464 7.14098 6.375 6.19173M9.375 3.65027C10.2917 3.23195 11.3086 3 12.375 3C16.0717 3 19.1736 5.78732 19.5675 9.46301L20.0536 14"></path><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.375 3L21.375 21"></path></svg>`
+                                : `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" data-icon="icon-notifications-stroke" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img" class="h-5 w-5"><path d="M19.993 9.042C19.48 5.017 16.054 2 11.996 2s-7.49 3.021-7.999 7.051L2.866 18H7.1c.463 2.282 2.481 4 4.9 4s4.437-1.718 4.9-4h4.236l-1.143-8.958zM12 20c-1.306 0-2.417-.835-2.829-2h5.658c-.412 1.165-1.523 2-2.829 2zm-6.866-4l.847-6.698C6.364 6.272 8.941 4 11.996 4s5.627 2.268 6.013 5.295L18.864 16H5.134z"></path></svg>`
+                            }
+                            <div class="Menu-Text">${isCurrentRoomMuted ? "언뮤트" : "뮤트"}</div>
+                        `;
+                    } catch (error) {
+                        console.error("뮤트 토글 실패", error);
+                    }
+                    break;
+                case "Delete":
+                    userInfoModal.querySelector(".Extend-Menu-Wrapper").classList.add("off");
+                    openModal(leaveModal);
+                    break;
+            }
+        });
+    });
+
+    // 10-6.별명 변경 모달 이벤트
     const saveBtn = changeAliasModal.querySelector(".Big-Modal-Button.Save");
     const inputWrapper = changeAliasModal.querySelector(".Input-Area");
     const aliasInput = document.getElementById("user-alias");
-
     const tempBorder = inputWrapper.style.border;
-    aliasInput.addEventListener("focus", (e) => {
-        inputWrapper.style.border = "1px solid #1e9cf1";
-    });
-    aliasInput.addEventListener("blur", (e) => {
-        inputWrapper.style.border = tempBorder;
-    });
-    aliasInput.addEventListener("keyup", (e) => {
+
+    aliasInput.addEventListener("focus", () => { inputWrapper.style.border = "1px solid #1e9cf1"; });
+    aliasInput.addEventListener("blur", () => { inputWrapper.style.border = tempBorder; });
+    aliasInput.addEventListener("keyup", () => {
         if (aliasInput.value !== "") {
             saveBtn.disabled = false;
             saveBtn.classList.remove("disabled");
@@ -762,157 +954,781 @@ window.onload = () => {
             saveBtn.classList.add("disabled");
         }
     });
-    saveBtn.addEventListener("click", (e) => {
+    saveBtn.addEventListener("click", async (e) => {
         e.stopPropagation();
-        alert("추후 수정 예정");
-        // 별명 변경 요청 로직 작성
+        if (saveBtn.disabled) return;
+        const newAlias = aliasInput.value.trim();
+        if (!currentRoomId) return;
+        try {
+            await ChatService.updateAlias(currentRoomId, currentMemberId, newAlias);
+            currentPartnerAlias = newAlias;
+            currentPartnerDisplayName = newAlias || currentPartnerName;
+            applyStageOnePartnerProfile();
+            closeModal(changeAliasModal);
+            await loadStageOneRoomList();
+            markCurrentStageOneRoom(currentRoomId);
+        } catch (error) {
+            console.error("별칭 저장 실패", error);
+            alert("별칭 저장에 실패했습니다.");
+        }
     });
 
-    // 사라진 메세지 모달 이벤트
+    // 10-7.사라진 메세지 모달 이벤트
     const setRemoveTimes = removedMsgModal.querySelectorAll(".Set-Remove-Time");
     const removeAll = removedMsgModal.querySelector(".Remove-All-Button");
     setRemoveTimes.forEach((setTime) => {
-        setTime.addEventListener("click", (e) => {
-            setRemoveTimes.forEach((btn) =>
-                btn.querySelector("svg").classList.add("off"),
-            );
+        setTime.addEventListener("click", () => {
+            setRemoveTimes.forEach((btn) => btn.querySelector("svg").classList.add("off"));
             setTime.querySelector("svg").classList.remove("off");
-            const selectedTime =
-                setTime.querySelector(".Area-Content-Text").textContent;
-            userInfoModal.querySelector(
-                ".Modal-Bottom-Setting.RemovedMsg .Setting-Arrow",
-            ).textContent = selectedTime;
+            const selectedTime = setTime.querySelector(".Area-Content-Text").textContent;
+            userInfoModal.querySelector(".Modal-Bottom-Setting.RemovedMsg .Setting-Arrow").textContent = selectedTime;
         });
     });
-    removeAll.addEventListener("click", (e) => {
-        openModal(removeAllMsgModal);
-    });
+    removeAll.addEventListener("click", () => openModal(removeAllMsgModal));
 
-    // 스크린샷 차단하기 모달 이벤트
+    // 10-8.스크린샷 차단하기 모달 이벤트
     const toggleBtn = banScreanShotModal.querySelector(".Toggle-Button");
     const toggleSpan = banScreanShotModal.querySelector(".Toggle-Switch");
     toggleBtn.addEventListener("click", () => {
         toggleBtn.classList.toggle("clicked");
         toggleSpan.classList.toggle("moved");
         const isActive = toggleBtn.classList.contains("clicked");
-        userInfoModal.querySelector(
-            ".Modal-Bottom-Setting.BanScreanShot .Setting-Arrow",
-        ).textContent = isActive ? "켜기" : "끄기";
+        userInfoModal.querySelector(".Modal-Bottom-Setting.BanScreanShot .Setting-Arrow").textContent = isActive ? "켜기" : "끄기";
     });
 
-    saveBtn.addEventListener("click", (e) => {
-        if (saveBtn.disabled) return;
-        // 저장 로직
-    });
-
-    // 작은 모달 클릭 이벤트 ----------------------------
+    // 10-9.작은 모달 버튼 이벤트
     const deleteChatBtn = deleteChatModal.querySelector(".Small-Button.Ban");
-    deleteChatBtn.addEventListener("click", (e) => {
+    deleteChatBtn.addEventListener("click", async (e) => {
         e.stopPropagation();
-        alert("추후 추가 예정");
-    });
-
-    const leaveChatBtn = leaveModal.querySelector(".Small-Button.Ban");
-    leaveChatBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        alert("추후 추가 예정");
-    });
-
-    const removeAllMsgBtn =
-        removeAllMsgModal.querySelector(".Small-Button.Ban");
-    removeAllMsgBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        alert("추후 추가 예정");
-    });
-
-    const banChatBtn = banUserModal.querySelector(".Small-Button.Ban");
-    banChatBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        alert("추후 추가 예정");
-    });
-
-    // 모달 여닫기 이벤트 -----------------------------------
-    function openModal(modal) {
-        modalBackDrop.classList.remove("off");
-        modal.classList.remove("off");
-        if (
-            modal.classList.contains("Big-Modal") ||
-            modal.classList.contains("Small-Modal")
-        ) {
-            requestAnimationFrame(() => modal.classList.add("on"));
+        const targetMessageId = deleteChatModal.dataset.targetMessageId;
+        if (!targetMessageId) return;
+        try {
+            await ChatService.deleteMessage(targetMessageId, currentMemberId);
+            const targetNode = chatMessageList?.querySelector(`[data-message-id="${targetMessageId}"]`);
+            if (targetNode) targetNode.remove();
+            closeModal(deleteChatModal);
+            delete deleteChatModal.dataset.targetMessageId;
+        } catch (error) {
+            console.error("메시지 삭제 실패", error);
+            alert("메시지 삭제에 실패했습니다.");
         }
-        if (modal.classList.contains("Small-Modal")) {
-            modalBackDrop.style.zIndex = "53";
-        }
-    }
+    });
 
-    function closeModal(modal) {
-        if (modal.classList.contains("Big-Modal")) {
-            modal.classList.remove("on");
-            modal.addEventListener(
-                "transitionend",
-                () => {
-                    modal.classList.add("off");
-                    const anyOpen = document.querySelectorAll(
-                        ".Big-Modal.on, .Small-Modal.on",
-                    );
-                    if (anyOpen.length === 0) {
-                        modalBackDrop.classList.add("off");
-                    }
-                },
-                {once: true},
-            );
-        } else if (modal.classList.contains("Small-Modal")) {
-            modal.classList.remove("on");
-            modal.classList.add("off");
-            modalBackDrop.style.zIndex = "";
-            const anyOpen = document.querySelectorAll(".Big-Modal.on");
-            if (anyOpen.length === 0) {
-                modalBackDrop.classList.add("off");
-            }
-        } else {
-            modalBackDrop.classList.add("off");
-            modal.classList.add("off");
+    leaveModal.querySelector(".Small-Button.Ban").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (!currentRoomId) return;
+        try {
+            await ChatService.deleteConversation(currentRoomId, currentMemberId);
+            closeModal(leaveModal);
+            closeModal(userInfoModal);
+            closeChatRoom();
+            await loadStageOneRoomList();
+        } catch (error) {
+            console.error("대화방 삭제 실패", error);
+            alert("대화방 삭제에 실패했습니다.");
         }
-    }
+    });
 
-    modalBackDrop.addEventListener("click", () => {
-        const modals = document.querySelectorAll(
-            ".Big-Modal, .Small-Modal, .Search-Modal",
+    removeAllMsgModal.querySelector(".Small-Button.Ban").addEventListener("click", (e) => {
+        e.stopPropagation();
+        alert("추후 추가 예정");
+    });
+
+    banUserModal.querySelector(".Small-Button.Ban").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const banSettingDiv = userInfoModal.querySelector(".Modal-Bottom-Setting.BanUser");
+        const banText = banSettingDiv?.querySelector(".BanUser-Text");
+        banSettingDiv?.classList.add("banned");
+        if (banText) banText.textContent = "사용자 차단 해제하기";
+        userInfoModal.querySelector(".Extend-Menu-Wrapper")?.classList.add("off");
+        closeModal(banUserModal);
+    });
+
+    // 11.채팅 핵심 로직
+
+    // 11-1.현재 유저 정보
+    const currentMemberId = Number(document.body.dataset.memberId || 1);
+    const currentMemberName = document.body.dataset.memberName || "GG Business";
+    const currentMemberHandle = document.body.dataset.memberHandle || "gg_business_member1";
+    let currentPartnerId = Number(document.body.dataset.partnerId || 2);
+    let currentPartnerName = document.body.dataset.partnerName || "GG Expert";
+    let currentPartnerHandle = document.body.dataset.partnerHandle || "gg_expert_member2";
+    let currentPartnerAlias = "";
+    let currentPartnerDisplayName = currentPartnerName;
+    const defaultConversationId = Number(document.body.dataset.conversationId || 0);
+    const chatMessageList = chatDiv.querySelector(".ChatPage-Main-Content");
+    let currentRoomId = defaultConversationId;
+    let lastRenderedDateKey = null;
+    let stompClient = null;
+    const roomSubscriptions = new Map();
+    let currentReadSubscription = null;
+    let pendingSubscriptionRoomId = defaultConversationId || null;
+
+    // 11-2.상대방 프로필 정보를 DOM에 반영
+    function applyStageOnePartnerProfile(partner = null) {
+        if (partner) {
+            currentPartnerId = Number(partner.invitedId || currentPartnerId);
+            currentPartnerName = partner.invitedName || currentPartnerName;
+            currentPartnerHandle = partner.invitedHandle || currentPartnerHandle;
+            currentPartnerAlias = typeof partner.alias === "string" ? partner.alias : "";
+            currentPartnerDisplayName = partner.title || currentPartnerAlias || currentPartnerName;
+        }
+
+        const chatHeaderName = chatDiv.querySelector(".ChatPage-UserInfo .UserName-Text");
+        const chatProfileName = chatDiv.querySelector(".UserProfile .UserName-Text");
+        const chatProfileHandle = chatDiv.querySelector(".User-Id-Text");
+        const infoModalName = userInfoModal.querySelector(".Text-Name");
+        const infoModalHandle = userInfoModal.querySelector(".Info-Text-Id");
+        const currentRoomItem = getStageOneRoomItems().find(
+            (roomItem) => Number(roomItem.dataset.conversationId || 0) === Number(currentRoomId),
         );
-        modals.forEach((modal) => {
-            modal.classList.remove("on");
-            modal.classList.add("off");
+
+        document.body.dataset.partnerId = String(currentPartnerId || "");
+        document.body.dataset.partnerName = currentPartnerName || "";
+        document.body.dataset.partnerHandle = currentPartnerHandle || "";
+        if (currentRoomId) {
+            document.body.dataset.conversationId = String(currentRoomId);
+        } else {
+            delete document.body.dataset.conversationId;
+        }
+
+        if (chatHeaderName) chatHeaderName.textContent = currentPartnerDisplayName;
+        if (chatProfileName) chatProfileName.textContent = currentPartnerDisplayName;
+        if (chatProfileHandle) chatProfileHandle.textContent = `@${currentPartnerHandle}`;
+        if (infoModalName) infoModalName.textContent = currentPartnerDisplayName || currentPartnerName;
+        if (infoModalHandle) infoModalHandle.textContent = `@${currentPartnerHandle}`;
+        if (aliasInput) aliasInput.value = currentPartnerAlias || "";
+
+        stageOneRooms = stageOneRooms.map((room) =>
+            room.conversationId === Number(currentRoomId)
+                ? {
+                    ...room,
+                    partnerId: currentPartnerId || room.partnerId,
+                    partnerName: currentPartnerName || room.partnerName,
+                    partnerHandle: currentPartnerHandle || room.partnerHandle,
+                    displayName: currentPartnerDisplayName || room.displayName,
+                }
+                : room,
+        );
+
+        if (currentRoomItem) {
+            currentRoomItem.dataset.partnerId = String(currentPartnerId || "");
+            currentRoomItem.dataset.partnerName = currentPartnerName || "";
+            currentRoomItem.dataset.partnerHandle = currentPartnerHandle || "";
+            currentRoomItem.dataset.displayName = currentPartnerDisplayName || "";
+            const roomName = currentRoomItem.querySelector(".Info-Upper .UserName-Text");
+            if (roomName) roomName.textContent = currentPartnerDisplayName;
+        }
+    }
+
+    // 11-3.서버에서 상대방 프로필 조회 후 반영
+    async function refreshStageOnePartnerProfile(roomId) {
+        try {
+            const partner = await ChatService.getPartner(roomId, currentMemberId);
+            applyStageOnePartnerProfile(partner);
+        } catch (error) {
+            console.error("상대방 정보 조회 실패", error);
+            applyStageOnePartnerProfile();
+        }
+    }
+
+    // 11-4.채팅방 활성화
+    async function activateStageOneRoom(roomId) {
+        currentRoomId = roomId;
+        pendingSubscriptionRoomId = roomId;
+        markCurrentStageOneRoom(roomId);
+        subscribeStageOneRoom(roomId);
+        setStageOneRoomUnreadCount(roomId, 0);
+        clearStageOneMessages();
+
+        await refreshStageOnePartnerProfile(roomId);
+
+        // 메시지 렌더링 후 즉시 표시 (column-reverse로 스크롤 불필요)
+        try {
+            const messages = await ChatService.getMessages(currentRoomId, currentMemberId);
+            if (!chatMessageList) return;
+            clearStageOneMessages();
+            messages.forEach((message) => appendStageOneMessage(message, { refreshRoomList: false, scroll: false }));
+            syncStageOneRoomPreview(messages);
+            chatDiv.style.visibility = "";
+
+            // 반응과 이미지는 백그라운드로 로드
+            loadStageOneReactions(messages);
+            loadAllImagePreviews();
+        } catch (error) {
+            console.error("기본 대화 조회 실패", error);
+            chatDiv.style.visibility = "";
+        }
+
+        try {
+            await ChatService.markAsRead(roomId, currentMemberId);
+        } catch (e) {
+            console.error("읽음 처리 실패", e);
+        }
+        await loadStageOneRoomList();
+        markCurrentStageOneRoom(roomId);
+    }
+
+    // 11-5.메시지 전송 이벤트
+    chatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const content = chatInput.value.trim();
+        const file = chatAttach?.files[0] || null;
+        if (!content && !file) return;
+        try {
+            if (file) {
+                await ChatService.sendMessageWithFile(currentRoomId, currentMemberId, currentMemberName, content, file);
+                if (chatAttach) chatAttach.value = "";
+                if (inputImageEl) inputImageEl.src = "";
+                if (inputImageContainer) inputImageContainer.classList.add("off");
+            } else {
+                await ChatService.sendMessage(currentRoomId, currentMemberId, currentMemberName, content);
+            }
+            chatInput.value = "";
+            chatSubmit.classList.add("off");
+        } catch (error) {
+            console.error("메시지 전송 실패", error);
+        }
+    });
+
+    // 11-6.한글 입력 조합 처리
+    let isComposing = false;
+    chatInput.addEventListener("compositionstart", () => { isComposing = true; });
+    chatInput.addEventListener("compositionend", () => { isComposing = false; });
+    chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey && !isComposing) {
+            e.preventDefault();
+            chatForm.dispatchEvent(new Event("submit"));
+        }
+    });
+
+    // 12.WebSocket 관련
+
+    // 12-1.소켓 연결
+    function connectStageOneSocket() {
+        if (typeof SockJS === "undefined" || typeof Stomp === "undefined") return;
+
+        const socket = new SockJS("/ws/chat");
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+        stompClient.connect({}, () => {
+            syncStageOneRoomSubscriptions();
+            if (pendingSubscriptionRoomId) subscribeStageOneRoom(pendingSubscriptionRoomId);
+            subscribeUserRestore();
+        }, (error) => {
+            console.error("채팅 소켓 연결 실패", error);
+            setTimeout(connectStageOneSocket, 3000);
         });
-        modalBackDrop.style.zIndex = "";
-        modalBackDrop.classList.add("off");
-    });
+    }
 
-    const backBtns = document.querySelectorAll(".Big-Modal-Button.Close");
-    backBtns.forEach((back) => {
-        const currentModal = back.closest(".Big-Modal");
-        back.addEventListener("click", (e) => closeModal(currentModal));
-    });
+    // 12-2.모든 방 구독 동기화
+    function syncStageOneRoomSubscriptions() {
+        const roomIds = new Set(
+            stageOneRooms
+                .map((room) => Number(room?.conversationId || 0))
+                .filter((roomId) => roomId > 0),
+        );
 
-    const closeBtns = document.querySelectorAll(".Close-Button, .Cancel");
-    closeBtns.forEach((closeBtn) => {
-        const currentModal = closeBtn.closest(".Small-Modal");
-        closeBtn.addEventListener("click", (e) => closeModal(currentModal));
-    });
+        roomSubscriptions.forEach((subs, roomId) => {
+            if (roomIds.has(roomId)) return;
+            if (subs.msg) subs.msg.unsubscribe();
+            if (subs.reaction) subs.reaction.unsubscribe();
+            if (typeof subs.unsubscribe === "function") subs.unsubscribe();
+            roomSubscriptions.delete(roomId);
+        });
 
-    function addReaction(emoji, targetChat) {
+        if (!stompClient || !stompClient.connected) return;
+
+        roomIds.forEach((roomId) => {
+            if (roomSubscriptions.has(roomId)) return;
+
+            const msgSub = stompClient.subscribe(`/topic/room.${roomId}`, (message) => {
+                handleStageOneRoomMessage(JSON.parse(message.body));
+            });
+
+            const reactionSub = stompClient.subscribe(`/topic/room.${roomId}.reaction`, (message) => {
+                const payload = JSON.parse(message.body);
+                if (Number(payload.memberId) === currentMemberId) return;
+                applyRemoteReaction(payload);
+            });
+
+            roomSubscriptions.set(roomId, { msg: msgSub, reaction: reactionSub });
+        });
+    }
+
+    // 12-3.현재 방 read receipt 구독
+    function subscribeStageOneRoom(roomId) {
+        pendingSubscriptionRoomId = roomId;
+        if (!stompClient || !stompClient.connected) return;
+
+        if (currentReadSubscription) currentReadSubscription.unsubscribe();
+
+        currentReadSubscription = stompClient.subscribe(`/topic/room.${roomId}.read`, (message) => {
+            const payload = JSON.parse(message.body);
+            if (Number(payload.conversationId) !== currentRoomId) return;
+            if (Number(payload.readerId) === currentMemberId) return;
+            applyReadReceipt(payload);
+        });
+    }
+
+    // 12-3-1.사용자별 방 복원 알림 구독 (삭제된 대화가 상대방 메시지로 복원될 때)
+    function subscribeUserRestore() {
+        if (!stompClient || !stompClient.connected) return;
+        stompClient.subscribe(`/topic/user.${currentMemberId}.restore`, async (message) => {
+            const payload = JSON.parse(message.body);
+            const restoredRoomId = Number(payload.conversationId || 0);
+            if (!restoredRoomId) return;
+            await loadStageOneRoomList();
+            syncStageOneRoomSubscriptions();
+        });
+    }
+
+    // 12-4.실시간 메시지 수신 처리
+    async function handleStageOneRoomMessage(message) {
+        const roomId = Number(message?.conversationId || 0);
+        if (!roomId) return;
+        const isMine = Number(message?.senderId || 0) === currentMemberId;
+
+        if (Number(currentRoomId) === roomId) {
+            appendStageOneMessage(message, { refreshRoomList: false });
+            if (!isMine) {
+                try {
+                    await ChatService.markAsRead(roomId, currentMemberId);
+                } catch (e) {
+                    console.error("읽음 처리 실패", e);
+                }
+            }
+            scheduleStageOneRoomRefresh();
+        } else {
+            const targetRoom = stageOneRooms.find((r) => r.conversationId === roomId);
+            if (!targetRoom) {
+                // 방 목록에 없는 새 메시지 -> 방 목록 갱신
+                await loadStageOneRoomList();
+                return;
+            }
+            if (!isMine && !targetRoom.muted) incrementStageOneRoomUnreadCount(roomId);
+            updateStageOneRoomPreviewLocally(roomId, message);
+        }
+    }
+
+    // 13.메시지 렌더링 관련
+
+    // 13-0.첨부파일 HTML 생성 (이미지는 말풍선 밖에 독립 표시)
+    function getFileImageMarkup(message) {
+        if (!message.fileId || message.fileContentType !== "image") return "";
+        const fileName = escapeStageOneHtml(message.fileOriginalName || "파일");
+        return `<div class="Message-File Message-File-Image" data-file-id="${message.fileId}">
+            <img src="" alt="${fileName}" loading="lazy" class="Chat-Image" data-file-id="${message.fileId}">
+        </div>`;
+    }
+
+    function getFileDocMarkup(message) {
+        if (!message.fileId || message.fileContentType === "image") return "";
+        const fileName = escapeStageOneHtml(message.fileOriginalName || "파일");
+        const fileSize = message.fileSize ? formatFileSize(message.fileSize) : "";
+        return `<div class="Message-File Message-File-Doc" data-file-id="${message.fileId}">
+            <div class="File-Info">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+                <div class="File-Detail">
+                    <span class="File-Name">${fileName}</span>
+                    <span class="File-Size">${fileSize}</span>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    }
+
+    // 13-1.메시지 목록에 메시지 하나 추가
+    function appendStageOneMessage(message, { refreshRoomList = true, scroll = true } = {}) {
+        if (!chatMessageList) return;
+
+        const messageItem = document.createElement("li");
+        const isMine = Number(message.senderId) === currentMemberId;
+        const messageId = message.id || Date.now();
+        const safeContent = escapeStageOneHtml(message.content || "");
+        const timeText = ChatLayout.formatMessageTime(message.createdDatetime || new Date().toISOString());
+        const msgTime = message.createdDatetime || new Date().toISOString();
+        const dateKey = ChatLayout.getDateKey(msgTime);
+        const readByPartner = Boolean(message.readByPartner);
+
+        appendStageOneDateDividerIfNeeded(msgTime);
+
+        messageItem.className = `Each-Main-Content ${isMine ? "Right" : "Left"}`;
+        messageItem.dataset.chatId = `msg-${messageId}`;
+        messageItem.dataset.messageId = String(messageId);
+        messageItem.dataset.dateKey = dateKey;
+        const hasFile = Boolean(message.fileId);
+        const downloadBtnHtml = hasFile ? `
+                                <div class="Message-Button-Wrapper">
+                                    <button class="Message-Button Download">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" data-icon="icon-arrow-down" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img"><path d="M13 3v13.59l5.043-5.05 1.414 1.42L12 20.41l-7.457-7.45 1.414-1.42L11 16.59V3h2z"></path></svg>
+                                    </button>
+                                </div>` : "";
+        const msgButtonsHtml = `
+                            <div class="Message-Buttons off">
+                                <div class="Message-Button-Wrapper">
+                                    <button class="Message-Button Emote">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" data-icon="icon-heart-plus-stroke" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img"><path d="M17 12v3h-2.998v2h3v3h2v-3h3v-2h-3.001v-3H17zm-5 6.839c-3.871-2.34-6.053-4.639-7.127-6.609-1.112-2.04-1.031-3.7-.479-4.82.561-1.13 1.667-1.84 2.91-1.91 1.222-.06 2.68.51 3.892 2.16l.806 1.09.805-1.09c1.211-1.65 2.668-2.22 3.89-2.16 1.242.07 2.347.78 2.908 1.91.334.677.49 1.554.321 2.59h2.011c.153-1.283-.039-2.469-.539-3.48-.887-1.79-2.647-2.91-4.601-3.01-1.65-.09-3.367.56-4.796 2.01-1.43-1.45-3.147-2.1-4.798-2.01-1.954.1-3.714 1.22-4.601 3.01-.896 1.81-.846 4.17.514 6.67 1.353 2.48 4.003 5.12 8.382 7.67l.502.299v-2.32z"></path></svg>
+                                    </button>
+                                </div>
+                                ${downloadBtnHtml}
+                                <div class="Message-Button-Wrapper">
+                                    <button class="Message-Button Menu">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" data-icon="icon-more" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img"><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>`;
+
+        const imageHtml = getFileImageMarkup(message);
+        const docHtml = getFileDocMarkup(message);
+        const hasText = safeContent || docHtml;
+
+        const bubbleHtml = hasText ? `
+                        <div class="Chat-Message">
+                            <div class="Message-Wrapper">
+                                <div class="Message-Container">
+                                    ${docHtml}
+                                    ${safeContent ? `<span class="Message-Content">${safeContent}</span>` : ""}
+                                </div>
+                                <div class="Message-Reactions"></div>
+                                <div class="Message-SendTime">
+                                    <span>${timeText}</span>
+                                </div>
+                                ${isMine ? getStageOneReadStatusMarkup(readByPartner) : ""}
+                            </div>
+                        </div>` : "";
+
+        const imageWithReactionHtml = imageHtml ? `
+                        <div class="Message-Image-Wrapper">
+                            ${imageHtml}
+                            ${!hasText ? `<div class="Message-Reactions Message-Reactions-Image"></div>` : ""}
+                        </div>` : "";
+
+        messageItem.innerHTML = isMine
+            ? `
+                <div class="Chat-Left">
+                    <div class="Chat-Message-Wrapper">
+                        ${msgButtonsHtml}
+                        <div class="Chat-Message-Content-Wrapper">
+                            ${imageWithReactionHtml}
+                            ${bubbleHtml}
+                        </div>
+                    </div>
+                </div>
+            `
+            : `
+                <div class="Chat-Left">
+                    <div class="Chat-Message-Wrapper">
+                        <div class="Chat-Message-Content-Wrapper">
+                            ${imageWithReactionHtml}
+                            ${bubbleHtml}
+                        </div>
+                        ${msgButtonsHtml}
+                    </div>
+                </div>
+            `;
+
+        chatMessageList.appendChild(messageItem);
+        if (message.fileId && message.fileContentType === "image") {
+            const imgEl = messageItem.querySelector(`.Chat-Image[data-file-id="${message.fileId}"]`);
+            if (imgEl) {
+                ensureStageOneImagePreview(imgEl).then(() => {
+                    if (scroll) scrollToBottom();
+                }).catch(() => {});
+            }
+        }
+        bindMessageEvents(messageItem);
+        messageItem.querySelectorAll(".Reaction-Badge").forEach((badge) => {
+            badge.addEventListener("click", () => addReaction(badge.dataset.emoji, messageItem));
+        });
+        if (scroll) scrollContainer.scrollTop = 0;
+        syncStageOneRoomPreview([message]);
+        if (refreshRoomList) scheduleStageOneRoomRefresh();
+    }
+
+    // 13-2.동적으로 추가된 메시지에 hover, 이모지, 더보기 메뉴 이벤트 바인딩
+    function bindMessageEvents(messageNode) {
+        const menu = messageNode.querySelector(".Message-Buttons");
+        if (!menu) return;
+
+        const emojiBtn = menu.querySelector(".Message-Button.Emote");
+        const downloadBtn = menu.querySelector(".Message-Button.Download");
+        const moreBtn = menu.querySelector(".Message-Button.Menu");
+
+        messageNode.addEventListener("mouseover", () => menu.classList.remove("off"));
+        messageNode.addEventListener("touchstart", () => menu.classList.remove("off"), { passive: true });
+        messageNode.addEventListener("mouseleave", () => {
+            if (activeBtn === moreBtn) return;
+            if (activeEmoteBtn === emojiBtn && !emojiPicker.classList.contains("off")) return;
+            menu.classList.add("off");
+        });
+
+        if (emojiBtn) {
+            emojiBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (chatMenu.classList.contains("on")) closeMenu();
+                if (activeEmoteBtn === emojiBtn && !emojiPicker.classList.contains("off")) {
+                    closeEmojiPicker();
+                    return;
+                }
+                openEmojiPicker(emojiBtn);
+            });
+        }
+
+        if (downloadBtn) {
+            downloadBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const fileEl = messageNode.querySelector(".Message-File");
+                const fileId = fileEl?.dataset.fileId;
+                if (fileId) {
+                    ChatService.getFileDownloadUrl(fileId).then((url) => {
+                        window.open(url, "_blank");
+                    }).catch(() => alert("파일 다운로드에 실패했습니다."));
+                }
+            });
+        }
+
+        if (moreBtn) {
+            moreBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (!emojiPicker.classList.contains("off")) closeEmojiPicker();
+                if (activeBtn === moreBtn && chatMenu.classList.contains("on")) {
+                    closeMenu();
+                    return;
+                }
+                if (activeBtn) {
+                    const prevMenu = activeBtn.closest(".Message-Buttons");
+                    if (prevMenu) prevMenu.classList.add("off");
+                }
+                menu.classList.remove("off");
+                activeBtn = moreBtn;
+                chatMenu.classList.remove("off");
+                chatMenu.classList.add("on");
+                updateMenuVisibility();
+                updateMenuPosition();
+            });
+        }
+    }
+
+    // 13-3.메시지 목록 초기화
+    function clearStageOneMessages() {
+        if (!chatMessageList) return;
+        chatMessageList.querySelectorAll(".Left, .Right, .Date, .CallEnd")
+            .forEach((messageNode) => messageNode.remove());
+        lastRenderedDateKey = null;
+    }
+
+    // 13-4.실시간 메시지 수신시 최하단 스크롤 (column-reverse에서 0이 최하단)
+    function scrollToBottom() {
+        scrollContainer.scrollTop = 0;
+    }
+
+    // 13-5.이미지 로드 완료 대기
+    function waitForStageOneImageLoad(imgEl) {
+        return new Promise((resolve) => {
+            if (imgEl.complete) {
+                resolve();
+                return;
+            }
+            const handleDone = () => {
+                imgEl.removeEventListener("load", handleDone);
+                imgEl.removeEventListener("error", handleDone);
+                resolve();
+            };
+            imgEl.addEventListener("load", handleDone);
+            imgEl.addEventListener("error", handleDone);
+        });
+    }
+
+    // 13-6.개별 이미지 S3 미리보기 로드
+    async function ensureStageOneImagePreview(imgEl) {
+        if (!imgEl) return;
+        if (imgEl.dataset.previewLoaded === "true") return;
+        if (imgEl.__previewPromise) {
+            await imgEl.__previewPromise;
+            return;
+        }
+
+        imgEl.__previewPromise = (async () => {
+            const fileId = imgEl.dataset.fileId;
+            if (!fileId) return;
+            try {
+                if (!imgEl.getAttribute("src")) {
+                    const url = await ChatService.getFilePreviewUrl(fileId);
+                    imgEl.src = url;
+                }
+                await waitForStageOneImageLoad(imgEl);
+                imgEl.dataset.previewLoaded = "true";
+            } catch (e) {
+            } finally {
+                imgEl.__previewPromise = null;
+            }
+        })();
+
+        await imgEl.__previewPromise;
+    }
+
+    // 13-7.모든 첨부 이미지 미리보기 병렬 로드
+    async function loadAllImagePreviews() {
+        const imgEls = chatMessageList.querySelectorAll(".Chat-Image[data-file-id]");
+        await Promise.all(Array.from(imgEls).map((imgEl) => ensureStageOneImagePreview(imgEl)));
+    }
+
+    // 13-8.메시지별 반응 배지 서버 조회 후 렌더링 (병렬)
+    async function loadStageOneReactions(messages) {
+        await Promise.all(messages.map(async (message) => {
+            const messageId = message.id;
+            if (!messageId) return;
+            try {
+                const reactions = await ChatService.getReactions(messageId);
+                if (!reactions || reactions.length === 0) return;
+                const targetChat = chatMessageList.querySelector(`[data-message-id="${messageId}"]`);
+                if (!targetChat) return;
+                const reactionsDiv = targetChat.querySelector(".Message-Reactions");
+                if (!reactionsDiv) return;
+
+                const emojiMap = {};
+                reactions.forEach((r) => {
+                    if (!emojiMap[r.emoji]) emojiMap[r.emoji] = { count: 0, isMine: false };
+                    emojiMap[r.emoji].count++;
+                    if (Number(r.memberId) === currentMemberId) emojiMap[r.emoji].isMine = true;
+                });
+
+                Object.entries(emojiMap).forEach(([emoji, data]) => {
+                    const badge = document.createElement("div");
+                    badge.classList.add("Reaction-Badge");
+                    if (data.isMine) badge.classList.add("my-reaction");
+                    badge.dataset.emoji = emoji;
+                    badge.innerHTML = `<span>${emoji}</span><span class="Reaction-Count">${data.count}</span>`;
+                    badge.addEventListener("click", () => addReaction(emoji, targetChat));
+                    reactionsDiv.appendChild(badge);
+                });
+
+                if (reactionsDiv.children.length > 0) targetChat.classList.add("has-reaction");
+            } catch (e) {
+                // 반응 조회 실패는 무시
+            }
+        }));
+    }
+
+    // 13-9.날짜 구분선 추가
+    function appendStageOneDateDividerIfNeeded(dateStr) {
+        if (!chatMessageList || !dateStr) return;
+        const dateKey = ChatLayout.getDateKey(dateStr);
+        if (lastRenderedDateKey === dateKey) return;
+        lastRenderedDateKey = dateKey;
+
+        const dateItem = document.createElement("li");
+        dateItem.className = "Each-Main-Content Date";
+        dateItem.dataset.dateKey = dateKey;
+        dateItem.innerHTML = `
+            <div class="Date-Wrapper">
+                <div class="Date-Text">${ChatLayout.formatDateDivider(dateStr)}</div>
+            </div>
+        `;
+        chatMessageList.appendChild(dateItem);
+    }
+
+    // 13-10.읽음 상태 아이콘 마크업 반환
+    function getStageOneReadStatusMarkup(readByPartner) {
+        const icon = readByPartner
+            ? '<svg class="text-primary w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="currentColor" data-icon="icon-checkmark-circle-fill" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img"><path d="M12 1.75C6.34 1.75 1.75 6.34 1.75 12S6.34 22.25 12 22.25 22.25 17.66 22.25 12 17.66 1.75 12 1.75zm-.81 14.68l-4.1-3.27 1.25-1.57 2.47 1.98 3.97-5.47 1.62 1.18-5.21 7.15z"></path></svg>'
+            : '<svg class="text-primary w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="currentColor" data-icon="icon-checkmark-circle" viewBox="0 0 24 24" width="1em" height="1em" display="flex" role="img"><path d="M12 3.75c-4.56 0-8.25 3.69-8.25 8.25s3.69 8.25 8.25 8.25 8.25-3.69 8.25-8.25S16.56 3.75 12 3.75zM1.75 12C1.75 6.34 6.34 1.75 12 1.75S22.25 6.34 22.25 12 17.66 22.25 12 22.25 1.75 17.66 1.75 12zM16.4 9.28l-5.21 7.15-4.1-3.27 1.25-1.57 2.47 1.98 3.97-5.47 1.62 1.18z"></path></svg>';
+        return `<span class="Message-ReadStatus" data-read-status="${readByPartner ? "read" : "unread"}">${icon}</span>`;
+    }
+
+    // 13-11.read receipt 수신시 체크마크 갱신
+    function applyReadReceipt(receipt) {
+        const lastReadMessageId = Number(receipt.lastReadMessageId || 0);
+        if (!lastReadMessageId) return;
+        chatMessageList.querySelectorAll(".Right[data-message-id]").forEach((messageNode) => {
+            const messageId = Number(messageNode.dataset.messageId || 0);
+            if (messageId <= lastReadMessageId) {
+                const readStatus = messageNode.querySelector(".Message-ReadStatus");
+                if (readStatus) readStatus.outerHTML = getStageOneReadStatusMarkup(true);
+            }
+        });
+    }
+
+    // 13-12.원격 반응 수신시 배지 갱신
+    function applyRemoteReaction(reaction) {
+        const messageId = reaction.messageId;
+        const emoji = reaction.emoji;
+        const isRemoved = reaction.removed === true;
+        const targetChat = chatMessageList?.querySelector(`[data-message-id="${messageId}"]`);
         if (!targetChat) return;
 
         const reactionsDiv = targetChat.querySelector(".Message-Reactions");
         if (!reactionsDiv) return;
 
-        // 현재 내가 선택한 반응 찾기
-        const myCurrentReaction = reactionsDiv.querySelector(
-            ".Reaction-Badge.my-reaction",
-        );
+        if (isRemoved) {
+            const existing = [...reactionsDiv.querySelectorAll(".Reaction-Badge")]
+                .find((badge) => badge.dataset.emoji === emoji);
+            if (existing) {
+                const countEl = existing.querySelector(".Reaction-Count");
+                const count = parseInt(countEl.textContent) - 1;
+                if (count <= 0) {
+                    existing.remove();
+                } else {
+                    countEl.textContent = count;
+                }
+            }
+        } else {
+            const existing = [...reactionsDiv.querySelectorAll(".Reaction-Badge")]
+                .find((badge) => badge.dataset.emoji === emoji);
+            if (existing) {
+                const countEl = existing.querySelector(".Reaction-Count");
+                countEl.textContent = parseInt(countEl.textContent) + 1;
+            } else {
+                const badge = document.createElement("div");
+                badge.classList.add("Reaction-Badge");
+                badge.dataset.emoji = emoji;
+                badge.innerHTML = `<span>${emoji}</span><span class="Reaction-Count">1</span>`;
+                badge.addEventListener("click", () => addReaction(emoji, targetChat));
+                reactionsDiv.appendChild(badge);
+            }
+        }
 
-        // 같은 이모지를 다시 클릭한 경우 → 취소
+        if (reactionsDiv.children.length > 0) {
+            targetChat.classList.add("has-reaction");
+        } else {
+            targetChat.classList.remove("has-reaction");
+        }
+    }
+
+    // 13-13.XSS 방지용 HTML 이스케이프
+    function escapeStageOneHtml(value) {
+        return value
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+
+    // 14.반응 추가 삭제
+
+    async function addReaction(emoji, targetChat) {
+        if (!targetChat) return;
+
+        const reactionsDiv = targetChat.querySelector(".Message-Reactions");
+        if (!reactionsDiv) return;
+        const messageId = targetChat.dataset.messageId;
+
+        // 14-1.같은 이모지를 다시 클릭한 경우 취소
+        const myCurrentReaction = reactionsDiv.querySelector(".Reaction-Badge.my-reaction");
+
         if (myCurrentReaction && myCurrentReaction.dataset.emoji === emoji) {
+            try {
+                if (messageId) await ChatService.removeReaction(messageId, currentMemberId, emoji, currentRoomId);
+            } catch (error) {
+                console.error("반응 삭제 실패", error);
+            }
             const countEl = myCurrentReaction.querySelector(".Reaction-Count");
             const count = parseInt(countEl.textContent) - 1;
             if (count <= 0) {
@@ -921,14 +1737,18 @@ window.onload = () => {
                 countEl.textContent = count;
                 myCurrentReaction.classList.remove("my-reaction");
             }
-            if (reactionsDiv.children.length === 0) {
-                targetChat.classList.remove("has-reaction");
-            }
+            if (reactionsDiv.children.length === 0) targetChat.classList.remove("has-reaction");
             return;
         }
 
-        // 기존에 다른 반응이 있으면 취소
+        // 14-2.기존에 다른 반응이 있으면 취소
         if (myCurrentReaction) {
+            const oldEmoji = myCurrentReaction.dataset.emoji;
+            try {
+                if (messageId) await ChatService.removeReaction(messageId, currentMemberId, oldEmoji, currentRoomId);
+            } catch (error) {
+                console.error("기존 반응 삭제 실패", error);
+            }
             const countEl = myCurrentReaction.querySelector(".Reaction-Count");
             const count = parseInt(countEl.textContent) - 1;
             if (count <= 0) {
@@ -939,10 +1759,17 @@ window.onload = () => {
             }
         }
 
-        // 새 이모지 추가 or 기존 이모지 카운트 증가
-        const existing = [
-            ...reactionsDiv.querySelectorAll(".Reaction-Badge"),
-        ].find((badge) => badge.dataset.emoji === emoji);
+        // 14-3.서버에 새 반응 추가
+        try {
+            if (messageId) await ChatService.addReaction(messageId, currentMemberId, emoji, currentRoomId);
+        } catch (error) {
+            console.error("반응 추가 실패", error);
+            return;
+        }
+
+        // 14-4.DOM에 반응 배지 추가 또는 카운트 증가
+        const existing = [...reactionsDiv.querySelectorAll(".Reaction-Badge")]
+            .find((badge) => badge.dataset.emoji === emoji);
 
         if (existing) {
             const countEl = existing.querySelector(".Reaction-Count");
@@ -953,11 +1780,7 @@ window.onload = () => {
             badge.classList.add("Reaction-Badge", "my-reaction");
             badge.dataset.emoji = emoji;
             badge.innerHTML = `<span>${emoji}</span><span class="Reaction-Count">1</span>`;
-
-            badge.addEventListener("click", () => {
-                addReaction(emoji, targetChat);
-            });
-
+            badge.addEventListener("click", () => addReaction(emoji, targetChat));
             reactionsDiv.appendChild(badge);
         }
 
@@ -967,4 +1790,31 @@ window.onload = () => {
             targetChat.classList.remove("has-reaction");
         }
     }
+
+    // 15.초기화 실행
+
+    applyStageOnePartnerProfile();
+    connectStageOneSocket();
+
+    async function initializeStageOneChat() {
+        await loadStageOneRoomList();
+
+        const initialRoomId = Number(document.body.dataset.conversationId || defaultConversationId || 0);
+        const hasInitialConversationId = initialRoomId > 0;
+        const canAutoOpenRoom = hasInitialConversationId &&
+            stageOneRooms.some((room) => room.conversationId === initialRoomId);
+
+        if (canAutoOpenRoom) {
+            openChatRoom();
+            await activateStageOneRoom(initialRoomId);
+            return;
+        }
+
+        currentRoomId = 0;
+        pendingSubscriptionRoomId = null;
+        closeChatRoom();
+        applyStageOnePartnerProfile();
+    }
+
+    initializeStageOneChat();
 };
