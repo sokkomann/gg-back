@@ -136,12 +136,13 @@
 
         const subMemberEmail = memberEmail?.value?.trim() ? memberEmail.value.trim() : null;
         const subMemberPhone = memberPhone?.value?.trim() ? memberPhone.value.trim() : null;
+        const submemberHandle = "@" + memberHandle.value;
 
         const formData = new FormData();
         formData.append('memberName', memberName.value);
         formData.append('birthDate', birthDate.value);
         formData.append('memberPassword', memberPassword.value);
-        formData.append('memberHandle', memberHandle.value);
+        formData.append('memberHandle', submemberHandle);
         formData.append('memberRegion', memberRegion);
         formData.append('memberLanguage', selectedLanguage);
         formData.append('categoryName', selectedCategory);
