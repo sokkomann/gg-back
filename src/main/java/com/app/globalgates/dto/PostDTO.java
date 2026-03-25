@@ -46,6 +46,9 @@ public class PostDTO {
     private List<String> fileUrls;
     private String[] fileIdsToDelete;
 
+    // 대댓글 (댓글의 댓글)
+    private List<PostDTO> subReplies;
+
     public PostVO toPostVO() {
         return PostVO.builder()
                 .id(id)
