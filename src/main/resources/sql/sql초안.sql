@@ -690,7 +690,6 @@ constraint fk_ad_file_ad foreign key(ad_id)
 references tbl_advertisement(id)
 );
 
-
 -- [51] tbl_video_session  ─ 화상 채팅 세션 (video-chat 화면, Pro+ 구독 기능)
 
 create table tbl_video_session (
