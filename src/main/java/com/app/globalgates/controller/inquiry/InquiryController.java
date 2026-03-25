@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -11,4 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 @Slf4j
 public class InquiryController {
+
+    @GetMapping("chart")
+    public String goToInquiryPage() {
+        return "Inquiry/inquiry-chart";
+    }
+
+    @GetMapping
+    public String goToInquiryMemberList() {
+        return "Inquiry/Inquiry_list";
+    }
 }

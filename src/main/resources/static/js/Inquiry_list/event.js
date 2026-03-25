@@ -1,5 +1,4 @@
 window.onload = function () {
-    "use strict";
 
     const scrollEl = document.getElementById("categoryScroll");
     const btnLeft = document.getElementById("scrollLeft");

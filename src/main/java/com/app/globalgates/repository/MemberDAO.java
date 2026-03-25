@@ -1,6 +1,8 @@
 package com.app.globalgates.repository;
 
+import com.app.globalgates.common.pagination.Criteria;
 import com.app.globalgates.domain.MemberVO;
+import com.app.globalgates.dto.InquiryMemberDTO;
 import com.app.globalgates.dto.MemberDTO;
 import com.app.globalgates.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
@@ -65,5 +67,15 @@ public class MemberDAO {
 //  채팅 유저 검색 (차단 사용자 제외)
     public List<MemberDTO> searchByKeyword(String keyword, Long memberId){
         return memberMapper.searchByKeyword(keyword, memberId);
+    }
+
+    // 전문가 페이지 - 조회된 회원 수
+    public int findInquiryTotal(String categoryName) {
+        return memberMapper.selectInquiryTotal(categoryName);
+    };
+
+    // 전문가 페이지 - 거래처 등록 목록 조회
+    public List<InquiryMemberDTO> findInquiryMembers(Criteria criteria, String categoryName, Long memberId) {
+        return memberMapper.selectInquiryMembers(criteria, categoryName, memberId);
     }
 }

@@ -14,6 +14,10 @@ select * from tbl_post_hashtag_rel;
 
 select * from tbl_member;
 
+select * from tbl_member_category_rel;
+
+select * from tbl_category;
+
 select * from tbl_follow;
 
 select * from tbl_post_file;

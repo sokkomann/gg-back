@@ -96,9 +96,9 @@ public class MemberMapperTests {
     @Test
     public void testSelectInquiryMembers() {
         Long memberId = 9L;
-        Criteria criteria = new Criteria(1, memberMapper.selectInquiryTotal(memberId));
+        Criteria criteria = new Criteria(1, memberMapper.selectInquiryTotal("수출", memberId));
 
-        List<InquiryMemberDTO> foundMembers = memberMapper.selectInquiryMembers(criteria, memberId);
+        List<InquiryMemberDTO> foundMembers = memberMapper.selectInquiryMembers(criteria, "수출", memberId);
         log.info("받아온 members : {}", foundMembers);
     }
 

@@ -162,12 +162,36 @@ public class MemberService {
         criteria.setHasMore(members.size() > criteria.getRowCount());
         memberWithPagingDTO.setCriteria(criteria);
 
-        if(criteria.isHasMore()) {
-            members.remove(members.size() - 1);
-        }
         memberWithPagingDTO.setMembers(members);
 
         return memberWithPagingDTO;
+    }
+
+    // 전문가 페이지 - 거래처 등록 목록 조회
+    @Cacheable(value="inquiry:member", key="'page:' + #page" + " + ':categoryName:' + #categoryName" + " + ':memberId:' + #memberId")
+    @LogStatusWithReturn
+    public InquiryMemberWithPagingDTO getInquiryMembers (int page, String categoryName, Long memberId) {
+        InquiryMemberWithPagingDTO inquiryMemberWithPagingDTO = new InquiryMemberWithPagingDTO();
+        Criteria criteria = new Criteria(page, memberDAO.findInquiryTotal(categoryName));
+
+        List<InquiryMemberDTO> members = memberDAO.findInquiryMembers(criteria, categoryName, memberId).stream()
+                .map(memberDTO -> {
+                    MemberProfileFileDTO profile = memberProfileFileDAO.findByMemberId(memberDTO.getId());
+                    if(profile != null) {
+                        memberDTO.setFilePath(profile.getFilePath());
+                    }
+                    return memberDTO;
+                }).collect(Collectors.toList());
+        criteria.setHasMore(members.size() > criteria.getRowCount());
+        inquiryMemberWithPagingDTO.setCriteria(criteria);
+
+        if(criteria.isHasMore()) {
+            members.remove(members.size() - 1);
+        }
+
+        inquiryMemberWithPagingDTO.setMembers(members);
+
+        return inquiryMemberWithPagingDTO;
     }
 
     // 프로필 이미지 삭제
