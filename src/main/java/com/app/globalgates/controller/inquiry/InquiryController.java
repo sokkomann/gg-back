@@ -18,7 +18,7 @@ public class InquiryController {
         return "Inquiry/inquiry-chart";
     }
 
-    @GetMapping
+    @GetMapping("member-list")
     public String goToInquiryMemberList() {
         return "Inquiry/Inquiry_list";
     }

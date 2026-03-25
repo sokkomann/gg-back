@@ -16,6 +16,9 @@ window.onload = function () {
     let pendingBtn = null;
     let lastScrollY = 0;
 
+    let scrollState = { page: 1, isLoading: false, hasMore: true };
+    let currentCategory = "전체";
+
     function checkScroll() {
         if (!scrollEl || !btnLeft || !btnRight) return;
 
@@ -38,6 +41,8 @@ window.onload = function () {
         if (!modal || !modalTitle) return;
 
         pendingBtn = btn;
+        console.log("openModal pendingBtn:", pendingBtn);
+        console.log("openModal memberId:", btn.dataset.memberId);
 
         const requestCard = btn.closest("[data-handle]");
         const sidebarHandle = btn
@@ -51,6 +56,28 @@ window.onload = function () {
             : "이 거래처를 disapproved 처리하시겠습니까?";
 
         modal.classList.add("active");
+    }
+
+    async function loadInquiryMembers(isFirst = false) {
+        if (scrollState.isLoading || !scrollState.hasMore) return;
+        scrollState.isLoading = true;
+
+        try {
+            console.log(currentCategory);
+            const criteria = await inquiryListService.getInquiryMembers(
+                scrollState.page,
+                currentCategory,
+                (data) => {
+                    inquiryListLayout.showInquiryMembers(data, !isFirst);
+                }
+            );
+            scrollState.hasMore = criteria?.hasMore ?? false;
+            scrollState.page++;
+        } catch (e) {
+            console.error("거래처 목록 로드 실패:", e);
+        } finally {
+            scrollState.isLoading = false;
+        }
     }
 
     function setActiveTab(tabName) {
@@ -126,6 +153,14 @@ window.onload = function () {
                 });
 
             chip.classList.add(chip.dataset.isSub ? "sub-active" : "active");
+
+            const selectedCategory = chip.dataset.cat ?? "전체";
+            if (currentCategory !== selectedCategory) {
+                currentCategory = selectedCategory;
+                scrollState = { page: 1, isLoading: false, hasMore: true };
+                document.getElementById("friendsList").innerHTML = "";
+                loadInquiryMembers(true);
+            }
         });
     }
 
@@ -142,13 +177,24 @@ window.onload = function () {
     }
 
     if (modalConfirm) {
-        modalConfirm.addEventListener("click", () => {
+        modalConfirm.addEventListener("click", async () => {
             if (pendingBtn) {
-                pendingBtn.classList.remove("disconnect");
-                pendingBtn.classList.add("default");
-                pendingBtn.textContent = "approve";
+                const memberId = pendingBtn.dataset.memberId;
+                try {
+                    if (memberId) {
+                        const result = await inquiryListService.checkFollow(memberId);
+                        console.log("팔로우 결과:", result);
+                        // 언팔로우 성공 시에만 버튼 상태 변경
+                        if (result.includes("언팔로우")) {
+                            pendingBtn.classList.remove("disconnect");
+                            pendingBtn.classList.add("default");
+                            pendingBtn.textContent = "approve";
+                        }
+                    }
+                } catch (err) {
+                    console.error("언팔로우 요청 실패:", err);
+                }
             }
-
             closeModal();
         });
     }
@@ -165,14 +211,21 @@ window.onload = function () {
         });
     }
 
-    document.addEventListener("click", (event) => {
+    document.addEventListener("click", async (event) => {
         const button = event.target.closest(".connect-btn, .connect-btn-sm");
         if (!button) return;
 
+        const memberId = button.dataset.memberId;
+
         if (button.classList.contains("default")) {
-            button.classList.remove("default");
-            button.classList.add("disconnect");
-            button.textContent = "disapproved";
+            try {
+                await inquiryListService.checkFollow(memberId);
+                button.classList.remove("default");
+                button.classList.add("disconnect");
+                button.textContent = "disapproved";
+            } catch (err) {
+                console.error("팔로우 요청 실패:", err);
+            }
             return;
         }
 
@@ -218,6 +271,20 @@ window.onload = function () {
             history.back();
         });
     }
+
+    loadInquiryMembers(true);
+
+    // 무한 스크롤
+    const sentinel = document.createElement("div");
+    sentinel.id = "scrollSentinel";
+    document.getElementById("friendsList").after(sentinel);
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) loadInquiryMembers(false);
+        });
+    }, { threshold: 0.1 });
+    observer.observe(sentinel);
 
     console.log("[Inquiry] 페이지 로드 완료.");
 };

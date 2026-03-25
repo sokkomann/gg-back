@@ -41,7 +41,8 @@ public interface MemberMapper {
                                            @Param("memberId") Long memberId);
 
     // 전문가 페이지 - 조회된 회원 수
-    public int selectInquiryTotal(String categoryName);
+    public int selectInquiryTotal(@Param("categoryName") String categoryName,
+                                  @Param("memberId") Long memberId);
 
     // 전문가 페이지 - 거래처 회원 목록(카테고리 검색)
     public List<InquiryMemberDTO> selectInquiryMembers(@Param("criteria") Criteria criteria,

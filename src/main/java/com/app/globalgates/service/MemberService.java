@@ -172,7 +172,7 @@ public class MemberService {
     @LogStatusWithReturn
     public InquiryMemberWithPagingDTO getInquiryMembers (int page, String categoryName, Long memberId) {
         InquiryMemberWithPagingDTO inquiryMemberWithPagingDTO = new InquiryMemberWithPagingDTO();
-        Criteria criteria = new Criteria(page, memberDAO.findInquiryTotal(categoryName));
+        Criteria criteria = new Criteria(page, memberDAO.findInquiryTotal(categoryName, memberId));
 
         List<InquiryMemberDTO> members = memberDAO.findInquiryMembers(criteria, categoryName, memberId).stream()
                 .map(memberDTO -> {

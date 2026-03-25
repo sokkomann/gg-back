@@ -70,8 +70,8 @@ public class MemberDAO {
     }
 
     // 전문가 페이지 - 조회된 회원 수
-    public int findInquiryTotal(String categoryName) {
-        return memberMapper.selectInquiryTotal(categoryName);
+    public int findInquiryTotal(String categoryName, Long memberId) {
+        return memberMapper.selectInquiryTotal(categoryName, memberId);
     };
 
     // 전문가 페이지 - 거래처 등록 목록 조회

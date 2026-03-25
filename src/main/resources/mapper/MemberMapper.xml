@@ -127,19 +127,25 @@
         select count(*)
         from vw_inquiry_member v
         where v.member_status = 'active'
-          and category_name = #{categoryName}
+        and v.id != #{memberId}::bigint
+        <if test="categoryName != null and categoryName != '' and categoryName != '전체'">
+            and v.category_name = #{categoryName}
+        </if>
     </select>
 
     <select id="selectInquiryMembers">
         select v.*,
-               case when exists (
-                   select 1 from tbl_follow fl
-                   where fl.follower_id = #{memberId}::bigint
-                     and fl.following_id = v.id
-               ) then true else false end as followed
+        case when exists (
+        select 1 from tbl_follow fl
+        where fl.follower_id = #{memberId}::bigint
+        and fl.following_id = v.id
+        ) then true else false end as followed
         from vw_inquiry_member v
         where v.member_status = 'active'
-          and category_name = #{categoryName}
+        and v.id != #{memberId}::bigint
+        <if test="categoryName != null and categoryName != '' and categoryName != '전체'">
+            and v.category_name = #{categoryName}
+        </if>
         limit #{criteria.count} offset #{criteria.offset}
     </select>
 </mapper>
