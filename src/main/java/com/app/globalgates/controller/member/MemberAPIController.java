@@ -91,6 +91,11 @@ public class MemberAPIController {
     public boolean checkPhone(@RequestParam String memberPhone){
         return memberService.checkPhone(memberPhone);
     }
+    @GetMapping("check-handle")
+    public boolean checkHandle(@RequestParam String memberHandle){
+        // 아이디 모달에서 blur 시 중복검사를 호출한다.
+        return memberService.checkHandle(memberHandle);
+    }
 
     @PostMapping("login")
     public ResponseEntity<?> login(@RequestBody MemberDTO memberDTO){

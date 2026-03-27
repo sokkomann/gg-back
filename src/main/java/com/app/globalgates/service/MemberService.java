@@ -131,6 +131,12 @@ public class MemberService {
         return memberDAO.findMemberByMemberPhone(memberPhone).isEmpty();
     }
 
+    //  handle 검사(true : 사용가능)
+    public boolean checkHandle(String memberHandle){
+        // DB에는 @가 포함된 형태로 저장되므로 조회 시에도 동일한 형태로 맞춘다.
+        return memberDAO.findMemberByMemberHandle("@" + memberHandle).isEmpty();
+    }
+
     //    로그인
     @Transactional
     public MemberDTO login(MemberDTO memberDTO){
