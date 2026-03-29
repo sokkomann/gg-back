@@ -122,4 +122,11 @@
         order by member_name
         limit 20
     </select>
+
+    <update id="updateMemberRole">
+        update tbl_member
+        set member_role = #{memberRole},
+            updated_datetime = now()
+        where id = #{id}
+    </update>
 </mapper>

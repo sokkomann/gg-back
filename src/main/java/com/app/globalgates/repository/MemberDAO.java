@@ -1,5 +1,6 @@
 package com.app.globalgates.repository;
 
+import com.app.globalgates.common.enumeration.MemberRole;
 import com.app.globalgates.domain.MemberVO;
 import com.app.globalgates.dto.MemberDTO;
 import com.app.globalgates.mapper.MemberMapper;
@@ -65,5 +66,9 @@ public class MemberDAO {
 //  채팅 유저 검색 (차단 사용자 제외)
     public List<MemberDTO> searchByKeyword(String keyword, Long memberId){
         return memberMapper.searchByKeyword(keyword, memberId);
+    }
+//  회원 역할 변경
+    public void setMemberRole(Long id, MemberRole memberRole) {
+        memberMapper.updateMemberRole(id, memberRole);
     }
 }

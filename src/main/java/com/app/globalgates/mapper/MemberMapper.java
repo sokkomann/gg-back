@@ -1,8 +1,10 @@
 package com.app.globalgates.mapper;
 
+import com.app.globalgates.common.enumeration.MemberRole;
 import com.app.globalgates.domain.MemberVO;
 import com.app.globalgates.dto.MemberDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,4 +38,6 @@ public interface MemberMapper {
     //  채팅 유저 검색 (차단 사용자 제외)
     public List<MemberDTO> searchByKeyword(@org.apache.ibatis.annotations.Param("keyword") String keyword,
                                            @org.apache.ibatis.annotations.Param("memberId") Long memberId);
+    //  회원 역할 변경
+    void updateMemberRole(@Param("id") Long id, @Param("memberRole") MemberRole memberRole);
 }
