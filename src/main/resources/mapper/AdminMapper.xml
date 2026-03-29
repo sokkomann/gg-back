@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.globalgates.mapper.AdminMapper">
+    <select id="selectAdminMemberTotal" resultType="int">
+        select count(*)
+        from tbl_member m
+        left join tbl_business_member bm on bm.id = m.id
+        where 1 = 1
+        <if test="keyword != null and keyword != ''">
+            and (
+                lower(coalesce(m.member_name, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(m.member_email, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(bm.company_name, '')) like lower(concat('%', #{keyword}, '%'))
+            )
+        </if>
+        <if test="memberRole != null and memberRole != '' and memberRole != 'all'">
+            and m.member_role = #{memberRole}::member_role
+        </if>
+        <if test="memberStatus != null and memberStatus != '' and memberStatus != 'all'">
+            and m.member_status = #{memberStatus}::member_status
+        </if>
+    </select>
+
+    <select id="selectAdminMembers" resultType="com.app.globalgates.dto.AdminMemberListDTO">
+        select m.id,
+               m.member_name,
+               m.member_email,
+               bm.company_name,
+               m.member_role,
+               m.member_status,
+               to_char(m.created_datetime, 'YYYY-MM-DD HH24:MI:SS') as created_datetime
+        from tbl_member m
+        left join tbl_business_member bm on bm.id = m.id
+        where 1 = 1
+        <if test="keyword != null and keyword != ''">
+            and (
+                lower(coalesce(m.member_name, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(m.member_email, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(bm.company_name, '')) like lower(concat('%', #{keyword}, '%'))
+            )
+        </if>
+        <if test="memberRole != null and memberRole != '' and memberRole != 'all'">
+            and m.member_role = #{memberRole}::member_role
+        </if>
+        <if test="memberStatus != null and memberStatus != '' and memberStatus != 'all'">
+            and m.member_status = #{memberStatus}::member_status
+        </if>
+        order by m.created_datetime desc
+        limit #{criteria.count}
+        offset #{criteria.offset}
+    </select>
+
+    <select id="selectAdminPostTotal" resultType="int">
+        select count(*)
+        from tbl_post p
+        join tbl_member m on m.id = p.member_id
+        left join tbl_post_product pp on pp.id = p.id
+        left join tbl_category c on c.id = pp.product_category_id
+        where p.reply_post_id is null
+        <if test="keyword != null and keyword != ''">
+            and (
+                lower(coalesce(p.title, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(p.content, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(m.member_name, '')) like lower(concat('%', #{keyword}, '%'))
+            )
+        </if>
+        <if test="postType != null and postType != '' and postType != 'all'">
+            <choose>
+                <when test="postType == 'product'">
+                    and pp.id is not null
+                </when>
+                <when test="postType == 'general'">
+                    and pp.id is null
+                </when>
+            </choose>
+        </if>
+        <if test="categoryName != null and categoryName != '' and categoryName != 'all'">
+            and c.category_name = #{categoryName}
+        </if>
+        <if test="postStatus != null and postStatus != '' and postStatus != 'all'">
+            and p.post_status = #{postStatus}::post_status
+        </if>
+    </select>
+
+    <select id="selectAdminPosts" resultType="com.app.globalgates.dto.AdminPostListDTO">
+        select p.id,
+               p.member_id,
+               m.member_name as author_name,
+               p.title as post_title,
+               p.content as post_content,
+               case when pp.id is not null then 'product' else 'general' end as post_type,
+               c.category_name,
+               p.post_status,
+               to_char(p.created_datetime, 'YYYY-MM-DD HH24:MI:SS') as created_datetime
+        from tbl_post p
+        join tbl_member m on m.id = p.member_id
+        left join tbl_post_product pp on pp.id = p.id
+        left join tbl_category c on c.id = pp.product_category_id
+        where p.reply_post_id is null
+        <if test="keyword != null and keyword != ''">
+            and (
+                lower(coalesce(p.title, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(p.content, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(m.member_name, '')) like lower(concat('%', #{keyword}, '%'))
+            )
+        </if>
+        <if test="postType != null and postType != '' and postType != 'all'">
+            <choose>
+                <when test="postType == 'product'">
+                    and pp.id is not null
+                </when>
+                <when test="postType == 'general'">
+                    and pp.id is null
+                </when>
+            </choose>
+        </if>
+        <if test="categoryName != null and categoryName != '' and categoryName != 'all'">
+            and c.category_name = #{categoryName}
+        </if>
+        <if test="postStatus != null and postStatus != '' and postStatus != 'all'">
+            and p.post_status = #{postStatus}::post_status
+        </if>
+        order by p.created_datetime desc
+        limit #{criteria.count}
+        offset #{criteria.offset}
+    </select>
+
+    <select id="selectAdminReportTotal" resultType="int">
+        select count(*)
+        from tbl_report r
+        join tbl_member reporter on reporter.id = r.reporter_id
+        left join tbl_member target_member on target_member.id = r.target_id and r.target_type = 'member'
+        left join tbl_post target_post on target_post.id = r.target_id and r.target_type = 'post'
+        where 1 = 1
+        <if test="keyword != null and keyword != ''">
+            and (
+                lower(coalesce(reporter.member_name, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(target_member.member_name, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(target_post.title, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(r.reason, '')) like lower(concat('%', #{keyword}, '%'))
+            )
+        </if>
+        <if test="targetType != null and targetType != '' and targetType != 'all'">
+            and r.target_type = #{targetType}::report_target_type
+        </if>
+        <if test="reportStatus != null and reportStatus != '' and reportStatus != 'all'">
+            and r.status = #{reportStatus}::report_status
+        </if>
+    </select>
+
+    <select id="selectAdminReports" resultType="com.app.globalgates.dto.AdminReportListDTO">
+        select r.id,
+               reporter.member_name as reporter_name,
+               r.target_type,
+               case
+                   when r.target_type = 'member' then coalesce(target_member.member_name, cast(r.target_id as varchar))
+                   when r.target_type = 'post' then coalesce(target_post.title, cast(r.target_id as varchar))
+                   else cast(r.target_id as varchar)
+               end as target_name,
+               r.reason,
+               r.status,
+               to_char(r.created_datetime, 'YYYY-MM-DD HH24:MI:SS') as created_datetime
+        from tbl_report r
+        join tbl_member reporter on reporter.id = r.reporter_id
+        left join tbl_member target_member on target_member.id = r.target_id and r.target_type = 'member'
+        left join tbl_post target_post on target_post.id = r.target_id and r.target_type = 'post'
+        where 1 = 1
+        <if test="keyword != null and keyword != ''">
+            and (
+                lower(coalesce(reporter.member_name, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(target_member.member_name, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(target_post.title, '')) like lower(concat('%', #{keyword}, '%'))
+                or lower(coalesce(r.reason, '')) like lower(concat('%', #{keyword}, '%'))
+            )
+        </if>
+        <if test="targetType != null and targetType != '' and targetType != 'all'">
+            and r.target_type = #{targetType}::report_target_type
+        </if>
+        <if test="reportStatus != null and reportStatus != '' and reportStatus != 'all'">
+            and r.status = #{reportStatus}::report_status
+        </if>
+        order by r.created_datetime desc
+        limit #{criteria.count}
+        offset #{criteria.offset}
+    </select>
+</mapper>
