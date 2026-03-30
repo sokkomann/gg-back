@@ -23,6 +23,15 @@ const service = (() => {
         if (callback) return callback(data);
         return data;
     };
+    // 내 게시글 목록은 기존 프로젝트의 다른 목록 조회와 같은 방식으로
+    // page 파라미터를 받고, 필요하면 callback에 결과를 넘겨준다.
+    const getMyPosts = async (page, callback) => {
+        const response = await fetch(`/api/mypage/posts?page=${page}`);
+        const data = await response.json();
+
+        if (callback) return callback(data);
+        return data;
+    };
 
     // 상품 삭제
     const deleteProduct = async (productId) => {
@@ -66,6 +75,7 @@ const service = (() => {
     return {
         writeProduct: writeProduct,
         getMyProducts: getMyProducts,
+        getMyPosts: getMyPosts,
         deleteProduct: deleteProduct,
         updateProfile: updateProfile
     };

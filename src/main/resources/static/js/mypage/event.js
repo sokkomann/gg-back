@@ -1959,9 +1959,14 @@ window.onload = function () {
     renderDraftPanel();
     ensureReplyEmojiLibraryPicker();
 
-    // 내 상품 탭은 다른 페이지의 피드/전문가 목록처럼
-    // page, hasMore, checkScroll 상태를 따로 들고 가며 무한 스크롤을 처리한다.
+    // 게시물 탭과 내 상품 탭은 둘 다 "첫 진입 1페이지 로드 + 이후 스크롤 append" 구조를 쓴다.
+    // 그래서 탭마다 page / checkScroll / hasMore / loaded 상태를 따로 들고 가야
+    // 한쪽 탭의 무한 스크롤 상태가 다른 탭 동작에 섞이지 않는다.
     let activeProfileTab = "Posts";
+    let myPostPage = 1;
+    let myPostCheckScroll = true;
+    let myPostHasMore = true;
+    let myPostLoaded = false;
     let myProductPage = 1;
     let myProductCheckScroll = true;
     let myProductHasMore = true;
@@ -1983,6 +1988,17 @@ window.onload = function () {
 
             if (nav.classList.contains("Posts")) {
                 activeProfileTab = "Posts";
+
+                // 게시물 탭은 첫 진입 시에만 1페이지를 서버에서 가져온다.
+                // 이후에는 이미 그려진 목록을 유지하고,
+                // 추가 페이지는 아래 scroll 이벤트에서 이어 붙인다.
+                if (!myPostLoaded) {
+                    service.getMyPosts(myPostPage, (data) => {
+                        layout.showMyPostList(data, myPostPage);
+                        myPostHasMore = data.criteria.hasMore;
+                    });
+                    myPostLoaded = true;
+                }
             }
 
             if (nav.classList.contains("Replies")) {
@@ -2015,6 +2031,23 @@ window.onload = function () {
     window.addEventListener("scroll", (e) => {
         const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
         if (scrollTop + clientHeight < scrollHeight - 100) return;
+
+        // 게시물 탭이 활성 상태일 때만 다음 페이지를 조회한다.
+        // checkScroll은 짧은 시간 동안 중복 요청을 막는 잠금 역할이고,
+        // hasMore가 false면 더 내려도 추가 요청을 보내지 않는다.
+        if (activeProfileTab === "Posts" && myPostCheckScroll && myPostHasMore) {
+            myPostCheckScroll = false;
+            myPostPage++;
+
+            service.getMyPosts(myPostPage, (data) => {
+                layout.showMyPostList(data, myPostPage);
+                myPostHasMore = data.criteria.hasMore;
+            });
+
+            setTimeout(() => {
+                myPostCheckScroll = true;
+            }, 1000);
+        }
 
         if (activeProfileTab === "MyProducts" && myProductCheckScroll && myProductHasMore) {
             myProductCheckScroll = false;
@@ -3621,6 +3654,12 @@ window.onload = function () {
         },
         true,
     );
+
+    document.querySelector(".Header-Back-Btn").addEventListener("click", (e) => {
+        e.preventDefault();
+        history.back();
+    })
+
 };
 
 function placeCaretAtEnd(element) {
@@ -3632,3 +3671,4 @@ function placeCaretAtEnd(element) {
     selection.removeAllRanges();
     selection.addRange(range);
 }
+

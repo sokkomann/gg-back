@@ -3,7 +3,9 @@ package com.app.globalgates.controller.mypage;
 import com.app.globalgates.auth.CustomUserDetails;
 import com.app.globalgates.dto.PostProductWithPagingDTO;
 import com.app.globalgates.dto.PostProductDTO;
+import com.app.globalgates.dto.PostWithPagingDTO;
 import com.app.globalgates.service.PostProductService;
+import com.app.globalgates.service.PostService;
 import com.app.globalgates.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ import java.util.Map;
 public class MypageAPIController {
     private final PostProductService postProductService;
     private final S3Service s3Service;
+    private final PostService postService;
 
     // 마이페이지의 "내 상품" 탭은 로그인한 사용자 본인의 상품만 보여줘야 한다.
     // 그래서 memberId를 프론트에서 받지 않고, 인증 객체에서만 꺼내서 조회한다.
@@ -37,6 +40,17 @@ public class MypageAPIController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         return postProductService.getMyProducts(page, userDetails.getId());
+    }
+
+    // 마이페이지 게시물 탭은 현재 로그인한 사용자가 작성한 "일반 게시글"만 내려준다.
+    // memberId를 프론트에서 받지 않고 인증 객체에서만 꺼내서 조회해야
+    // 다른 사용자의 게시물을 임의로 조회하는 요청을 막을 수 있다.
+    @GetMapping("/posts")
+    public PostWithPagingDTO getMyPosts(
+            @RequestParam(defaultValue = "1") int page,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return postService.getMyPosts(page, userDetails.getId());
     }
 
     // 회원가입 join 흐름처럼:
