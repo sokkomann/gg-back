@@ -1890,19 +1890,30 @@ window.onload = () => {
         }
     }
 
-    // LiveKit 서버에 토큰 요청
-    async function requestLiveKitToken(roomName, participantName) {
-        const response = await fetch(LIVEKIT_SERVER_URL + "/token", {
+    // [임시 - 로컬 테스트용]
+    // 배포 시 아래 함수를 원래 버전으로 교체
+    async function requestLiveKitToken(roomName) {
+        const response = await fetch("/api/v1/video-chat/token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ roomName, participantName })
+            body: JSON.stringify({ roomName })
         });
-
         if (!response.ok) throw new Error("토큰 발급 실패: " + response.status);
         const data = await response.json();
-
         return data.token;
     }
+
+// [원본 - 배포 시 위 함수를 아래로 교체]
+// async function requestLiveKitToken(roomName, participantName) {
+//     const response = await fetch("https://localhost:6080/token", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ roomName, participantName })
+//     });
+//     if (!response.ok) throw new Error("토큰 발급 실패: " + response.status);
+//     const data = await response.json();
+//     return data.token;
+// }
 
     // 화상통화 STOMP 이벤트
     async function subscribeVideoCallEvents() {
@@ -1937,10 +1948,12 @@ window.onload = () => {
 
         message.textContent = `${payload.callerName}님이 화상통화를 요청했습니다.`;
         modal.classList.remove("off");
+        modalBackDrop.classList.remove("off");
 
         // 수락 버튼
         acceptBtn.onclick = async () => {
             modal.classList.add("off");
+            modalBackDrop.classList.add("off");
             try {
                 const token = await requestLiveKitToken(payload.roomName, `member-${loginedMemberId}`);
                 window.location.href = `/video-chat/join?token=${encodeURIComponent(token)}&roomName=${encodeURIComponent(payload.roomName)}&sessionId=${payload.sessionId || ""}`;
@@ -1952,6 +1965,7 @@ window.onload = () => {
         // 거절 버튼 (REST API 방식으로 변경)
         rejectBtn.onclick = async () => {
             modal.classList.add("off");
+            modalBackDrop.classList.add("off");
             try {
                 await fetch("/api/video-chat/session/reject", {
                     method: "POST",
