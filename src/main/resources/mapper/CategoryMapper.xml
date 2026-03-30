@@ -18,6 +18,12 @@
         where category_name = #{categoryName}
     </select>
 
+    <select id="selectAll">
+        select id, product_category_parent_id, category_name, created_datetime
+        from tbl_category
+        order by id
+    </select>
+
     <delete id="delete">
         delete from tbl_category
         where id = #{id}

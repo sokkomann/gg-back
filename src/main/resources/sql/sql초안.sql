@@ -215,7 +215,7 @@ create table tbl_post (
 id             bigint          generated always as identity primary key,  -- pk | 게시글 고유 id (자동 증가)
 member_id      bigint          not null,  -- fk → tbl_member.id | 게시글 작성자
 post_status    post_status     not null default 'active',        -- 게시 상태 (enum)
-title          varchar(255) not null,                            -- 게시글 제목 (상품/문의글에 주로 사용)
+title          varchar(255),                            -- 게시글 제목 (상품/문의글에 주로 사용)
 content        text            not null,                         -- 게시글 본문 내용
 location       varchar(255),                                     -- 위치 태그 (post-detailed 페이지 표시)
 reply_post_id  bigint,

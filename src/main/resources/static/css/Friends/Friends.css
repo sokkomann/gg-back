@@ -6,6 +6,7 @@
 }
 
 html {
+    scrollbar-gutter: stable;
     overflow-x: hidden;
 }
 
@@ -389,9 +390,7 @@ button {
     border: 1px solid #cfd9de;
 }
 
-.cat-back-btn:hover {
-    background: #f7f9f9;
-}
+
 
 .cat-back-btn svg {
     width: 18px;

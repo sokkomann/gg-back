@@ -25,6 +25,10 @@ public class CategoryDAO {
         return categoryMapper.selectByCategoryName(categoryName);
     }
 
+    public List<CategoryDTO> findAll() {
+        return categoryMapper.selectAll();
+    }
+
     public void delete(Long id) {
         categoryMapper.delete(id);
     }

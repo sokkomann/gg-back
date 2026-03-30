@@ -7,8 +7,8 @@ select
 from tbl_ad_file af
 join tbl_file f on af.id = f.id;
 
--- 게시물 관련된 모든 정보 조회하는 view
-create view view_post_feed as
+-- 게시물 관련된 모든 정보 조회하는 view (커뮤니티 정보 포함)
+create or replace view view_post_feed as
 select p.id,
        p.member_id,
        p.post_status,
@@ -24,11 +24,20 @@ select p.id,
            join tbl_file f on mpf.id = f.id
         where mpf.member_id = p.member_id and mpf.profile_image_type = 'profile'
         limit 1) as member_profile_file_name,
-       (select count(*) from tbl_post_like pl where pl.post_id = p.id) as like_count,
-       (select count(*) from tbl_post rp where rp.reply_post_id = p.id) as reply_count,
-       (select count(*) from tbl_bookmark b where b.post_id = p.id) as bookmark_count
+       (select count(*) from tbl_post_like pl
+                        where pl.post_id = p.id) as like_count,
+       (select count(*) from tbl_post rp
+                        where rp.reply_post_id = p.id
+                          and rp.post_status = 'active')
+       + (select count(*) from tbl_post rp2 where rp2.reply_post_id in (select rp3.id from tbl_post rp3 where rp3.reply_post_id = p.id) and rp2.post_status = 'active') as reply_count,
+       (select count(*) from tbl_bookmark b where b.post_id = p.id) as bookmark_count,
+       bg.badge_type,
+       p.community_id,
+       c.community_name
 from tbl_post p
          join tbl_member m on p.member_id = m.id
+         left join tbl_badge bg on bg.member_id = p.member_id
+         left join tbl_community c on p.community_id = c.id
 where p.post_status = 'active'
   and p.reply_post_id is null;
 

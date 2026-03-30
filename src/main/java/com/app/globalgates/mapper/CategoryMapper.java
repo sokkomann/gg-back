@@ -14,6 +14,8 @@ public interface CategoryMapper {
     public Optional<CategoryDTO> selectById(Long id);
 //  카테고리 이름으로 조회
     public Optional<CategoryDTO> selectByCategoryName(String categoryName);
+//  전체 카테고리 조회
+    public List<CategoryDTO> selectAll();
 //  삭제
     public void delete(Long id);
 
