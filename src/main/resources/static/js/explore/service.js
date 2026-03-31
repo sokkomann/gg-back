@@ -144,6 +144,27 @@ const exploreService = (() => {
         }
     }
 
+    // 좋아요 체크
+    const toggleLike = async (postId) => {
+        const response = await fetch(`/api/explore/likes/${postId}`, {
+            method: "POST",
+            credentials: "include"
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || "Fetch error");
+        }
+
+        return await response.text(); // "좋아요를 생성했습니다." or "좋아요를 삭제했습니다."
+    };
+
+    // 북마크 체크
+    const checkBookmark = async (postId) => {
+
+    }
+
+
 
 
     return {
@@ -157,5 +178,6 @@ const exploreService = (() => {
         deleteKeyword: deleteKeyword,
         deleteAllKeywords: deleteAllKeywords,
         checkFollow: checkFollow,
+        toggleLike: toggleLike,
     };
 })();

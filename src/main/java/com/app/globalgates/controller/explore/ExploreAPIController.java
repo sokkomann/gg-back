@@ -1,22 +1,20 @@
 package com.app.globalgates.controller.explore;
 
-import com.app.globalgates.dto.NewsDTO;
-import com.app.globalgates.dto.PostProductWithPagingDTO;
-import com.app.globalgates.dto.PostWithPagingDTO;
-import com.app.globalgates.dto.RankedSearchHistoryDTO;
+import com.app.globalgates.auth.CustomUserDetails;
+import com.app.globalgates.dto.*;
 import com.app.globalgates.service.NewsService;
+import com.app.globalgates.service.PostLikeService;
 import com.app.globalgates.service.PostProductService;
 import com.app.globalgates.service.SearchService;
 import com.app.globalgates.util.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,6 +22,7 @@ import java.util.List;
 @Slf4j
 public class ExploreAPIController implements ExploreAPIControllerDocs {
     private final PostProductService postProductService;
+    private final PostLikeService postLikeService;
     private final NewsService newsService;
     private final SearchService searchService;
 
@@ -49,6 +48,24 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
     public ResponseEntity<?> getTrends() {
         List<RankedSearchHistoryDTO> trends = searchService.getTop10Histories();
         return ResponseEntity.ok(trends);
+    }
+
+    //    좋아요 조회 후, 생성 or 삭제
+    @PostMapping("likes/{postId}")
+    public ResponseEntity<?> checkLikes(@PathVariable Long postId,
+                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Optional<PostLikeDTO> exising = postLikeService.getLike(userDetails.getId(), postId);
+        if(!exising.isPresent()) {
+            PostLikeDTO postLikeDTO = new PostLikeDTO();
+            postLikeDTO.setMemberId(userDetails.getId());
+            postLikeDTO.setPostId(postId);
+            postLikeService.addLike(postLikeDTO);
+
+            return ResponseEntity.ok("좋아요를 생성했습니다.");
+        } else {
+            postLikeService.deleteLike(userDetails.getId(), postId);
+            return ResponseEntity.ok("좋아요를 삭제했습니다.");
+        }
     }
 
 }

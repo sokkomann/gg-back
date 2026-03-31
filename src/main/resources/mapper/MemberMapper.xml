@@ -78,6 +78,33 @@
         order by member_nickname
     </select>
 
+    <select id="selectMembersByKeywordWithFollow">
+        select
+            m.id,
+            m.member_name,
+            m.member_nickname,
+            m.member_handle,
+            m.member_bio,
+            m.member_region,
+            m.member_status,
+            m.member_role,
+            m.created_datetime,
+            m.updated_datetime,
+            case when exists (
+                select 1 from tbl_follow f
+                where f.follower_id = #{memberId}
+                  and f.following_id = m.id
+            ) then true else false end as followed
+        from tbl_member m
+        where m.member_status = 'active'
+          and m.id != #{memberId}
+          and (
+            m.member_nickname like concat('%', #{keyword}, '%')
+                or m.member_handle like concat('%', #{keyword}, '%')
+            )
+        order by m.member_nickname
+    </select>
+
     <select id="selectMemberByMemberHandle">
         select id, member_email, member_password, member_handle, member_phone,
                member_region, member_status, member_role, created_datetime, updated_datetime,  member_name

@@ -304,22 +304,48 @@ window.onload = () => {
             }, 2500);
         }
 
-        function handleLike(btn) {
+        async function handleLike(btn) {
+            const card = btn.closest("[data-post-id]");
+            const postId = card?.dataset.postId;
+            if (!postId) return;
+
             const isLiked = btn.classList.contains("liked");
+
+            // 낙관적 UI 업데이트
             btn.classList.toggle("liked", !isLiked);
             const path = btn.querySelector("svg path");
             if (path) {
-                path.setAttribute("d", isLiked ? path.getAttribute("data-path-inactive") : path.getAttribute("data-path-active"));
+                path.setAttribute("d", isLiked
+                    ? path.getAttribute("data-path-inactive")
+                    : path.getAttribute("data-path-active"));
             }
             const countEl = btn.querySelector(".Post-Action-Count");
             if (countEl) {
                 const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
                 countEl.textContent = isLiked ? cur - 1 : cur + 1;
             }
-            showToast(isLiked ? "좋아요를 취소했습니다." : "좋아요를 눌렀습니다.", "toast--like");
+
+            try {
+                await exploreService.toggleLike(postId);
+                showToast(isLiked ? "좋아요를 취소했습니다." : "좋아요를 눌렀습니다.", "toast--like");
+            } catch (e) {
+                // 실패 시 롤백
+                btn.classList.toggle("liked", isLiked);
+                if (path) {
+                    path.setAttribute("d", isLiked
+                        ? path.getAttribute("data-path-active")
+                        : path.getAttribute("data-path-inactive"));
+                }
+                if (countEl) {
+                    const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
+                    countEl.textContent = isLiked ? cur + 1 : cur - 1;
+                }
+                showToast("오류가 발생했습니다. 다시 시도해주세요.");
+                console.error("좋아요 요청 실패:", e);
+            }
         }
 
-        function handleBookmark(btn) {
+        async function handleBookmark(btn) {
             const isBookmarked = btn.classList.contains("bookmarked");
             btn.classList.toggle("bookmarked", !isBookmarked);
             const path = btn.querySelector("svg path");
