@@ -25,12 +25,12 @@ public class SubscriptionDAO {
     }
 
     //    구독티어 변경
-    public void updateTier(Long id, SubscriptionTier tier, String billingCycle, String expiresAt) {
+    public void setTier(Long id, SubscriptionTier tier, String billingCycle, String expiresAt) {
         subscriptionMapper.updateTier(id, tier, billingCycle, expiresAt);
     }
 
     //    구독 상태 변경
-    public void updateStatus(Long id, SubscriptionStatus status) {
+    public void setStatus(Long id, SubscriptionStatus status) {
         subscriptionMapper.updateStatus(id, status);
     }
 }

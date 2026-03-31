@@ -58,35 +58,14 @@ public class MainController {
 //    게시글 상세 페이지
     @GetMapping("/post/detail/{id}")
     public String goToPostDetail(@PathVariable Long id, @RequestParam(required = false) Long memberId, HttpServletRequest request, Model model) {
+        MemberDTO loginMember = getLoginMemberWithProfile(request);
         if (memberId == null) {
-            try {
-                String token = jwtTokenProvider.parseTokenFromHeader(request);
-                String username = jwtTokenProvider.getUsername(token);
-                memberId = memberService.getMember(username).getId();
-            } catch (Exception e) {
-                memberId = 0L;
-            }
+            memberId = loginMember.getId();
         }
-        PostDTO postDTO = postService.getDetail(id, memberId);
-        postDTO.getPostFiles().forEach(pf -> {
-            try {
-                pf.setFilePath(s3Service.getPresignedUrl(pf.getFilePath(), Duration.ofMinutes(10)));
-            } catch (IOException e) {
-                throw new RuntimeException("Presigned URL 생성 실패", e);
-            }
-        });
 
-        String token = jwtTokenProvider.parseTokenFromHeader(request);
-        String loginId = jwtTokenProvider.getUsername(token);
-        MemberDTO loginMember = memberService.getMember(loginId);
-        MemberProfileFileDTO loginProfileFile = memberService.getProfileFile(loginMember.getId());
-        if (loginProfileFile != null && loginProfileFile.getFileName() != null) {
-            try {
-                loginMember.setFileName(s3Service.getPresignedUrl(loginProfileFile.getFileName(), Duration.ofMinutes(10)));
-            } catch (IOException e) {
-                loginMember.setFileName(null);
-            }
-        }
+        PostDTO postDTO = postService.getDetail(id, memberId);
+        convertPostFilesUrl(postDTO);
+        convertProfileUrl(postDTO);
 
         model.addAttribute("post", postDTO);
         model.addAttribute("memberId", memberId);
@@ -113,6 +92,47 @@ public class MainController {
     public RedirectView deleteFromDetail(@PathVariable Long id) {
         postService.delete(id);
         return new RedirectView("/main/main");
+    }
+
+//    JWT에서 로그인 멤버를 꺼내고 프로필 이미지 presigned URL까지 세팅
+    private MemberDTO getLoginMemberWithProfile(HttpServletRequest request) {
+        String token = jwtTokenProvider.parseTokenFromHeader(request);
+        String loginId = jwtTokenProvider.getUsername(token);
+        MemberDTO member = memberService.getMember(loginId);
+
+        MemberProfileFileDTO profileFile = memberService.getProfileFile(member.getId());
+        if (profileFile != null && profileFile.getFileName() != null) {
+            try {
+                member.setFileName(s3Service.getPresignedUrl(profileFile.getFileName(), Duration.ofMinutes(10)));
+            } catch (IOException e) {
+                member.setFileName(null);
+            }
+        }
+        return member;
+    }
+
+//    게시물 첨부파일 presigned URL 변환
+    private void convertPostFilesUrl(PostDTO post) {
+        if (post.getPostFiles() != null) {
+            post.getPostFiles().forEach(pf -> {
+                try {
+                    pf.setFilePath(s3Service.getPresignedUrl(pf.getFilePath(), Duration.ofMinutes(10)));
+                } catch (IOException e) {
+                    throw new RuntimeException("Presigned URL 생성 실패", e);
+                }
+            });
+        }
+    }
+
+//    게시물 작성자 프로필 presigned URL 변환
+    private void convertProfileUrl(PostDTO post) {
+        if (post.getMemberProfileFileName() != null) {
+            try {
+                post.setMemberProfileFileName(s3Service.getPresignedUrl(post.getMemberProfileFileName(), Duration.ofMinutes(10)));
+            } catch (IOException e) {
+                post.setMemberProfileFileName(null);
+            }
+        }
     }
 
 //    S3 Presigned URL 변환

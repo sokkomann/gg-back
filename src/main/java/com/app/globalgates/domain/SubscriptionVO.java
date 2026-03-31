@@ -1,16 +1,17 @@
 package com.app.globalgates.domain;
 
+import com.app.globalgates.audit.Period;
 import com.app.globalgates.common.enumeration.SubscriptionStatus;
 import com.app.globalgates.common.enumeration.SubscriptionTier;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@ToString
-@EqualsAndHashCode(of = "id")
+@ToString(callSuper = true)
+@EqualsAndHashCode(of = "id", callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-public class SubscriptionVO {
+@SuperBuilder
+public class SubscriptionVO extends Period {
     private Long id;
     private Long memberId;
     private SubscriptionTier tier;
@@ -18,6 +19,4 @@ public class SubscriptionVO {
     private SubscriptionStatus status;
     private String startedAt;
     private String expiresAt;
-    private String createdDatetime;
-    private String updatedDatetime;
 }

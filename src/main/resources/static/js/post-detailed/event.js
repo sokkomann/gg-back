@@ -68,6 +68,7 @@ window.onload = () => {
         if (locationCompleteBtn) { locationCompleteBtn.disabled = !selectedLocation; }
     }
 
+    var ps = null;
     function searchPlaces() {
         var keyword = locationSearchInput.value;
         if (!keyword.replace(/^\s+|\s+$/g, '')) { alert('키워드를 입력해주세요!'); return false; }
@@ -175,8 +176,8 @@ window.onload = () => {
     }
 
     function updateAttachmentView() {
-        if (attachedFiles.length === 0) { attachmentPreview.classList.add("off"); attachmentMedia.innerHTML = ""; return; }
-        attachmentPreview.classList.remove("off");
+        if (attachedFiles.length === 0) { attachmentPreview.setAttribute("hidden", ""); attachmentMedia.innerHTML = ""; return; }
+        attachmentPreview.removeAttribute("hidden");
         if (attachedFiles[0].type.includes("video")) { renderVideoAttachment(); } else { renderImageGrid(); }
     }
 
@@ -232,7 +233,7 @@ window.onload = () => {
         if (inlineSubmit) inlineSubmit.disabled = true;
         if (inlineGaugeText) { inlineGaugeText.textContent = inlineMaxLength; inlineGaugeText.style.color = ""; }
         attachedFiles = []; attachedUrls = [];
-        if (attachmentPreview) { attachmentPreview.classList.add("off"); }
+        if (attachmentPreview) { attachmentPreview.setAttribute("hidden", ""); }
         if (attachmentMedia) { attachmentMedia.innerHTML = ""; }
         if (imageInput) { imageInput.value = ""; }
         selectedLocation = null;

@@ -49,7 +49,7 @@
                     <svg viewBox="0 0 24 24" class="nav-icon"><path d="M16.697 5.5c1.813 0 3.303 1.46 3.303 3.25 0 .967-.426 1.885-1.17 2.668L12 18.01l-6.83-6.592A3.74 3.74 0 014 8.75C4 6.96 5.49 5.5 7.303 5.5c.967 0 1.89.414 2.546 1.14L12 8.89l2.151-2.25A3.55 3.55 0 0116.697 5.5zm0-2C15.09 3.5 13.55 4.14 12 5.76 10.45 4.14 8.91 3.5 7.303 3.5 4.386 3.5 2 5.82 2 8.75c0 1.49.62 2.91 1.72 3.97l7.53 7.26a1 1 0 001.39 0l7.53-7.26A5.62 5.62 0 0022 8.75c0-2.93-2.386-5.25-5.303-5.25z"></path></svg>
                     <span>친구</span>
                 </a>
-                <a class="nav-item" href="chat">
+                <a class="nav-item" href="/chat">
                             <span class="nav-icon-wrap">
                                 <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v13c0 1.381-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.119-2.5-2.5v-13zm2.5-.5c-.276 0-.5.224-.5.5v2.764l8 3.638 8-3.636V5.5c0-.276-.224-.5-.5-.5h-15zm15.5 5.463l-8 3.636-8-3.638V18.5c0 .276.224.5.5.5h15c.276 0 .5-.224.5-.5v-8.037z"></path></g></svg>
                                 <span class="nav-badge">2</span>
@@ -758,7 +758,7 @@
 <div id="layers">
     <!-- 계정 메뉴 팝업: 좌측 하단 계정 카드가 열 때 JS가 이 고정 노드를 재사용하고 hidden만 토글한다. -->
     <div class="account-menu-popup off" id="accountMenuPopup">
-        <button class="account-menu-logout" id="accountLogoutButton">@CodeKim1218 계정에서 로그아웃</button>
+        <button class="account-menu-logout" id="accountLogoutButton">계정에서 로그아웃</button>
     </div>
     <!-- 게시판 선택 레이어: 작성 모달의 audience 버튼이 열 때 이 고정 레이어를 버튼 아래에 배치한다. -->
     <div class="boardMenu off" id="boardMenu">
@@ -799,13 +799,13 @@
         <div class="nav-more-popover" id="navMorePopover">
             <div class="nav-more-dropdown">
                 <div class="nav-more-menu">
-                    <a class="nav-more-item">
+                    <a class="nav-more-item" href="/community">
                         <div class="nav-more-itemInner">
                             <svg class="nav-more-itemIcon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M7.501 19.917L7.471 21H.472l.029-1.027c.184-6.618 3.736-8.977 7-8.977.963 0 1.95.212 2.87.672-.444.478-.851 1.03-1.212 1.656-.507-.204-1.054-.329-1.658-.329-2.767 0-4.57 2.223-4.938 6.004H7.56c-.023.302-.05.599-.059.917zm15.998.056L23.528 21H9.472l.029-1.027c.184-6.618 3.736-8.977 7-8.977s6.816 2.358 7 8.977zM21.437 19c-.367-3.781-2.17-6.004-4.938-6.004s-4.57 2.223-4.938 6.004h9.875zm-4.938-9c-.799 0-1.527-.279-2.116-.73-.836-.64-1.384-1.638-1.384-2.77 0-1.93 1.567-3.5 3.5-3.5s3.5 1.57 3.5 3.5c0 1.132-.548 2.13-1.384 2.77-.589.451-1.317.73-2.116.73zm-1.5-3.5c0 .827.673 1.5 1.5 1.5s1.5-.673 1.5-1.5-.673-1.5-1.5-1.5-1.5.673-1.5 1.5zM7.5 3C9.433 3 11 4.57 11 6.5S9.433 10 7.5 10 4 8.43 4 6.5 5.567 3 7.5 3zm0 2C6.673 5 6 5.673 6 6.5S6.673 8 7.5 8 9 7.327 9 6.5 8.327 5 7.5 5z"></path></g></svg>
                             <span class="nav-more-itemLabel">커뮤니티</span>
                         </div>
                     </a>
-                    <a class="nav-more-item">
+                    <a class="nav-more-item" href="/ad">
                         <div class="nav-more-itemInner">
                             <svg class="nav-more-itemIcon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.996 5.5c0-1.38 1.119-2.5 2.5-2.5h15c1.38 0 2.5 1.12 2.5 2.5v13c0 1.38-1.12 2.5-2.5 2.5h-15c-1.381 0-2.5-1.12-2.5-2.5v-13zm2.5-.5c-.277 0-.5.22-.5.5v13c0 .28.223.5.5.5h15c.276 0 .5-.22.5-.5v-13c0-.28-.224-.5-.5-.5h-15zm8.085 5H8.996V8h7v7h-2v-3.59l-5.293 5.3-1.415-1.42L12.581 10z"></path></g></svg>
                             <span class="nav-more-itemLabel">광고</span>
