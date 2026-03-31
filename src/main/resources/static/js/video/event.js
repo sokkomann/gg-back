@@ -65,6 +65,8 @@
         const token    = params.get("token");
         const roomName = params.get("roomName");
         sessionId       = params.get("sessionId");
+        const userName   = params.get("userName") || "나";
+        const partnerName = params.get("partnerName") || "상대방";
 
         if (!token || !roomName) {
             console.error("화상통화 정보가 없습니다. token:", token, "roomName:", roomName);
@@ -75,19 +77,19 @@
         // URL 자동 설정
         // configureUrls();
         console.log("화상통화 입장 - roomName:", roomName);
-        await joinVideoRoom(token, roomName);
+        await joinVideoRoom(token, roomName, userName, partnerName);
     })();
 
     // -------------------------------------------------------
     // 2. LiveKit Room 연결
     // -------------------------------------------------------
-    async function joinVideoRoom(token, roomName) {
+    async function joinVideoRoom(token, roomName, userName, partnerName) {
         room = new LivekitClient.Room();
 
         // 상대방 트랙 수신
         room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, _publication, participant) => {
             console.log("TrackSubscribed 수신 - kind:", track.kind, "/ 참가자:", participant.identity);
-            addVideoTrack(track, participant.identity);
+            addVideoTrack(track, partnerName);
         });
 
         // 상대방 트랙 제거
@@ -95,13 +97,14 @@
             console.log("TrackUnsubscribed - kind:", track.kind, "/ 참가자:", participant.identity);
             track.detach();
             document.getElementById(track.sid)?.remove();
-            if (track.kind === "video") removeVideoContainer(participant.identity);
+            if (track.kind === "video") removeVideoContainer(partnerName);
         });
 
         // 상대방 입장 - 자동 녹화 시작
         room.on(LivekitClient.RoomEvent.ParticipantConnected, (participant) => {
-            console.log("참가자 입장:", participant.identity);
-            showToast(`${participant.identity}님이 입장했습니다.`);
+            console.log("참가자 입장:", partnerName);
+            showToast(`${partnerName}님이 입장했습니다.`);
+            updateParticipantList(userName, partnerName);
             if (!isRecording) {
                 startRecording();
             }
@@ -109,9 +112,10 @@
 
         // 상대방 퇴장 - 화면만 제거 (내 화면 유지)
         room.on(LivekitClient.RoomEvent.ParticipantDisconnected, (participant) => {
-            console.log("참가자 퇴장:", participant.identity);
-            showToast(`${participant.identity}님이 퇴장했습니다.`);
-            removeVideoContainer(participant.identity);
+            console.log("참가자 퇴장:", partnerName);
+            showToast(`${partnerName}님이 퇴장했습니다.`);
+            updateParticipantList(userName, null);
+            removeVideoContainer(partnerName);
         });
 
         // 내 연결 상태 변화 감지
@@ -127,7 +131,7 @@
         // 상대방 연결 품질 저하 감지
         room.on(LivekitClient.RoomEvent.ParticipantConnectionQualityChanged, (quality, participant) => {
             if (quality === LivekitClient.ConnectionQuality.Lost) {
-                showToast(`${participant.identity}님의 연결이 끊겼습니다. 재연결을 기다리는 중...`);
+                showToast(`${partnerName}님의 연결이 끊겼습니다. 재연결을 기다리는 중...`);
             }
         });
 
@@ -154,8 +158,12 @@
             const localVideoPublication = room.localParticipant.videoTrackPublications.values().next().value;
             if (localVideoPublication?.track) {
                 console.log("로컬 트랙 렌더링 - identity:", room.localParticipant.identity);
-                addVideoTrack(localVideoPublication.track, room.localParticipant.identity, true);
+                addVideoTrack(localVideoPublication.track, userName, true);
             }
+
+            // 이미 방에 있는 원격 참가자 확인 → 수락한 쪽에서 발신자가 이미 있을 때
+            const alreadyInRoom = room.remoteParticipants.size > 0;
+            updateParticipantList(userName, alreadyInRoom ? partnerName : null);
 
         } catch (error) {
             console.error("LiveKit 연결 실패:", error.message);
@@ -175,7 +183,7 @@
         if (track.kind === "video") {
             const container = createVideoContainer(participantIdentity, local);
             container.append(element);
-            appendParticipantData(container, participantIdentity + (local ? " (You)" : ""));
+            appendParticipantData(container, participantIdentity + (local ? " (나)" : "(상대방)"));
         } else {
             document.getElementById("layout-container").append(element);
         }
@@ -321,30 +329,46 @@
     }
 
     // -------------------------------------------------------
-    // 6. space-title 편집
-    // -------------------------------------------------------
-    const title = document.querySelector(".space-title");
-    const editButton = document.querySelector(".edit-btn");
-
-    if (title && editButton) {
-        const STORAGE_KEY = "video_space_title";
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved?.trim()) title.textContent = saved.trim();
-
-        editButton.addEventListener("click", () => {
-            const next = window.prompt("스페이스 이름을 입력하세요", title.textContent.trim());
-            if (next === null) return;
-            const normalized = next.trim();
-            if (!normalized) { window.alert("이름을 입력해 주세요."); return; }
-            title.textContent = normalized;
-            localStorage.setItem(STORAGE_KEY, normalized);
-        });
-    }
-
-    // -------------------------------------------------------
-    // 7. 브라우저 종료 시 자동 퇴장
+    // 6. 브라우저 종료 시 자동 퇴장
     // -------------------------------------------------------
     window.addEventListener("beforeunload", () => {
         room?.disconnect();
+    });
+
+
+    // -------------------------------------------------------
+    // 7. 참여자 상태 표시
+    // -------------------------------------------------------
+    // 참여자 목록 갱신
+    function updateParticipantList(userName, partnerName) {
+        const list = document.getElementById("participantList");
+        if (!list) return;
+
+        const participants = [
+            { name: userName, isMe: true },
+            ...(partnerName ? [{ name: partnerName, isMe: false }] : [])
+        ];
+
+        list.innerHTML = participants.map(p => `
+        <li class="participant-panel-item">
+            <div class="participant-avatar">${p.name.charAt(0)}</div>
+            <div class="participant-info">
+                <span class="participant-name">${p.name}</span>
+                ${p.isMe ? `<span class="participant-me-badge">나</span>` : ""}
+            </div>
+        </li>
+    `).join("");
+    }
+
+    // 참여자 버튼 클릭 이벤트
+    document.querySelector(".circle-btn")?.addEventListener("click", () => {
+        const panel = document.getElementById("participantPanel");
+        if (!panel) return;
+        panel.classList.toggle("off");
+    });
+
+    // 패널 닫기 버튼
+    document.getElementById("participantPanelClose")?.addEventListener("click", () => {
+        document.getElementById("participantPanel")?.classList.add("off");
     });
 };

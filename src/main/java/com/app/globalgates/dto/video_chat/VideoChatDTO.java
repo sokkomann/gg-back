@@ -25,6 +25,7 @@ public class VideoChatDTO {
     // 채팅방 응답용
     private String roomName;
     private String callerName;
+    private String receiverName;
 
     public VideoChatVO toVO() {
         return VideoChatVO.builder()

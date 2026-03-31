@@ -27,17 +27,6 @@
         </header>
 
         <section class="space-body">
-            <!-- 채팅방 헤더 -->
-            <div class="space-body-header">
-                <h1 class="space-title">박하민의 스페이스</h1>
-                <button class="icon-btn edit-btn" type="button" aria-label="수정">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M4 16.5V20h3.5L18 9.5 14.5 6 4 16.5z"/>
-                        <path d="M13.5 7l3.5 3.5"/>
-                    </svg>
-                </button>
-            </div>
-
             <!-- 채팅방 바디 (화상통화 출력되는 곳) -->
             <div class="video-chat-session" id="layout-container">
                 
@@ -58,6 +47,17 @@
             </div>
         </footer>
     </section>
+    <div class="participant-panel off" id="participantPanel">
+        <div class="participant-panel-header">
+            <span class="participant-panel-title">참여자</span>
+            <button class="participant-panel-close" id="participantPanelClose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <ul class="participant-panel-list" id="participantList"></ul>
+    </div>
 </main>
 </body>
 </html>

@@ -1077,9 +1077,9 @@ window.onload = () => {
     // 11.채팅 핵심 로직
 
     // 11-1.현재 유저 정보
-    const currentMemberId = Number(document.body.dataset.memberId || 1);
-    const currentMemberName = document.body.dataset.memberName || "GG Business";
-    const currentMemberHandle = document.body.dataset.memberHandle || "gg_business_member1";
+    let currentMemberId = Number(document.body.dataset.memberId || 1);
+    let currentMemberName = document.body.dataset.memberName || "GG Business";
+    let currentMemberHandle = document.body.dataset.memberHandle || "gg_business_member1";
     let currentPartnerId = Number(document.body.dataset.partnerId || 2);
     let currentPartnerName = document.body.dataset.partnerName || "GG Expert";
     let currentPartnerHandle = document.body.dataset.partnerHandle || "gg_expert_member2";
@@ -1875,7 +1875,10 @@ window.onload = () => {
             const response = await fetch("/api/video-chat/session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ receiverId: currentPartnerId })
+                body: JSON.stringify({
+                    receiverId: currentPartnerId,
+                    receiverName: currentMemberName
+                })
             });
 
             if (!response.ok) throw new Error("세션 생성 실패: " + response.status);
@@ -1887,7 +1890,7 @@ window.onload = () => {
 
             // [임시 - 로컬 테스트용 프록시] 배포 시 아래 requestLiveKitToken 원본으로 교체
             const token = await requestLiveKitToken(roomName);
-            window.location.href = `/video-chat/join?token=${encodeURIComponent(token)}&roomName=${encodeURIComponent(roomName)}&sessionId=${sessionId}`;
+            window.location.href = `/video-chat/join?token=${encodeURIComponent(token)}&roomName=${encodeURIComponent(roomName)}&sessionId=${sessionId}&userName=${encodeURIComponent(currentMemberName)}&partnerName=${encodeURIComponent(currentPartnerName)}`;
 
         } catch (error) {
             console.error("화상통화 시작 실패:", error.message);
@@ -1928,10 +1931,12 @@ window.onload = () => {
 
         // 서버에서 현재 로그인한 유저 id 조회
         const response = await fetch("/api/video-chat/me");
-        const { memberId } = await response.json();
+        const { memberId, memberName, memberHandle } = await response.json();
         loginedMemberId = memberId;
+        currentMemberName = memberName;
+        currentMemberHandle = memberHandle;
 
-        console.log("화상통화 구독 시작 - memberId:", memberId);
+        console.log("화상통화 구독 시작 - memberId: ", memberId);
 
         stompClient.subscribe(`/topic/video-call.${memberId}`, (message) => {
             const payload = JSON.parse(message.body);
@@ -1962,7 +1967,7 @@ window.onload = () => {
             modalBackDrop.classList.add("off");
             try {
                 const token = await requestLiveKitToken(payload.roomName);
-                window.location.href = `/video-chat/join?token=${encodeURIComponent(token)}&roomName=${encodeURIComponent(payload.roomName)}&sessionId=${payload.sessionId || ""}`;
+                window.location.href = `/video-chat/join?token=${encodeURIComponent(token)}&roomName=${encodeURIComponent(payload.roomName)}&sessionId=${payload.sessionId || ""}&userName=${encodeURIComponent(currentMemberName)}&partnerName=${encodeURIComponent(payload.callerName)}`;
             } catch (error) {
                 console.error("통화 수락 실패:", error.message);
             }

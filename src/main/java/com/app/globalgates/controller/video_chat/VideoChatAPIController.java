@@ -59,6 +59,7 @@ public class VideoChatAPIController {
                         "callerId", callerId,
                         "callerName", userDetails.getMemberName(),
                         "receiverId", videoChatDTO.getReceiverId(),
+                        "receiverName", videoChatDTO.getReceiverName(),
                         "roomName", roomName,
                         "sessionId", session.getId()
                 )
@@ -91,7 +92,11 @@ public class VideoChatAPIController {
     @GetMapping("me")
     public ResponseEntity<?> getMyId(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(Map.of("memberId", userDetails.getId()));
+        return ResponseEntity.ok(Map.of(
+                "memberId", userDetails.getId(),
+                "memberName", userDetails.getMemberName(),
+                "memberHandle", userDetails.getMemberHandle()
+        ));
     }
 
     @PostMapping("/session/reject")
