@@ -66,7 +66,7 @@ public class SubscriptionService {
 
     //    구독 플랜변경 (tier, billingCycle, expiresAt) + member_role, badge 변경
     public void changePlan(Long id, Long memberId, SubscriptionTier tier, String billingCycle, String expiresAt) {
-        subscriptionDAO.updateTier(id, tier, billingCycle, expiresAt);
+        subscriptionDAO.setTier(id, tier, billingCycle, expiresAt);
 
         if (tier == SubscriptionTier.EXPERT) {
             memberDAO.setMemberRole(memberId, MemberRole.EXPERT);
@@ -93,7 +93,7 @@ public class SubscriptionService {
     //    구독 해지 = 한달분만 진행하고 member_role을 business로 돌리고 badge 삭제
     //    한달분을 제외한 금액만큼 돌려주기...가 의도인데
     public void cancel(Long id, Long memberId) {
-        subscriptionDAO.updateStatus(id, SubscriptionStatus.INACTIVE);
+        subscriptionDAO.setStatus(id, SubscriptionStatus.INACTIVE);
         memberDAO.setMemberRole(memberId, MemberRole.BUSINESS);
         badgeDAO.deleteByMemberId(memberId);
     }

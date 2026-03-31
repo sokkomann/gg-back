@@ -30,8 +30,6 @@ public class SubscriptionDTO {
                 .status(status)
                 .startedAt(startedAt)
                 .expiresAt(expiresAt)
-                .createdDatetime(createdDatetime)
-                .updatedDatetime(updatedDatetime)
                 .build();
     }
 }

@@ -3095,3 +3095,8 @@ div.postHashtags {
         box-shadow: none;
     }
 }
+
+/* 이모지 피커 라이브러리 z-index */
+.emoji-picker {
+    z-index: 1 !important;
+}

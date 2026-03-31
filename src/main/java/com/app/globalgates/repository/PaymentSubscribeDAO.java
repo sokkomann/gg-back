@@ -30,7 +30,7 @@ public class PaymentSubscribeDAO {
     }
 
     //    결제 상태 변경
-    public void updateStatus(String receiptId, PaymentStatus paymentStatus, String paidAt) {
+    public void setStatus(String receiptId, PaymentStatus paymentStatus, String paidAt) {
         paymentSubscribeMapper.updateStatus(receiptId, paymentStatus, paidAt);
     }
 }

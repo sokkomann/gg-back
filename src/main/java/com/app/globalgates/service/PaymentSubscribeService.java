@@ -34,6 +34,6 @@ public class PaymentSubscribeService {
 
     //    결제 상태 변경
     public void updateStatus(String receiptId, PaymentStatus paymentStatus, String paidAt) {
-        paymentSubscribeDAO.updateStatus(receiptId, paymentStatus, paidAt);
+        paymentSubscribeDAO.setStatus(receiptId, paymentStatus, paidAt);
     }
 }
