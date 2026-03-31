@@ -1,68 +1,73 @@
 window.addEventListener("load", () => {
     const createPostButton = document.getElementById("createPostButton");
+    const composerForm = document.getElementById("postComposerForm");
     const submitButton = document.getElementById("postSubmitButton");
     const productSelectButton = document.getElementById("productSelectButton");
     const productSelectModal = document.getElementById("productSelectModal");
-    const productSelectBackdrop = document.getElementById(
-        "productSelectBackdrop",
-    );
+    const productSelectBackdrop = document.getElementById("productSelectBackdrop");
     const productSelectClose = document.getElementById("productSelectClose");
-    const productSelectConfirm = document.getElementById(
-        "productSelectConfirm",
-    );
+    const productSelectConfirm = document.getElementById("productSelectConfirm");
     const productSelectList = document.getElementById("productSelectList");
     const productItems = Array.from(
-        document.querySelectorAll(
-            "#productSelectList .productSelectModal__item",
-        ),
+        document.querySelectorAll("#productSelectList .productSelectModal__item"),
     );
     const productSelectEmpty = document.getElementById("productSelectEmpty");
-    const selectedProductPreview = document.getElementById(
-        "selectedProductPreview",
-    );
-    const selectedProductImage = document.getElementById(
-        "selectedProductImage",
-    );
+    const selectedProductPreview = document.getElementById("selectedProductPreview");
+    const selectedProductImage = document.getElementById("selectedProductImage");
     const selectedProductName = document.getElementById("selectedProductName");
     const selectedProductMeta = document.getElementById("selectedProductMeta");
-    const selectedProductRemove = document.getElementById(
-        "selectedProductRemove",
-    );
+    const selectedProductRemove = document.getElementById("selectedProductRemove");
     const userLinkButton = document.getElementById("composerUserLinkButton");
     const linkedProfile = document.getElementById("composerLinkedProfile");
-    const linkedProfileAvatar = document.getElementById(
-        "composerLinkedProfileAvatar",
-    );
-    const linkedProfileEmail = document.getElementById(
-        "composerLinkedProfileEmail",
-    );
+    const linkedProfileAvatar = document.getElementById("composerLinkedProfileAvatar");
+    const linkedProfileEmail = document.getElementById("composerLinkedProfileEmail");
     const shareChatSheet = document.getElementById("estimationShareChatSheet");
-    const shareChatSearch = document.getElementById(
-        "estimationShareChatSearch",
-    );
+    const shareChatSearch = document.getElementById("estimationShareChatSearch");
     const shareChatCloseButtons = Array.from(
         document.querySelectorAll("[data-estimation-share-close]"),
     );
     const shareUserButtons = Array.from(
-        document.querySelectorAll(
-            "#estimationShareChatUserList .share-sheet__user",
-        ),
+        document.querySelectorAll("#estimationShareChatUserList .share-sheet__user"),
     );
-    const requiredFields = Array.from(
-        document.querySelectorAll(
-            'input[name="postName"], input[name="postPrice"], textarea[name="postContent"]',
-        ),
-    );
-    let selectedProductId = "";
+    const titleInput = document.querySelector('input[name="postName"]');
+    const summaryInput = document.querySelector('input[name="postPrice"]');
+    const contentInput = document.querySelector('textarea[name="postContent"]');
+    const tagInput = document.getElementById("devTags");
+    const tagsHiddenInput = document.querySelector('input[name="tags"]');
+    const requiredFields = [titleInput, summaryInput, contentInput].filter(Boolean);
 
-    const syncSubmitState = () => {
-        if (!submitButton || requiredFields.length === 0) {
+    let selectedProductId = "";
+    let selectedReceiverEmail = "";
+
+    const safeText = (value, fallback = "") => (value || fallback).trim();
+
+    const parseTags = (value) =>
+        value
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean)
+            .map((tag) => tag.replace(/^#/, ""))
+            .filter((tag, index, array) => array.indexOf(tag) === index)
+            .map((tag) => ({ tagName: tag }));
+
+    const syncHiddenTags = () => {
+        if (!tagInput || !tagsHiddenInput) {
             return;
         }
 
-        submitButton.disabled = requiredFields.some(
-            (field) => !field.value.trim(),
-        );
+        const normalized = parseTags(tagInput.value)
+            .map((tag) => `#${tag.tagName}`)
+            .join(", ");
+        tagsHiddenInput.value = normalized;
+    };
+
+    const syncSubmitState = () => {
+        if (!submitButton) {
+            return;
+        }
+
+        const hasRequiredValues = requiredFields.every((field) => field.value.trim());
+        submitButton.disabled = !hasRequiredValues || !selectedProductId;
     };
 
     const renderSelectedProduct = () => {
@@ -70,16 +75,10 @@ window.addEventListener("load", () => {
             return;
         }
 
-        const product = productItems.find(
-            (item) => item.dataset.productId === selectedProductId,
-        );
-        if (
-            !product ||
-            !selectedProductImage ||
-            !selectedProductName ||
-            !selectedProductMeta
-        ) {
+        const product = productItems.find((item) => item.dataset.productId === selectedProductId);
+        if (!product || !selectedProductImage || !selectedProductName || !selectedProductMeta) {
             selectedProductPreview.hidden = true;
+            syncSubmitState();
             return;
         }
 
@@ -88,6 +87,7 @@ window.addEventListener("load", () => {
         selectedProductImage.alt = product.dataset.productName || "";
         selectedProductName.textContent = product.dataset.productName || "";
         selectedProductMeta.textContent = product.dataset.productMeta || "";
+        syncSubmitState();
     };
 
     const syncProductSelection = () => {
@@ -98,11 +98,13 @@ window.addEventListener("load", () => {
         if (productSelectEmpty) {
             productSelectEmpty.hidden = productItems.length > 0;
         }
+
         productItems.forEach((item) => {
             const isSelected = item.dataset.productId === selectedProductId;
             item.classList.toggle("is-selected", isSelected);
             item.setAttribute("aria-pressed", String(isSelected));
         });
+
         productSelectConfirm.disabled = !selectedProductId;
     };
 
@@ -124,19 +126,15 @@ window.addEventListener("load", () => {
     };
 
     const openShareChatSheet = () => {
-        if (!shareChatSheet) {
-            return;
+        if (shareChatSheet) {
+            shareChatSheet.hidden = false;
         }
-
-        shareChatSheet.hidden = false;
     };
 
     const closeShareChatSheet = () => {
-        if (!shareChatSheet) {
-            return;
+        if (shareChatSheet) {
+            shareChatSheet.hidden = true;
         }
-
-        shareChatSheet.hidden = true;
     };
 
     const syncShareUsers = () => {
@@ -145,10 +143,7 @@ window.addEventListener("load", () => {
         shareUserButtons.forEach((button) => {
             const name = (button.dataset.shareUserName || "").toLowerCase();
             const email = (button.dataset.shareUserEmail || "").toLowerCase();
-            button.hidden =
-                Boolean(keyword) &&
-                !name.includes(keyword) &&
-                !email.includes(keyword);
+            button.hidden = Boolean(keyword) && !name.includes(keyword) && !email.includes(keyword);
         });
     };
 
@@ -157,11 +152,93 @@ window.addEventListener("load", () => {
             return;
         }
 
+        selectedReceiverEmail = button.dataset.shareUserEmail || "";
+        linkedProfile.hidden = false;
         linkedProfile.setAttribute("aria-hidden", "false");
         linkedProfileAvatar.src = button.dataset.shareUserAvatar || "";
         linkedProfileAvatar.alt = button.dataset.shareUserName || "";
-        linkedProfileEmail.textContent = button.dataset.shareUserEmail || "";
+        linkedProfileEmail.textContent = selectedReceiverEmail || "unknown";
         closeShareChatSheet();
+    };
+
+    const openComposerModal = () => {
+        const composerModalOverlay = document.getElementById("composerModalOverlay");
+        const composerSection = document.getElementById("composerSection");
+        if (composerModalOverlay) composerModalOverlay.hidden = false;
+        if (composerSection) composerSection.hidden = false;
+    };
+
+    const closeComposerModal = () => {
+        const composerModalOverlay = document.getElementById("composerModalOverlay");
+        const composerSection = document.getElementById("composerSection");
+        if (composerModalOverlay) composerModalOverlay.hidden = true;
+        if (composerSection) composerSection.hidden = true;
+    };
+
+    const buildPayload = () => {
+        const descriptionParts = [
+            safeText(summaryInput?.value),
+            safeText(contentInput?.value),
+        ].filter(Boolean);
+
+        return {
+            requesterId: 1,
+            receiverId: null,
+            productId: selectedProductId ? Number(selectedProductId) : null,
+            title: safeText(titleInput?.value),
+            content: descriptionParts.join("\n"),
+            deadLine: null,
+            status: "requesting",
+            receiverEmail: selectedReceiverEmail || null,
+            tags: parseTags(tagInput?.value || ""),
+        };
+    };
+
+    const resetForm = () => {
+        composerForm?.reset();
+        selectedProductId = "";
+        selectedReceiverEmail = "";
+        tagsHiddenInput && (tagsHiddenInput.value = "");
+        if (linkedProfile) {
+            linkedProfile.hidden = true;
+            linkedProfile.setAttribute("aria-hidden", "true");
+        }
+        renderSelectedProduct();
+        syncProductSelection();
+        syncSubmitState();
+    };
+
+    const submitEstimation = async () => {
+        const payload = buildPayload();
+
+        if (!payload.title || !payload.content || !payload.productId) {
+            alert("제목, 내용, 상품을 먼저 입력해 주세요.");
+            return;
+        }
+
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch("/api/estimations/write", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`견적 요청 저장 실패 (${response.status})`);
+            }
+
+            alert("견적 요청이 저장되었습니다.");
+            resetForm();
+            window.location.href = "/estimation/list";
+        } catch (error) {
+            console.error(error);
+            alert("견적 요청 저장 중 오류가 발생했습니다.");
+            syncSubmitState();
+        }
     };
 
     if (!createPostButton) {
@@ -170,6 +247,11 @@ window.addEventListener("load", () => {
 
     requiredFields.forEach((field) => {
         field.addEventListener("input", syncSubmitState);
+    });
+
+    tagInput?.addEventListener("input", () => {
+        syncHiddenTags();
+        syncSubmitState();
     });
 
     productSelectButton?.addEventListener("click", openProductSelectModal);
@@ -182,6 +264,7 @@ window.addEventListener("load", () => {
     selectedProductRemove?.addEventListener("click", () => {
         selectedProductId = "";
         renderSelectedProduct();
+        syncProductSelection();
     });
     userLinkButton?.addEventListener("click", openShareChatSheet);
     shareChatCloseButtons.forEach((button) => {
@@ -203,33 +286,22 @@ window.addEventListener("load", () => {
         syncProductSelection();
     });
 
+    composerForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await submitEstimation();
+    });
+
+    createPostButton.addEventListener("click", openComposerModal);
+    document.getElementById("composerModalClose")?.addEventListener("click", closeComposerModal);
+    document.getElementById("composerModalOverlay")?.addEventListener("click", closeComposerModal);
+
+    syncHiddenTags();
     syncSubmitState();
     syncProductSelection();
     renderSelectedProduct();
     syncShareUsers();
 
-    const composerModalOverlay = document.getElementById("composerModalOverlay");
-    const composerSection = document.getElementById("composerSection");
-    const composerModalClose = document.getElementById("composerModalClose");
-
-    const openComposerModal = () => {
-        composerModalOverlay && (composerModalOverlay.hidden = false);
-        composerSection && (composerSection.hidden = false);
-    };
-
-    const closeComposerModal = () => {
-        composerModalOverlay && (composerModalOverlay.hidden = true);
-        composerSection && (composerSection.hidden = true);
-    };
-
-    createPostButton?.addEventListener("click", openComposerModal);
-    composerModalClose?.addEventListener("click", closeComposerModal);
-    composerModalOverlay?.addEventListener("click", closeComposerModal);
-
-// 자동 오픈
     window.setTimeout(openComposerModal, 0);
-
-
     window.setTimeout(() => {
         createPostButton.click();
     }, 0);

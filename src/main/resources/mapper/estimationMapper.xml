@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.globalgates.mapper.EstimationMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into tbl_estimation (
+            requester_id,
+            receiver_id,
+            product_id,
+            title,
+            content,
+            deadline,
+            status
+        )
+        values (
+            #{requesterId},
+            #{receiverId},
+            #{productId},
+            #{title},
+            #{content},
+            #{deadLine},
+            #{status}
+        )
+    </insert>
+
+    <select id="selectTotal" resultType="_int">
+        select count(id)
+        from tbl_estimation
+    </select>
+
+    <select id="selectAll" resultType="com.app.globalgates.dto.EstimationDTO">
+        select e.id,
+               e.requester_id,
+               e.receiver_id,
+               e.product_id,
+               e.title,
+               e.content,
+               e.deadline as deadLine,
+               e.status,
+               requester.member_email as requesterEmail,
+               receiver.member_email as receiverEmail,
+               e.created_datetime as createdDateTime,
+               e.updated_datetime as updatedDateTime
+        from tbl_estimation e
+                 join tbl_member requester on e.requester_id = requester.id
+                 left join tbl_member receiver on e.receiver_id = receiver.id
+        order by e.created_datetime desc
+        limit #{criteria.count}
+        offset #{criteria.offset}
+    </select>
+
+    <select id="selectById" resultType="com.app.globalgates.dto.EstimationDTO">
+        select e.id,
+               e.requester_id,
+               e.receiver_id,
+               e.product_id,
+               e.title,
+               e.content,
+               e.deadline as deadLine,
+               e.status,
+               requester.member_email as requesterEmail,
+               receiver.member_email as receiverEmail,
+               e.created_datetime as createdDateTime,
+               e.updated_datetime as updatedDateTime
+        from tbl_estimation e
+                 join tbl_member requester on e.requester_id = requester.id
+                 left join tbl_member receiver on e.receiver_id = receiver.id
+        where e.id = #{id}
+    </select>
+
+    <insert id="insertTag" useGeneratedKeys="true" keyProperty="id">
+        insert into tbl_estimation_tag (tag_name)
+        values (#{tagName})
+    </insert>
+
+    <select id="selectTagByName" resultType="com.app.globalgates.dto.EstimationTagDTO">
+        select id,
+               tag_name,
+               created_datetime as createdDateTime
+        from tbl_estimation_tag
+        where tag_name = #{tagName}
+    </select>
+
+    <select id="selectAllTagsByEstimationId" resultType="com.app.globalgates.dto.EstimationTagDTO">
+        select t.id,
+               t.tag_name,
+               t.created_datetime as createdDateTime
+        from tbl_estimation_tag t
+                 join tbl_estimation_tag_rel tr on t.id = tr.tag_id
+        where tr.estimation_id = #{estimationId}
+        order by t.tag_name
+    </select>
+
+    <insert id="insertTagRel">
+        insert into tbl_estimation_tag_rel (estimation_id, tag_id)
+        values (#{estimationId}, #{tagId})
+    </insert>
+
+</mapper>

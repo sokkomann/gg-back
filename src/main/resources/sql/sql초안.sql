@@ -87,8 +87,7 @@ created_datetime    timestamp     not null default now(),                    -- 
 updated_datetime    timestamp     not null default now(),                    -- 회원 정보 최종 수정 일시
 last_login_at timestamp                                                -- 마지막 로그인 일시
 );
-
-
+alter table tbl_member add website_url varchar(255);
 -- [4] tbl_business_member  ─ 사업회원 확장 (1:1 → tbl_member)
 --     pk = fk → id 패턴 (상속 구조)
 select * from tbl_member;

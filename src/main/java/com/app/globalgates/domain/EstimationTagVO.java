@@ -10,13 +10,7 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @EqualsAndHashCode(of = "id", callSuper = false)
 @SuperBuilder
-public class EstimationVO extends Period {
+public class EstimationTagVO extends Period {
     private Long id;
-    private Long requesterId;
-    private Long receiverId;
-    private Long productId;
-    private String title;
-    private String content;
-    private String deadLine;
-    private String status;
+    private String tagName;
 }

@@ -1,9 +1,12 @@
 package com.app.globalgates.dto;
 
-import com.app.globalgates.common.enumeration.Status;
 import lombok.*;
 
-@Getter @Setter
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +19,11 @@ public class EstimationDTO {
     private String title;
     private String content;
     private String deadLine;
-    private Status status;
+    private String status;
+    private String requesterEmail;
+    private String receiverEmail;
     private String createdDateTime;
     private String updatedDateTime;
+    @Builder.Default
+    private List<EstimationTagDTO> tags = new ArrayList<>();
 }
