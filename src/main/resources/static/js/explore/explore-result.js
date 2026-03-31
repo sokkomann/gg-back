@@ -969,22 +969,51 @@ window.onload = () => {
         }
 
         // Like 버튼
-        document.querySelectorAll(".tweet-action-btn--like").forEach((likeButton) => {
-            const countEl = likeButton.querySelector(".tweet-action-count");
-            const path = likeButton.querySelector("svg path");
-            if (!path) {
-                return;
-            }
-            let isLiked = false;
-            likeButton.addEventListener("click", (e) => {
-                isLiked = !isLiked;
-                likeButton.classList.toggle("active", isLiked);
-                path.setAttribute("d", isLiked ? path.getAttribute("data-path-active") : path.getAttribute("data-path-inactive"));
+        ["popularSection", "latestSection"].forEach(sectionId => {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+
+            section.addEventListener("click", async (e) => {
+                const likeBtn = e.target.closest(".tweet-action-btn--like");
+                if (!likeBtn) return;
+
+                const card = likeBtn.closest("[data-post-id]");
+                const postId = card?.dataset.postId;
+                if (!postId) return;
+
+                const isLiked = likeBtn.classList.contains("liked");
+                const path = likeBtn.querySelector("svg path");
+                const countEl = likeBtn.querySelector(".tweet-action-count");
+
+                likeBtn.classList.toggle("liked", !isLiked);
+                if (path) {
+                    path.setAttribute("d", isLiked
+                        ? path.getAttribute("data-path-inactive")
+                        : path.getAttribute("data-path-active"));
+                }
                 if (countEl) {
                     const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
-                    countEl.textContent = isLiked ? cur + 1 : cur - 1;
+                    countEl.textContent = isLiked ? cur - 1 : cur + 1;
                 }
-                showToast(isLiked ? "좋아요를 눌렀습니다." : "좋아요를 취소했습니다.", "toast--like");
+
+                try {
+                    await exploreService.toggleLike(postId);
+                    showToast(isLiked ? "좋아요를 취소했습니다." : "좋아요를 눌렀습니다.", "toast--like");
+                } catch (err) {
+                    // 실패 시 롤백
+                    likeBtn.classList.toggle("liked", isLiked);
+                    if (path) {
+                        path.setAttribute("d", isLiked
+                            ? path.getAttribute("data-path-active")
+                            : path.getAttribute("data-path-inactive"));
+                    }
+                    if (countEl) {
+                        const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
+                        countEl.textContent = isLiked ? cur + 1 : cur - 1;
+                    }
+                    showToast("오류가 발생했습니다. 다시 시도해주세요.");
+                    console.error("좋아요 요청 실패:", err);
+                }
             });
         });
 

@@ -40,10 +40,10 @@ select * from tbl_category;
 
 select * from tbl_member_category_rel;
 
-select * from tbl_post_temp;
-
 select * from tbl_subscription;
 
 select * from tbl_payment_subscribe;
 
 select * from tbl_badge;
+
+select * from tbl_post_like;

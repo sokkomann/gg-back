@@ -44,6 +44,7 @@ public class ExploreSearchController {
         return ResponseEntity.ok(postWithPagingDTO);
     }
 
+    // 유저 검색
     @GetMapping("search/member/{page}")
     public ResponseEntity<?> getSearchMembers(@PathVariable int page, Long memberId, String keyword) {
         MemberWithPagingDTO memberWithPagingDTO = memberService.getSearchMember(page, memberId, keyword);
