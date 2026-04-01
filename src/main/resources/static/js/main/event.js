@@ -1794,6 +1794,7 @@ window.onload = () => {
         memberId = loginMember.id;
 
         layout.setLoginMemberId(memberId);
+        layout.setAdInterval(loginMember.tier);
 
         // 프로필 이미지 없으면 SVG 아바타 동적 생성
         const myInitial = (loginMember.memberNickname || loginMember.memberHandle || "?").charAt(0);

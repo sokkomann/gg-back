@@ -1,9 +1,16 @@
 const layout = (() => {
 
     let loginMemberId = null;
+    let adInterval = 3;
 
     const setLoginMemberId = (id) => {
         loginMemberId = id;
+    };
+
+    const setAdInterval = (tier) => {
+        if (tier === "pro") adInterval = 5;
+        else if (tier === "pro_plus" || tier === "expert") adInterval = 0;
+        else adInterval = 3;
     };
 
     function buildAvatarDataUri(label) {
@@ -211,7 +218,7 @@ const layout = (() => {
         let html = "";
         posts.forEach((post, i) => {
             html += createPostCard(post);
-            if ((i + 1) % 3 === 0) {
+            if (adInterval > 0 && (i + 1) % adInterval === 0) {
                 const ad = getNextAd();
                 if (ad) {
                     html += createAdCard(ad);
@@ -235,5 +242,5 @@ const layout = (() => {
         }
     };
 
-    return { showPostList, showExpertList, setAds, setLoginMemberId, buildAvatarDataUri };
+    return { showPostList, showExpertList, setAds, setAdInterval, setLoginMemberId, buildAvatarDataUri };
 })();

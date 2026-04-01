@@ -18,7 +18,7 @@ const subscribeLayout = (() => {
         //     billingAnnual: "연간 결제",
         //     displayName: "Pro",
         // },
-        // ultimate: {
+        // proPlus: {
         //     monthly: "₩50,000",
         //     annual: "₩40,000",
         //     annualTotal: "₩480,000",
@@ -37,23 +37,23 @@ const subscribeLayout = (() => {
         pro: {
             monthly: "₩1,000",
             annual: "₩1,000",
-            annualTotal: "₩1,000",
+            annualTotal: "₩4,000",
             billingMonthly: "월간 결제",
             billingAnnual: "연간 결제",
             displayName: "Pro",
         },
-        ultimate: {
-            monthly: "₩1,000",
-            annual: "₩1,000",
-            annualTotal: "₩1,000",
+        proPlus: {
+            monthly: "₩2,000",
+            annual: "₩2,000",
+            annualTotal: "₩5,000",
             billingMonthly: "월간 결제",
             billingAnnual: "연간 결제",
             displayName: "Pro+",
         },
         expert: {
-            monthly: "₩1,000",
-            annual: "₩1,000",
-            annualTotal: "₩1,000",
+            monthly: "₩3,000",
+            annual: "₩3,000",
+            annualTotal: "₩6,000",
             billingMonthly: "월간 결제",
             billingAnnual: "월간 결제",
             displayName: "Expert",
@@ -112,13 +112,19 @@ const subscribeLayout = (() => {
         },
     };
 
-    // 프론트 plan명 → DB tier 매핑
-    const tierMap = { pro: "pro", ultimate: "pro_plus", expert: "expert" };
+    // 매핑
+    const tierMap = { pro: "pro", proPlus: "pro_plus", expert: "expert" };
+
+    // 역매핑
+    const planMap = { pro: "pro", pro_plus: "proPlus", expert: "expert" };
+
+    // 플랜 등급 순서 (높을수록 상위)
+    const tierRank = { free: 0, pro: 1, proPlus: 2, expert: 3 };
 
     // 유틸리티
     function parsePrice(value) {
         return Number(String(value).replace(/[^\d]/g, "")) || 0;
     }
 
-    return { priceData, learnMoreData, tierMap, parsePrice };
+    return { priceData, learnMoreData, tierMap, planMap, tierRank, parsePrice };
 })();

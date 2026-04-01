@@ -885,3 +885,55 @@ body {
         font-size: 10px;
     }
 }
+
+.sub-footer__cancel-wrap {
+    position: absolute;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: fit-content;
+    z-index: 1;
+}
+
+.sub-footer__cancel-btn {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.82);
+    color: #ef4444;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+.sub-footer__cancel-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.sub-footer__cancel-notice {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.82);
+    margin-top: 4px;
+}
+
+/* 현재 플랜 라벨 */
+/*.sub-plan__current-label {*/
+/*    display: inline-block;*/
+/*    background: linear-gradient(135deg, #1d9bf0, #1a8cd8);*/
+/*    color: #fff;*/
+/*    font-size: 11px;*/
+/*    font-weight: 700;*/
+/*    padding: 3px 10px;*/
+/*    border-radius: 12px;*/
+/*    margin-bottom: 8px;*/
+/*    letter-spacing: 0.5px;*/
+/*}*/
+
+/*!* 하위 플랜 비활성화 *!*/
+/*.sub-plan--disabled {*/
+/*    opacity: 0.4;*/
+/*    pointer-events: none;*/
+/*}*/

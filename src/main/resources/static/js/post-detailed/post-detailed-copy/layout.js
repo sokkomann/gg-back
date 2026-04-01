@@ -18,30 +18,21 @@ const layout = (() => {
         return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
     }
 
-    const buildReplyCard = (r, inThread) => {
+    const buildReplyCard = (r, isSub) => {
         const initial = (r.memberNickname || r.memberHandle || "?").charAt(0);
         const avatar = r.memberProfileFileName
             ? `<div class="post-detail-avatar post-detail-avatar--image"><img src="${esc(r.memberProfileFileName)}" alt="프로필"/></div>`
             : `<div class="post-detail-avatar post-detail-avatar--image"><img src="${buildAvatarDataUri(initial)}" alt="프로필"/></div>`;
 
-        const threadClass = inThread ? " post-detail-thread-item" : "";
-
-        if (r.reported) {
-            return `
-            <div class="post-detail-reply-card post-detail-reply-card--reported postCard${threadClass}" data-post-card data-post-id="${r.id}" data-member-id="${r.memberId}">
-                <div class="post-detail-reply-content post-detail-reply-content--reported">
-                    <p class="post-detail-reply-reported-text">신고한 글입니다.</p>
-                </div>
-            </div>`;
-        }
-
-        const replyBtn = `<button class="post-detail-action-button tweet-action-btn" type="button" data-testid="reply">
+        const subClass = isSub ? " post-detail-reply-card--sub" : "";
+        const replyBtn = isSub ? "" :
+                    `<button class="post-detail-action-button tweet-action-btn" type="button" data-testid="reply">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></svg>
                         <span class="tweet-action-count">${r.replyCount || 0}</span>
                     </button>`;
 
         return `
-        <a href="/main/post/detail/${r.id}" class="post-detail-reply-card postCard${threadClass}" data-post-card data-post-id="${r.id}" data-member-id="${r.memberId}">
+        <div class="post-detail-reply-card postCard${subClass}" data-post-card data-post-id="${r.id}" data-member-id="${r.memberId}">
             ${avatar}
             <div class="post-detail-reply-content">
                 <header class="post-detail-reply-header">
@@ -64,18 +55,28 @@ const layout = (() => {
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path data-path-inactive="${SVG.likeOff}" data-path-active="${SVG.likeOn}" d="${r.liked ? SVG.likeOn : SVG.likeOff}"></path></svg>
                         <span class="tweet-action-count">${r.likeCount || 0}</span>
                     </button>
-                    <div class="post-detail-action-right">
-                        <button class="post-detail-action-button post-detail-action-button--bookmark tweet-action-btn tweet-action-btn--bookmark" type="button" data-testid="bookmark" aria-label="북마크">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path data-path-inactive="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z" data-path-active="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z" d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"></path></svg>
-                        </button>
-                        <button class="post-detail-action-button tweet-action-btn tweet-action-btn--share" type="button" aria-label="댓글 공유하기" aria-haspopup="menu" aria-expanded="false">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"></path></svg>
-                        </button>
-                    </div>
                 </div>
             </div>
-        </a>`;
+        </div>`;
     };
 
-    return { SVG, esc, buildAvatarDataUri, buildReplyCard };
+    const showReplies = (replies) => {
+        const section = document.getElementById("postDetailReplies");
+        if (!section) return;
+
+        if (!Array.isArray(replies) || replies.length === 0) {
+            section.innerHTML = '<div style="padding:20px;color:#71767b;text-align:center;"><p>아직 댓글이 없습니다.</p></div>';
+            return;
+        }
+
+        section.innerHTML = replies.map(function(r) {
+            let html = buildReplyCard(r, false);
+            if (r.subReplies && r.subReplies.length > 0) {
+                html += r.subReplies.map(function(sub) { return buildReplyCard(sub, true); }).join("");
+            }
+            return html;
+        }).join("");
+    };
+
+    return { SVG, esc, buildAvatarDataUri, buildReplyCard, showReplies };
 })();

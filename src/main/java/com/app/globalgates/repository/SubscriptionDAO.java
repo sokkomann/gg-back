@@ -7,6 +7,7 @@ import com.app.globalgates.mapper.SubscriptionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -25,12 +26,32 @@ public class SubscriptionDAO {
     }
 
     //    구독티어 변경
-    public void setTier(Long id, SubscriptionTier tier, String billingCycle, String expiresAt) {
-        subscriptionMapper.updateTier(id, tier, billingCycle, expiresAt);
+    public void setTierToAnnual(Long id, SubscriptionTier tier, String billingCycle) {
+        subscriptionMapper.updateTierToAnnual(id, tier, billingCycle);
+    }
+    //    구독업글시 티어만변경
+    public void setTierOnly(Long id, SubscriptionTier tier, String billingCycle) {
+        subscriptionMapper.updateTierOnly(id, tier, billingCycle);
     }
 
     //    구독 상태 변경
     public void setStatus(Long id, SubscriptionStatus status) {
         subscriptionMapper.updateStatus(id, status);
     }
+
+    //    [쿼츠관련]
+
+    //    구독 끝난 사람들 조회
+    public List<SubscriptionDTO> findExpiredMembers() {
+        return subscriptionMapper.selectExpiredMembers();
+    }
+
+    public void setQuartz(Long id, boolean quartz) {
+        subscriptionMapper.updateQuartz(id, quartz);
+    }
+
+    public void setExpiresAt(Long id) {
+        subscriptionMapper.updateSubscribe(id);
+    }
+
 }

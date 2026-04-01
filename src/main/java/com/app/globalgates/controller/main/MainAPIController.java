@@ -35,7 +35,7 @@ public class MainAPIController {
 //    피드에 광고
     @GetMapping("/ads")
     public List<AdvertisementDTO> getAds() {
-        log.info("광고 목록 조회 (피드 삽입용)");
+        log.info("광고 조회");
         List<AdvertisementDTO> ads = advertisementService.getAdsInMain();
         ads.forEach(ad -> ad.setImgUrls(convertToPresignedUrl(ad.getImgUrls())));
         return ads;
@@ -281,7 +281,17 @@ public class MainAPIController {
     @GetMapping("/follows/{memberId}/suggestions")
     public List<MemberDTO> getSuggestions(@PathVariable Long memberId) {
         log.info("팔로우 추천 조회하기");
-        return followService.getUnfollowedMembers(memberId);
+        List<MemberDTO> members = followService.getUnfollowedMembers(memberId);
+        members.forEach(m -> {
+            if (m.getFileName() != null) {
+                try {
+                    m.setFileName(s3Service.getPresignedUrl(m.getFileName(), Duration.ofMinutes(10)));
+                } catch (IOException e) {
+                    m.setFileName(null);
+                }
+            }
+        });
+        return members;
     }
 
 //    차단 추가

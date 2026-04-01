@@ -6,11 +6,13 @@ import com.app.globalgates.dto.MemberDTO;
 import com.app.globalgates.dto.MemberProfileFileDTO;
 import com.app.globalgates.dto.PostDTO;
 import com.app.globalgates.dto.ReportDTO;
+import com.app.globalgates.dto.SubscriptionDTO;
 import com.app.globalgates.service.BlockService;
 import com.app.globalgates.service.MemberService;
 import com.app.globalgates.service.PostService;
 import com.app.globalgates.service.ReportService;
 import com.app.globalgates.service.S3Service;
+import com.app.globalgates.service.SubscriptionService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -33,6 +35,7 @@ public class MainController {
     private final MemberService memberService;
     private final BlockService blockService;
     private final ReportService reportService;
+    private final SubscriptionService subscriptionService;
 
 //    메인 페이지
     @GetMapping("/main")
@@ -41,7 +44,7 @@ public class MainController {
         String loginId = jwtTokenProvider.getUsername(token);
         MemberDTO member = memberService.getMember(loginId);
 
-        // 프로필 이미지를 별도 조회 (Redis 캐시된 member에는 파일 정보가 없을 수 있음)
+        // 프로필 이미지조회
         MemberProfileFileDTO profileFile = memberService.getProfileFile(member.getId());
         if (profileFile != null && profileFile.getFileName() != null) {
             try {
@@ -51,7 +54,15 @@ public class MainController {
             }
         }
 
+        // 구독 tier 조회 (광고 빈도 제어용)
+        String tier = "free";
+        SubscriptionDTO subscription = subscriptionService.findByMemberId(member.getId()).orElse(null);
+        if (subscription != null) {
+            tier = subscription.getTier().getValue();
+        }
+
         model.addAttribute("member", member);
+        model.addAttribute("tier", tier);
         return "main/main";
     }
 

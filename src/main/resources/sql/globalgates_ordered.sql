@@ -344,7 +344,9 @@ create table tbl_subscription (
     expires_at       timestamp           not null,
     created_datetime timestamp           not null default now(),
     updated_datetime timestamp           not null default now(),
-    constraint fk_subscription_member foreign key(member_id) references tbl_member(id)
+    quartz boolean default true,
+    constraint fk_subscription_member foreign key(member_id)
+    references tbl_member(id)
 );
 
 -- ============ 광고 (advertisement 먼저, payment 나중) ============
