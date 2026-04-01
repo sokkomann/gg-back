@@ -20,6 +20,7 @@ public class SubscriptionDTO {
     private String expiresAt;
     private String createdDatetime;
     private String updatedDatetime;
+    private boolean quartz;
 
     public SubscriptionVO toVO() {
         return SubscriptionVO.builder()
@@ -30,6 +31,9 @@ public class SubscriptionDTO {
                 .status(status)
                 .startedAt(startedAt)
                 .expiresAt(expiresAt)
+                .createdDatetime(createdDatetime)
+                .updatedDatetime(updatedDatetime)
+                .quartz(quartz)
                 .build();
     }
 }

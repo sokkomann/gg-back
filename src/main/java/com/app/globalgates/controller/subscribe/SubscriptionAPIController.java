@@ -41,11 +41,12 @@ public class SubscriptionAPIController {
                 subscriptionDTO.getTier(), subscriptionDTO.getBillingCycle(), subscriptionDTO.getExpiresAt());
     }
 
-    //    구독 해지
+    //    월간 구독 해지
     @PostMapping("/cancel")
     public void cancel(@RequestBody SubscriptionDTO subscriptionDTO,
                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info("구독해지 요청.. 구독id {}", subscriptionDTO.getId());
         subscriptionService.cancel(subscriptionDTO.getId(), userDetails.getId());
     }
+
 }

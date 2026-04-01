@@ -43,7 +43,7 @@ window.onload = () => {
         if (view) { view.classList.remove("off"); view.removeAttribute("hidden"); }
     }
     function backToCompose() {
-        for (let i = 0; i < allSubViews.length; i++) { if (allSubViews[i]) allSubViews[i].classList.add("off"); }
+        for (let i = 0; i < allSubViews.length; i++) { if (allSubViews[i]) { allSubViews[i].classList.add("off"); allSubViews[i].setAttribute("hidden", ""); } }
         if (composeView) composeView.classList.remove("off");
     }
 
@@ -259,11 +259,14 @@ window.onload = () => {
             }
 
             section.innerHTML = replies.map(r => {
-                let html = layout.buildReplyCard(r, false);
                 if (r.subReplies && r.subReplies.length > 0) {
-                    html += r.subReplies.map(sub => layout.buildReplyCard(sub, true)).join("");
+                    let group = '<div class="post-detail-thread-group" aria-label="연결된 답글 스레드">';
+                    group += layout.buildReplyCard(r, true);
+                    group += r.subReplies.map(sub => layout.buildReplyCard(sub, true)).join("");
+                    group += '</div>';
+                    return group;
                 }
-                return html;
+                return layout.buildReplyCard(r, false);
             }).join("");
         } catch (e) {
             console.error("댓글 로딩 실패:", e);
@@ -475,53 +478,60 @@ window.onload = () => {
 
     document.getElementById("postDetailMoreBlock")?.addEventListener("click", () => {
         if (!activeMoreMeta || !blockDialog) return;
+        const meta = { ...activeMoreMeta };
         closeMoreDrop();
-        blockTitle.textContent = activeMoreMeta.handle + " 님을 차단할까요?";
-        blockDesc.textContent = activeMoreMeta.handle + " 님은 나를 팔로우하거나 쪽지를 보낼 수 없으며, 이 계정과 관련된 알림도 내게 표시되지 않습니다.";
+        blockTitle.textContent = meta.handle + " 님을 차단할까요?";
+        blockDesc.textContent = meta.handle + " 님은 나를 팔로우하거나 쪽지를 보낼 수 없으며, 이 계정과 관련된 알림도 내게 표시되지 않습니다.";
         blockDialog.hidden = false;
+        blockDialog._meta = meta;
         document.body.classList.add("modal-open");
     });
 
-    blockDialog?.addEventListener("click", (e) => {
+    blockDialog?.addEventListener("click", async (e) => {
         if (e.target.closest("[data-post-detail-block-close='true']")) {
             closeDialog(blockDialog);
             return;
         }
-        if (e.target.closest("[data-post-detail-block-confirm='true']") && activeMoreMeta) {
-            const form = document.createElement("form");
-            form.method = "POST";
-            form.action = "/main/post/detail/block";
-            form.innerHTML = '<input type="hidden" name="blockerId" value="' + memberId + '">' +
-                '<input type="hidden" name="blockedId" value="' + activeMoreMeta.targetMemberId + '">';
-            document.body.appendChild(form);
-            form.submit();
+        if (e.target.closest("[data-post-detail-block-confirm='true']") && blockDialog._meta) {
+            const meta = blockDialog._meta;
+            closeDialog(blockDialog);
+            await service.block(memberId, meta.targetMemberId);
+            if (Number(meta.targetMemberId) === postMemberId) {
+                location.href = "/main/main";
+            } else {
+                showToast(meta.handle + " 님을 차단했습니다");
+                await refreshReplies();
+            }
         }
     });
 
     document.getElementById("postDetailMoreReport")?.addEventListener("click", () => {
         if (!activeMoreMeta || !reportDialog) return;
+        const meta = { ...activeMoreMeta };
         closeMoreDrop();
         reportDialog.hidden = false;
+        reportDialog._meta = meta;
         document.body.classList.add("modal-open");
     });
 
-    reportDialog?.addEventListener("click", (e) => {
+    reportDialog?.addEventListener("click", async (e) => {
         if (e.target.closest("[data-post-detail-report-close='true']")) {
             closeDialog(reportDialog);
             return;
         }
         const item = e.target.closest(".post-detail-notification-report__item");
-        if (item && activeMoreMeta) {
+        if (item && reportDialog._meta) {
+            const meta = reportDialog._meta;
             const reason = item.dataset.reason || item.querySelector("span")?.textContent?.trim() || "";
-            const form = document.createElement("form");
-            form.method = "POST";
-            form.action = "/main/post/detail/report";
-            form.innerHTML = '<input type="hidden" name="reporterId" value="' + memberId + '">' +
-                '<input type="hidden" name="targetId" value="' + activeMoreMeta.postId + '">' +
-                '<input type="hidden" name="targetType" value="post">' +
-                '<input type="hidden" name="reason" value="' + esc(reason) + '">';
-            document.body.appendChild(form);
-            form.submit();
+            closeDialog(reportDialog);
+            if (meta.postId === String(postId)) {
+                await service.report(memberId, meta.postId, "POST", reason);
+                location.href = "/main/main";
+            } else {
+                await service.report(memberId, meta.postId, "POST", reason);
+                showToast("신고가 접수되었습니다");
+                await refreshReplies();
+            }
         }
     });
 

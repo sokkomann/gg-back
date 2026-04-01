@@ -16,6 +16,7 @@ select
 from tbl_video_recoding vr
 join tbl_file f on vr.id = f.id;
 
+
 -- 게시물 관련된 모든 정보 조회하는 view
 create view view_post_feed as
 select p.id,
@@ -35,10 +36,7 @@ select p.id,
         limit 1) as member_profile_file_name,
        (select count(*) from tbl_post_like pl
                         where pl.post_id = p.id) as like_count,
-       (select count(*) from tbl_post rp
-                        where rp.reply_post_id = p.id
-                          and rp.post_status = 'active')
-       + (select count(*) from tbl_post rp2 where rp2.reply_post_id in (select rp3.id from tbl_post rp3 where rp3.reply_post_id = p.id) and rp2.post_status = 'active') as reply_count,
+       (select count(*) from tbl_post rp where rp.reply_post_id = p.id and rp.post_status = 'active') as reply_count,
        (select count(*) from tbl_bookmark b where b.post_id = p.id) as bookmark_count,
        bg.badge_type,
        p.community_id,

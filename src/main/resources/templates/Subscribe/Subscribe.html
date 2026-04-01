@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/css/Subscribe/Subscribe.css"/>
     <script th:inline="javascript">
         const memberId = [[${memberId}]];
+        const mySubscription = [[${mySubscription}]];
     </script>
     <script src="https://js.bootpay.co.kr/bootpay-5.0.2.min.js"></script>
     <script src="/js/Subscribe/layout.js"></script>
@@ -167,7 +168,7 @@
                     </div>
                 </div>
 
-                <div class="sub-plan" role="radio" aria-checked="false" tabindex="0" data-plan="ultimate">
+                <div class="sub-plan" role="radio" aria-checked="false" tabindex="0" data-plan="proPlus">
                     <div class="sub-plan__card" data-testid="product-card-BlueVerifiedPlus">
                         <div class="sub-plan__glow"></div>
                         <div class="sub-plan__body">
@@ -595,6 +596,12 @@
 </main>
 
 <div class="sub-footer" data-testid="premium_signup_footer">
+    <div class="sub-footer__cancel-wrap">
+        <button class="sub-footer__cancel-btn" type="button" disabled>
+            <span>플랜 해지</span>
+        </button>
+        <p class="sub-footer__cancel-notice">연간 플랜 이용자는 해지가 불가합니다.</p>
+    </div>
     <div class="sub-footer__plan-info">
         <span class="sub-footer__plan-name">Pro</span>
         <div class="sub-footer__price-wrap">
@@ -611,10 +618,9 @@
     <div class="sub-footer__terms" data-testid="terms_disclaimer">
         <p>
             <em>구독을 진행하면 </em>
-            <a href="https://legal.x.com/purchaser-terms" target="_blank" rel="noopener noreferrer nofollow">구매자 약관</a>
+            <a href="https://www.naver.com" target="_blank" rel="noopener noreferrer nofollow">구매자 약관</a>
             <em>에 동의하며, 구독은 해지 전까지 자동으로 갱신됩니다.</em>
-            <a href="https://legal.x.com/purchaser-terms#cancelpremium" target="_blank"
-               rel="noopener noreferrer nofollow">언제든 해지 가능</a>.
+            <a href="https://www.naver.com" target="_blank" rel="noopener noreferrer nofollow">언제든 해지 가능</a>.
             추가 요금이 청구되지 않도록 갱신 24시간 전까지 취소해 주세요.
             가격은 변경될 수 있습니다.
             구독한 플랫폼에서 구독을 관리할 수 있습니다.

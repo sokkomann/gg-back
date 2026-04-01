@@ -177,6 +177,14 @@ a {
     object-fit: cover;
 }
 
+.post-detail-avatar--brand {
+    background: #111111;
+}
+
+.post-detail-avatar--dark {
+    background: #101820;
+}
+
 .post-detail-avatar--light {
     background: #d9d9d9;
     color: #444444;
@@ -246,10 +254,14 @@ a {
 
 .post-detail-body-text,
 .post-detail-reply-text {
-    margin: 8px 0 12px;
+    margin: 0;
     font-size: 15px;
     line-height: 20px;
     white-space: pre-line;
+}
+
+.post-detail-body-text + .post-detail-body-text {
+    margin-top: 16px;
 }
 
 .postLocation {
@@ -554,6 +566,7 @@ div.postHashtags {
 .media-grid-wrapper {
     position: relative;
     width: 100%;
+    z-index: 1000;
 }
 
 .media-aspect-ratio {
@@ -1409,6 +1422,11 @@ div.postHashtags {
     z-index: 1;
 }
 
+a.post-detail-reply-card {
+    text-decoration: none;
+    color: inherit;
+}
+
 .post-detail-reply-card {
     position: relative;
     display: flex;
@@ -1422,7 +1440,7 @@ div.postHashtags {
 }
 
 .post-detail-reply-card--sub {
-    margin-left: 40px;
+    margin-left: 0;
 }
 
 .post-detail-reply-card:hover {
@@ -1433,6 +1451,23 @@ div.postHashtags {
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
+}
+
+.post-detail-reply-card--reported {
+    pointer-events: none;
+}
+
+.post-detail-reply-content--reported {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 8px 0;
+}
+
+.post-detail-reply-reported-text {
+    margin: 0;
+    font-size: 14px;
+    color: #71767b;
 }
 
 .post-detail-reply-text {
@@ -3096,7 +3131,16 @@ div.postHashtags {
     }
 }
 
+.tweet-modal__location-search-btn {
+    background-color: #0f1419;
+    color: #ffffff;
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    min-height: 32px;
+    min-width: 32px;
+}
+
 /* 이모지 피커 라이브러리 z-index */
 .emoji-picker {
-    z-index: 1 !important;
+    z-index: 100 !important;
 }

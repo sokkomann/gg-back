@@ -885,6 +885,12 @@ a.menu-item:visited {
     font-size: 13px;
 }
 
+.suggestionAvatarImg {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
 .profile-info {
     min-width: 0;
     display: flex;
@@ -910,6 +916,8 @@ a.menu-item:visited {
 .account-menu-popup {
     position: fixed;
     z-index: 1200;
+    bottom: 80px;
+    left: 260px;
     width: min(216px, calc(100vw - 32px));
     padding: 6px;
     border: 1px solid rgba(207, 217, 222, 0.7);
