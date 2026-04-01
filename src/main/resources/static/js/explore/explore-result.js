@@ -981,32 +981,43 @@ window.onload = () => {
                 const postId = card?.dataset.postId;
                 if (!postId) return;
 
-                const isLiked = likeBtn.classList.contains("liked");
-                const path = likeBtn.querySelector("svg path");
-                const countEl = likeBtn.querySelector(".tweet-action-count");
+                const isLiked = likeBtn.classList.contains("active");
+                const svgInactive = likeBtn.querySelector(".svg-like-inactive");
+                const svgActive   = likeBtn.querySelector(".svg-like-active");
+                const countEl     = likeBtn.querySelector(".tweet-action-count");
 
-                likeBtn.classList.toggle("liked", !isLiked);
-                if (path) {
-                    path.setAttribute("d", isLiked
-                        ? path.getAttribute("data-path-inactive")
-                        : path.getAttribute("data-path-active"));
-                }
+                // 낙관적 업데이트
+                likeBtn.classList.toggle("active", !isLiked);
+                if (svgInactive) svgInactive.hidden = !isLiked;
+                if (svgActive)   svgActive.hidden   = isLiked;
                 if (countEl) {
                     const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
                     countEl.textContent = isLiked ? cur - 1 : cur + 1;
                 }
 
                 try {
-                    await exploreService.toggleLike(postId);
-                    showToast(isLiked ? "좋아요를 취소했습니다." : "좋아요를 눌렀습니다.", "toast--like");
+                    const result = await exploreService.toggleLike(postId);
+
+                    // 서버 응답 기준으로 실제 상태 동기화
+                    const serverLiked = result.includes("생성");
+                    likeBtn.classList.toggle("active", serverLiked);
+                    if (svgInactive) svgInactive.hidden = serverLiked;
+                    if (svgActive)   svgActive.hidden   = !serverLiked;
+
+                    // 낙관적 업데이트와 서버 결과가 다를 경우 카운트 보정
+                    if (serverLiked !== !isLiked && countEl) {
+                        const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
+                        countEl.textContent = serverLiked ? cur + 1 : cur - 1;
+                    }
+
+                    const message = serverLiked ? "좋아요를 눌렀습니다." : "좋아요를 취소했습니다.";
+                    showToast(message, "toast--like");
+
                 } catch (err) {
                     // 실패 시 롤백
-                    likeBtn.classList.toggle("liked", isLiked);
-                    if (path) {
-                        path.setAttribute("d", isLiked
-                            ? path.getAttribute("data-path-active")
-                            : path.getAttribute("data-path-inactive"));
-                    }
+                    likeBtn.classList.toggle("active", isLiked);
+                    if (svgInactive) svgInactive.hidden = isLiked;
+                    if (svgActive)   svgActive.hidden   = !isLiked;
                     if (countEl) {
                         const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
                         countEl.textContent = isLiked ? cur + 1 : cur - 1;

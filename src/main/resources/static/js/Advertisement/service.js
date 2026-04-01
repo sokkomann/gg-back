@@ -3,6 +3,28 @@ const advertisementService = (() => {
         return Math.round((Number(String(amount || "").replace(/[^\d]/g, "")) / 1000) * 5);
     };
 
+    const memberInfo = async (callback) => {
+        try {
+            const response = await fetch("/api/member/info", {
+                credentials: "include",
+            });
+
+            if (!response.ok) {
+                console.warn("유저 정보 조회 실패:", response.status);
+                if (callback) callback(null);
+                return null;
+            }
+
+            const member = await response.json();
+            if (callback) callback(member);
+            return member;
+        } catch (error) {
+            console.error("유저 정보 조회 오류:", error);
+            if (callback) callback(null);
+            return null;
+        }
+    };
+
     const write = async (formState, attachments, bootpayResult) => {
         const data = bootpayResult.data ?? bootpayResult;
 
@@ -76,7 +98,7 @@ const advertisementService = (() => {
             search = null;
         }
 
-        // ✅ URLSearchParams로 파라미터 조립
+        // URLSearchParams로 파라미터 조립
         const params = new URLSearchParams();
         if (search?.keyword)  params.append("keyword",  search.keyword);
         if (search?.filter && search.filter !== "all") params.append("filter", search.filter);
@@ -94,12 +116,12 @@ const advertisementService = (() => {
 
         if (callback) callback(adWithPagingDTO);
 
-        // ✅ criteria 반환 (무한 스크롤 hasMore 확인용)
+        // criteria 반환 (무한 스크롤 hasMore 확인용)
         return adWithPagingDTO.criteria;
     };
 
     const detail = async (id, callback) => {
-        const response = await fetch(`/api/ad/detail?id=${id}`, {  // ✅ ?id= 로 수정
+        const response = await fetch(`/api/ad/detail?id=${id}`, {
             credentials: "include",
         });
         if (!response.ok) {
@@ -114,6 +136,11 @@ const advertisementService = (() => {
         }
     };
 
-
-    return { write: write, savePayment: savePayment, list: list, detail: detail };
+    return {
+        memberInfo: memberInfo,
+        write: write,
+        savePayment: savePayment,
+        list: list,
+        detail: detail
+    };
 })();

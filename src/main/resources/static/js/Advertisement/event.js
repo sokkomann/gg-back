@@ -1,7 +1,8 @@
 window.onload = () => {
     // 화면 로딩되면 가장 먼저 유저 정보 조회하기.
-    loginService.info((member) => {
-        if(!member) return;
+    // loginService 대신 advertisementService.memberInfo()로 직접 요청
+    advertisementService.memberInfo((member) => {
+        if (!member) return;
         document.querySelector('.AccountTriggerButton .Button-label')
             .textContent = member.memberName;
         document.querySelector('.User-profileImage')
@@ -39,21 +40,18 @@ window.onload = () => {
     // ################# 무한 스크롤 #################
     let criteria = { hasMore: true };
     let page = 1;
-    let isLoading = false; // ✅ checkScroll + setTimeout 방식 → isLoading 플래그로 교체
+    let isLoading = false;
 
-    // ✅ sentinel 요소 생성 (광고 목록 테이블 바깥 하단에 붙임)
+    // sentinel 요소 생성 (광고 목록 테이블 바깥 하단에 붙임)
     const sentinel = document.createElement("div");
     sentinel.id = "adListSentinel";
-    sentinel.style.height = "1px"; // 레이아웃에 영향 없도록
+    sentinel.style.height = "1px";
 
-    // ✅ sentinel을 DOM에 붙이는 함수 (showAdList가 목록을 교체할 때마다 재호출)
+    // sentinel을 DOM에 붙이는 함수 (showAdList가 목록을 교체할 때마다 재호출)
     function attachSentinel() {
-        // 기존 sentinel이 있으면 제거
         const existing = document.getElementById("adListSentinel");
         if (existing) existing.remove();
 
-        // 광고 목록을 감싸는 컨테이너 뒤에 추가
-        // (list 뷰 컨테이너에 맞게 선택자 수정 필요)
         const listContainer = $(".MarketplaceAdView[data-view='list']");
         if (listContainer) {
             listContainer.appendChild(sentinel);
@@ -64,7 +62,6 @@ window.onload = () => {
     const observer = new IntersectionObserver(async (entries) => {
         const entry = entries[0];
 
-        // ✅ sentinel이 화면에 보이고, 로딩 중 아니고, 더 데이터 있을 때만 실행
         if (!entry.isIntersecting || isLoading || !criteria.hasMore) return;
 
         isLoading = true;
@@ -73,24 +70,24 @@ window.onload = () => {
             criteria = await advertisementService.list(++page, {
                 keyword:  root.listSearch?.value.trim() || "",
                 filter:   state.listStatusFilter
-            }, (data) => advertisementLayout.showAdList(data, true)); // ✅ append 모드
+            }, (data) => advertisementLayout.showAdList(data, true));
         } catch (e) {
             console.error("광고 목록 추가 로드 실패:", e);
-            --page; // ✅ 실패 시 page 롤백
+            --page;
         } finally {
             isLoading = false;
         }
     }, { threshold: 0.1 });
 
-    // ✅ 목록 초기화 + 첫 페이지 로드 함수
+    // 목록 초기화 + 첫 페이지 로드 함수
     async function resetAndLoadList(params) {
         page = 1;
         criteria = { hasMore: true };
         isLoading = false;
 
         criteria = await advertisementService.list(page, params, (data) => {
-            advertisementLayout.showAdList(data, false); // ✅ 교체 모드
-            attachSentinel(); // ✅ 렌더 후 sentinel 재등록
+            advertisementLayout.showAdList(data, false);
+            attachSentinel();
         });
     }
 
@@ -282,33 +279,41 @@ window.onload = () => {
         const imageCount = state.attachments.filter((a) => a.kind === "image" && a.previewUrl).length;
         const useGallery = imageCount > 1;
 
+        // ── 신청 폼의 첨부파일 목록 영역 ──
         if (root.uploadClearButton) root.uploadClearButton.hidden = !hasAttachments;
         if (root.attachmentPreview) root.attachmentPreview.hidden = !hasAttachments;
         if (root.attachmentList) renderAttachmentGallery(root.attachmentList);
 
+        // ── 프리뷰 갤러리 (이미지 2장 이상) ──
         if (root.previewAttachmentGallery) {
             root.previewAttachmentGallery.hidden = !useGallery;
-            renderPreviewGallery();
+            if (useGallery) renderPreviewGallery();
         }
 
+        // ── 프리뷰 단일 이미지 (이미지 1장) ──
         if (root.previewAttachmentImage) {
-            root.previewAttachmentImage.hidden = !isImage || useGallery;
-            root.previewAttachmentImage.src = isImage ? primaryAttachment.previewUrl : "";
+            const showSingleImage = isImage && !useGallery;
+            root.previewAttachmentImage.hidden = !showSingleImage;
+            root.previewAttachmentImage.src = showSingleImage ? primaryAttachment.previewUrl : "";
         }
 
+        // ── 프리뷰 동영상 ──
         if (root.previewAttachmentVideo) {
             root.previewAttachmentVideo.hidden = !isVideo;
-            root.previewAttachmentVideo.src = isVideo ? primaryAttachment.objectUrl : "";
             if (isVideo) {
+                root.previewAttachmentVideo.src = primaryAttachment.objectUrl;
                 root.previewAttachmentVideo.load();
                 root.previewAttachmentVideo.play().catch(() => {});
             } else {
                 root.previewAttachmentVideo.pause();
+                root.previewAttachmentVideo.src = "";
             }
         }
 
+        // ── 프리뷰 플레이스홀더: 첨부가 없을 때만 표시 ──
         if (root.previewAttachmentPlaceholder) {
-            root.previewAttachmentPlaceholder.hidden = isImage || isVideo || useGallery;
+            const showPlaceholder = !isImage && !isVideo && !useGallery;
+            root.previewAttachmentPlaceholder.hidden = !showPlaceholder;
             root.previewAttachmentPlaceholder.dataset.fileKind = primaryAttachment?.kind || "empty";
             root.previewAttachmentPlaceholder.textContent = "";
         }
@@ -699,9 +704,19 @@ window.onload = () => {
         const viewButton = event.target.closest("[data-view-target]");
         if (viewButton) {
             const target = viewButton.dataset.viewTarget;
+
+            // 상세 눌리면 list가 눌리게 유도
+            if (target === "detail" && viewButton.classList.contains("AdNavigationDetailButton")) {
+                setView("list");
+                await resetAndLoadList({
+                    keyword: "",
+                    filter: "all"
+                });
+                return;
+            }
+
             setView(target);
 
-            // ✅ list 뷰 진입 시 resetAndLoadList로 교체
             if (target === "list") {
                 await resetAndLoadList({
                     keyword:  "",
@@ -770,7 +785,6 @@ window.onload = () => {
             return;
         }
 
-        // ✅ 검색어 입력 — 1초 디바운스 후 resetAndLoadList로 교체
         if (event.target.matches("[data-list-search]")) {
             clearTimeout(state.searchTimer);
             state.searchTimer = window.setTimeout(async () => {
@@ -784,7 +798,6 @@ window.onload = () => {
     });
 
     document.addEventListener("change", async (event) => {
-        // ✅ 필터 변경 — resetAndLoadList로 교체
         if (event.target.matches("[data-list-status-filter]")) {
             state.listStatusFilter = event.target.value || "all";
             await resetAndLoadList({
