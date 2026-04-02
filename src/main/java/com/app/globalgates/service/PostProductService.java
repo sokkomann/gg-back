@@ -188,11 +188,11 @@ public class PostProductService {
 
 //    추천 상품 목록 조회
     @LogStatusWithReturn
-    public PostProductWithPagingDTO getRecommendProducts(int page) {
+    public PostProductWithPagingDTO getRecommendProducts(int page, Long memberId) {
         PostProductWithPagingDTO postProductWithPagingDTO = new PostProductWithPagingDTO();
         Criteria criteria = new Criteria(page, postProductDAO.getTotal());
 
-        List<PostProductDTO> products = postProductDAO.findRecommendProducts(criteria).stream()
+        List<PostProductDTO> products = postProductDAO.findRecommendProducts(criteria, memberId).stream()
                 .map(productDTO -> {
                     List<PostFileDTO> images = new ArrayList<>(postFileDAO.findAllByPostId(productDTO.getId()));
                     if(!images.isEmpty()) {

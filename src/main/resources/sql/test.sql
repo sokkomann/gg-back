@@ -58,6 +58,8 @@ select * from tbl_badge;
 
 select * from tbl_post_like;
 
+select * from tbl_search_history;
+
 alter table tbl_subscription add column quartz boolean default true;
 
 update tbl_subscription set quartz = false, expires_at = '2026-03-30' where member_id = 41;

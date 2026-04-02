@@ -26,8 +26,9 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
 
 //    추천 상품 목록 조회
     @GetMapping("products/{page}")
-    public ResponseEntity<?> getRecommends(@PathVariable int page) {
-        PostProductWithPagingDTO posts = postProductService.getRecommendProducts(page);
+    public ResponseEntity<?> getRecommends(@PathVariable int page,
+                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
+        PostProductWithPagingDTO posts = postProductService.getRecommendProducts(page, userDetails.getId());
         return ResponseEntity.ok(posts);
     }
 

@@ -26,7 +26,8 @@ public class PostProductMapperTests {
     @Test
     public void testSelectRecommendProducts() {
         Criteria criteria = new Criteria(1, postProductMapper.selectTotal());
-        List<PostProductDTO> foundProducts = postProductMapper.selectRecommendProducts(criteria);
+        Long memberId = 40L;
+        List<PostProductDTO> foundProducts = postProductMapper.selectRecommendProducts(criteria, memberId);
         log.info("조회한 상품 정보 : {}", foundProducts);
         log.info("조회한 상품 수 : {}", postProductMapper.selectTotal());
     }

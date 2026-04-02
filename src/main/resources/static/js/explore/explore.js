@@ -59,15 +59,20 @@ window.onload = () => {
                     <p class="Post-Text">${post.postContent ?? ""}</p>
                     <div class="Post-Metrics">
                         <div class="Post-Action-Bar">
-                            <button class="Post-Action-Btn Like" aria-label="좋아요">
-                                <svg viewBox="0 0 24 24" aria-hidden="true" class="Post-Action-Icon">
-                                    <g><path
-                                        d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"
-                                        data-path-inactive="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"
-                                        data-path-active="M20.884 13.19c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z">
-                                    </path></g>
+                            <button type="button"
+                                class="Post-Action-Btn Like tweet-action-btn--like${post.liked ? ' active' : ''}"
+                                aria-label="좋아요">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"
+                                     class="Post-Action-Icon svg-like-inactive"
+                                     ${post.liked ? 'hidden' : ''}>
+                                    <g><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></g>
                                 </svg>
-                                <span class="Post-Action-Count">0</span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true"
+                                     class="Post-Action-Icon svg-like-active"
+                                     ${post.liked ? '' : 'hidden'}>
+                                    <g><path d="M20.884 13.19c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></g>
+                                </svg>
+                                <span class="Post-Action-Count">${post.likeCount ?? 0}</span>
                             </button>
                             <button class="Post-Action-Btn" aria-label="조회수">
                                 <svg viewBox="0 0 24 24" class="Post-Action-Icon" aria-hidden="true">
@@ -76,13 +81,18 @@ window.onload = () => {
                                 <span class="Post-Action-Count">0</span>
                             </button>
                             <div class="Post-Action-Right">
-                                <button class="Post-Action-Btn Bookmark" aria-label="북마크">
+                                <button type="button"
+                                    class="Post-Action-Btn Bookmark tweet-action-btn--bookmark${post.bookmarked ? ' bookmarked' : ''}"
+                                    data-post-id="${post.id}"
+                                    aria-label="북마크">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" class="Post-Action-Icon">
                                         <g><path
-                                            d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"
+                                            d="${post.bookmarked
+                                                ? 'M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z'
+                                                : 'M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z'}"
                                             data-path-inactive="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"
-                                            data-path-active="M4 4.5C4 3.12 5.119 2 20 4.5v18.44l-8-5.71-8 5.71V4.5z">
-                                        </path></g>
+                                            data-path-active="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z"
+                                        ></path></g>
                                     </svg>
                                 </button>
                             </div>
@@ -103,9 +113,9 @@ window.onload = () => {
         try {
             const criteria = await exploreService.getRecommends(scrollState.page, (data) => {
                 if (isFirst) {
-                    exploreLayout.showPostList(data);   // 첫 로드: 섹션 초기화 후 렌더
+                    exploreLayout.showPostList(data);
                 } else {
-                    appendPostList(data);               // 추가 로드: 카드만 append
+                    appendPostList(data);
                 }
             });
 
@@ -217,142 +227,40 @@ window.onload = () => {
         });
     }
 
-    // 11. 트렌딩 더보기 메뉴
-    const trendReportMenu = document.getElementById("trendReportMenu");
+    // 11. 트렌딩 아이템 클릭 시 검색 이동
+    if (trendingSection) {
+        trendingSection.addEventListener("click", (e) => {
+            const trendingItem = e.target.closest(".trending-item");
+            if (!trendingItem) return;
 
-    if (trendReportMenu) {
-        let activeBtn = null;
+            const keyword = trendingItem.querySelector(".trending-title")?.textContent?.trim();
+            if (!keyword) return;
 
-        document.querySelectorAll(".trending-more-btn").forEach((btn) => {
-            btn.addEventListener("click", (e) => {
-                e.stopPropagation();
-
-                if (activeBtn === btn && !trendReportMenu.hidden) {
-                    trendReportMenu.hidden = true;
-                    activeBtn = null;
-                    return;
-                }
-
-                activeBtn = btn;
-                const rect = btn.getBoundingClientRect();
-
-                trendReportMenu.style.top = rect.bottom + "px";
-                trendReportMenu.style.left = (rect.right - 284) + "px";
-                trendReportMenu.hidden = false;
-
-                const menuH = trendReportMenu.offsetHeight;
-                if (rect.bottom + menuH > window.innerHeight) {
-                    trendReportMenu.style.top = (rect.top - menuH) + "px";
-                }
-            });
+            location.href = `/explore/search?keyword=${encodeURIComponent(keyword)}`;
         });
-
-        trendReportMenu.querySelectorAll(".more-menu").forEach((item) => {
-            item.addEventListener("click", (e) => {
-                if (activeBtn) {
-                    const trendingItem = activeBtn.closest(".trending-item");
-                    if (trendingItem) {
-                        const dismissed = document.createElement("article");
-                        dismissed.className = "trend-dismissed";
-                        dismissed.setAttribute("role", "article");
-                        dismissed.innerHTML =
-                            '<div class="trend-dismissed__wrapper">' +
-                            '<div class="trend-dismissed__spacer"></div>' +
-                            '<div class="trend-dismissed__body">' +
-                            '<div class="trend-dismissed__box">' +
-                            '<div class="trend-dismissed__text">' +
-                            '<span>감사합니다. 이 트렌드를 업데이트하려면 페이지를 새로고침해 주세요.</span>' +
-                            '</div>' +
-                            '</div>' +
-                            '</div>' +
-                            '</div>';
-                        trendingItem.replaceWith(dismissed);
-                    }
-                }
-                trendReportMenu.hidden = true;
-                activeBtn = null;
-            });
-        });
-
-        document.addEventListener("click", (e) => {
-            if (!trendReportMenu.hidden && !trendReportMenu.contains(e.target)) {
-                trendReportMenu.hidden = true;
-                activeBtn = null;
-            }
-        });
-
-        window.addEventListener("scroll", (e) => {
-            if (!trendReportMenu.hidden) {
-                trendReportMenu.hidden = true;
-                activeBtn = null;
-            }
-        }, {passive: true});
     }
 
     // 12. Post-Card 인터랙션 (Like / Bookmark / 이미지 프리뷰)
     (function () {
         function showToast(message, extraClass) {
+            const existing = document.querySelector(".toast");
+            if (existing) existing.remove();
             const toast = document.createElement("div");
             toast.className = "toast";
-            if (extraClass) {
-                toast.classList.add(extraClass);
-            }
+            if (extraClass) toast.classList.add(extraClass);
             toast.textContent = message;
             document.body.appendChild(toast);
-            setTimeout(function () {
-                toast.remove();
-            }, 2500);
+            setTimeout(() => toast.remove(), 2500);
         }
 
-        async function handleLike(btn) {
-            const card = btn.closest("[data-post-id]");
-            const postId = card?.dataset.postId;
-            if (!postId) return;
-
-            const isLiked = btn.classList.contains("liked");
-
-            // 낙관적 UI 업데이트
-            btn.classList.toggle("liked", !isLiked);
-            const path = btn.querySelector("svg path");
-            if (path) {
-                path.setAttribute("d", isLiked
-                    ? path.getAttribute("data-path-inactive")
-                    : path.getAttribute("data-path-active"));
-            }
-            const countEl = btn.querySelector(".Post-Action-Count");
-            if (countEl) {
-                const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
-                countEl.textContent = isLiked ? cur - 1 : cur + 1;
-            }
-
-            try {
-                await exploreService.toggleLike(postId);
-                showToast(isLiked ? "좋아요를 취소했습니다." : "좋아요를 눌렀습니다.", "toast--like");
-            } catch (e) {
-                // 실패 시 롤백
-                btn.classList.toggle("liked", isLiked);
-                if (path) {
-                    path.setAttribute("d", isLiked
-                        ? path.getAttribute("data-path-active")
-                        : path.getAttribute("data-path-inactive"));
-                }
-                if (countEl) {
-                    const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
-                    countEl.textContent = isLiked ? cur + 1 : cur - 1;
-                }
-                showToast("오류가 발생했습니다. 다시 시도해주세요.");
-                console.error("좋아요 요청 실패:", e);
-            }
-        }
-
-        async function handleBookmark(btn) {
-            const isBookmarked = btn.classList.contains("bookmarked");
-            btn.classList.toggle("bookmarked", !isBookmarked);
-            const path = btn.querySelector("svg path");
-            if (path) {
-                path.setAttribute("d", isBookmarked ? path.getAttribute("data-path-inactive") : path.getAttribute("data-path-active"));
-            }
-            showToast(isBookmarked ? "북마크가 해제되었습니다." : "북마크에 저장되었습니다.");
+        function setBookmarkButtonState(button, isActive) {
+            if (!button) return;
+            const path = button.querySelector("path");
+            if (!path) return;
+            const activePath = path.getAttribute("data-path-active");
+            const inactivePath = path.getAttribute("data-path-inactive");
+            button.classList.toggle("bookmarked", isActive);
+            path.setAttribute("d", isActive ? activePath : inactivePath);
         }
 
         const previewOverlay = document.getElementById("postMediaPreviewOverlay");
@@ -387,14 +295,86 @@ window.onload = () => {
         });
 
         if (productsSection) {
-            productsSection.addEventListener("click", (e) => {
-                const likeBtn = e.target.closest(".Post-Action-Btn.Like");
-                const bookmarkBtn = e.target.closest(".Post-Action-Btn.Bookmark");
+            productsSection.addEventListener("click", async (e) => {
                 const mediaImg = e.target.closest(".Post-Media-Img");
-
-                if (likeBtn) { handleLike(likeBtn); return; }
-                if (bookmarkBtn) { handleBookmark(bookmarkBtn); return; }
                 if (mediaImg) { openPreview(mediaImg.src, mediaImg.alt); return; }
+
+                // ── 좋아요 ───────────────────────────────────────
+                const likeBtn = e.target.closest(".tweet-action-btn--like");
+                if (likeBtn) {
+                    const card = likeBtn.closest("[data-post-id]");
+                    const postId = card?.dataset.postId;
+                    if (!postId) return;
+
+                    const isLiked = likeBtn.classList.contains("active");
+                    const svgInactive = likeBtn.querySelector(".svg-like-inactive");
+                    const svgActive   = likeBtn.querySelector(".svg-like-active");
+                    const countEl     = likeBtn.querySelector(".Post-Action-Count");
+
+                    // 낙관적 업데이트
+                    likeBtn.classList.toggle("active", !isLiked);
+                    if (svgInactive) svgInactive.hidden = !isLiked;
+                    if (svgActive)   svgActive.hidden   = isLiked;
+                    if (countEl) {
+                        const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
+                        countEl.textContent = isLiked ? cur - 1 : cur + 1;
+                    }
+
+                    try {
+                        const result = await exploreService.toggleLike(postId);
+                        const serverLiked = result.includes("생성");
+
+                        // 서버 응답 기준 동기화
+                        likeBtn.classList.toggle("active", serverLiked);
+                        if (svgInactive) svgInactive.hidden = serverLiked;
+                        if (svgActive)   svgActive.hidden   = !serverLiked;
+
+                        // 낙관적 업데이트와 불일치 시 카운트 보정
+                        if (serverLiked !== !isLiked && countEl) {
+                            const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
+                            countEl.textContent = serverLiked ? cur + 1 : cur - 1;
+                        }
+
+                        showToast(serverLiked ? "좋아요를 눌렀습니다." : "좋아요를 취소했습니다.", "toast--like");
+                    } catch (err) {
+                        // 롤백
+                        likeBtn.classList.toggle("active", isLiked);
+                        if (svgInactive) svgInactive.hidden = isLiked;
+                        if (svgActive)   svgActive.hidden   = !isLiked;
+                        if (countEl) {
+                            const cur = parseInt(countEl.textContent.replace(/[^0-9]/g, ""), 10) || 0;
+                            countEl.textContent = isLiked ? cur + 1 : cur - 1;
+                        }
+                        showToast("오류가 발생했습니다. 다시 시도해주세요.");
+                        console.error("좋아요 요청 실패:", err);
+                    }
+                    return;
+                }
+
+                // ── 북마크 ───────────────────────────────────────
+                const bookmarkBtn = e.target.closest(".Post-Action-Btn.Bookmark");
+                if (bookmarkBtn) {
+                    const card = bookmarkBtn.closest("[data-post-id]");
+                    const postId = card?.dataset.postId ?? bookmarkBtn.dataset.postId;
+                    if (!postId) return;
+
+                    try {
+                        const result = await exploreService.checkBookmark(Number(postId));
+                        const isBookmarked = result.includes("등록");
+                        const path = bookmarkBtn.querySelector("path");
+                        bookmarkBtn.classList.toggle("bookmarked", isBookmarked);
+                        if (path) {
+                            path.setAttribute("d", isBookmarked
+                                ? path.getAttribute("data-path-active")
+                                : path.getAttribute("data-path-inactive"));
+                        }
+                        showToast(isBookmarked ? "북마크에 저장되었습니다." : "북마크가 해제되었습니다.");
+                    } catch (err) {
+                        console.error("북마크 요청 실패:", err);
+                        showToast("오류가 발생했습니다. 다시 시도해주세요.");
+                    }
+                    return;
+                }
             });
         }
     })();
@@ -415,13 +395,11 @@ window.onload = () => {
 
     if (searchForm && searchInput && searchPanel) {
 
-        // ── 최근검색 항목 개수 확인 ───────────────────────────
         function hasRecentItems() {
             return searchRecentSec &&
                 searchRecentSec.querySelectorAll(".searchResultItem--recent").length > 0;
         }
 
-        // ── 패널 케이스별 표시 ────────────────────────────────
         function showEmpty() {
             if (searchPanelEmpty) searchPanelEmpty.hidden = false;
             if (searchRecentSec)  searchRecentSec.hidden  = true;
@@ -441,7 +419,6 @@ window.onload = () => {
             if (searchResultsEl)   searchResultsEl.hidden  = false;
         }
 
-        // ── 검색 결과 페이지로 이동 ───────────────────────────
         function goToSearch(keyword) {
             if (!keyword.trim()) return;
             searchForm.classList.remove("isFocused");
@@ -449,22 +426,17 @@ window.onload = () => {
             location.href = `/explore/search?keyword=${encodeURIComponent(keyword.trim())}`;
         }
 
-        // ── 최근 검색어를 서버에서 받아 렌더링 ───────────────
         function loadRecentKeywords() {
             exploreService.getRecentKeywords((keywords) => {
                 exploreLayout.showRecentKeywords(
                     keywords,
-                    // 클릭 시 검색 이동
                     (keyword) => goToSearch(keyword),
-                    // 삭제 시 서버 요청
                     (id) => exploreService.deleteKeyword(id)
                 );
-                // 렌더 후 패널 상태 업데이트
                 updatePanel();
             });
         }
 
-        // ── 연관 검색어를 서버에서 받아 렌더링 ───────────────
         function loadSuggestions(keyword) {
             exploreService.getSuggestions(keyword, (suggestions) => {
                 exploreLayout.showSuggestions(suggestions, (suggestion) => {
@@ -473,14 +445,12 @@ window.onload = () => {
             });
         }
 
-        // ── clear 버튼 표시 동기화 ────────────────────────────
         function updateSearchClearButton() {
             if (searchClearBtn) {
                 searchClearBtn.hidden = searchInput.value.length === 0;
             }
         }
 
-        // ── 패널 상태 통합 업데이트 ───────────────────────────
         function updatePanel() {
             const val = searchInput.value.trim();
             updateSearchClearButton();
@@ -497,7 +467,6 @@ window.onload = () => {
             }
         }
 
-        // ── 이벤트 바인딩 ─────────────────────────────────────
         searchPanel.addEventListener("mousedown", (e) => {
             e.preventDefault();
         });
@@ -547,7 +516,6 @@ window.onload = () => {
             });
         }
 
-        // 모두 지우기
         if (searchRecentSec) {
             const clearAllBtn = searchRecentSec.querySelector(".searchRecentClearAll");
             if (clearAllBtn) {

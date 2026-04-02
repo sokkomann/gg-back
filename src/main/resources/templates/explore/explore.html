@@ -92,13 +92,10 @@
         </div><!-- /.exploreSticky -->
 
         <!-- 메인 피드: 게시글 카드와 카드별 액션 메뉴, 공유/더보기 드롭다운이 모두 이 리스트를 기준으로 작동한다. -->
-        <section
-                class="productsSection"
-                id="productsSection"
-                aria-label="상품 목록"
-        >
-            <!-- 상품 뿌려질 곳 -->
-
+        <section class="productsSection" id="productsSection" aria-label="상품 목록">
+            <div class="emptySection" id="productsEmpty">
+                <p class="emptyMessage">표시할 상품이 없습니다.</p>
+            </div>
         </section>
 
         <section
@@ -108,126 +105,8 @@
                 hidden
         >
             <div class="trend-list">
-                <div class="cell-inner-div">
-                    <div class="trend" role="link" tabindex="0">
-                        <div class="trend-inner">
-                            <div class="trend-title-row">
-                                <div class="trend-title-wrap">
-                                    <span class="trend-title">Elon Musk Unveils Tesla-xAI Digital Optimus for Real-Time AI Tasks</span>
-                                </div>
-                            </div>
-                            <div class="trend-meta-row">
-                                <div class="avatar-group">
-                                    <div class="avatar-wrapper" style="transform: translateX(0px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=1" alt=""></div>
-                                    <div class="avatar-wrapper" style="transform: translateX(12px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=2" alt=""></div>
-                                    <div class="avatar-wrapper" style="transform: translateX(24px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=3" alt=""></div>
-                                </div>
-                                <span class="trend-meta-text">2 시간 · 뉴스 · 51K 공유됨</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="cell-inner-div">
-                    <div class="trend" role="link" tabindex="0">
-                        <div class="trend-inner">
-                            <div class="trend-title-row">
-                                <div class="trend-title-wrap">
-                                    <span class="trend-title">Science Post Claims Butt Squeezes Boost Health and Oxytocin</span>
-                                </div>
-                            </div>
-                            <div class="trend-meta-row">
-                                <div class="avatar-group">
-                                    <div class="avatar-wrapper" style="transform: translateX(0px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=4" alt=""></div>
-                                    <div class="avatar-wrapper" style="transform: translateX(12px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=5" alt=""></div>
-                                    <div class="avatar-wrapper" style="transform: translateX(24px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=6" alt=""></div>
-                                </div>
-                                <span class="trend-meta-text">8 시간 · 뉴스 · 13K 공유됨</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="cell-inner-div">
-                    <div class="trend" role="link" tabindex="0">
-                        <div class="trend-inner">
-                            <div class="trend-title-row">
-                                <div class="trend-title-wrap">
-                                    <span class="trend-title">Tucker Carlson and Bret Weinstein Oppose U.S. Troops in Iran War</span>
-                                </div>
-                            </div>
-                            <div class="trend-meta-row">
-                                <div class="avatar-group">
-                                    <div class="avatar-wrapper" style="transform: translateX(0px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=7" alt=""></div>
-                                    <div class="avatar-wrapper" style="transform: translateX(12px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=8" alt=""></div>
-                                    <div class="avatar-wrapper" style="transform: translateX(24px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=9" alt=""></div>
-                                </div>
-                                <span class="trend-meta-text">지금 트렌딩 · 뉴스 · 975 공유됨</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- 2명 케이스 -->
-                <div class="cell-inner-div">
-                    <div class="trend" role="link" tabindex="0">
-                        <div class="trend-inner">
-                            <div class="trend-title-row">
-                                <div class="trend-title-wrap">
-                                    <span class="trend-title">원·달러 환율 1500원 돌파, 외환당국 구두 개입</span>
-                                </div>
-                            </div>
-                            <div class="trend-meta-row">
-                                <div class="avatar-group" style="width: 34px">
-                                    <div class="avatar-wrapper" style="transform: translateX(0px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=10" alt=""></div>
-                                    <div class="avatar-wrapper" style="transform: translateX(12px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=11" alt=""></div>
-                                </div>
-                                <span class="trend-meta-text">3 시간 · 뉴스 · 2K 공유됨</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- 1명 케이스 -->
-                <div class="cell-inner-div">
-                    <div class="trend" role="link" tabindex="0">
-                        <div class="trend-inner">
-                            <div class="trend-title-row">
-                                <div class="trend-title-wrap">
-                                    <span class="trend-title">반도체 수출 규제 완화 협상, 미·한 실무진 회의 개최</span>
-                                </div>
-                            </div>
-                            <div class="trend-meta-row">
-                                <div class="avatar-group" style="width: 22px">
-                                    <div class="avatar-wrapper" style="transform: translateX(0px)"><img
-                                            class="avatar-img" src="https://i.pravatar.cc/22?img=12" alt=""></div>
-                                </div>
-                                <span class="trend-meta-text">5 시간 · 뉴스 · 341 공유됨</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- 0명 케이스 -->
-                <div class="cell-inner-div">
-                    <div class="trend" role="link" tabindex="0">
-                        <div class="trend-inner">
-                            <div class="trend-title-row">
-                                <div class="trend-title-wrap">
-                                    <span class="trend-title">글로벌 공급망 재편, 동남아 물류 허브 급부상</span>
-                                </div>
-                            </div>
-                            <div class="trend-meta-row">
-                                <span class="trend-meta-text">방금 · 뉴스</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="emptySection" id="newsEmpty">
+                    <p class="emptyMessage">표시할 뉴스가 없습니다.</p>
                 </div>
             </div>
         </section>
@@ -238,125 +117,8 @@
                 aria-label="트렌딩"
                 hidden>
             <div class="trending-list">
-                <div class="trending-item" role="link" tabindex="0">
-                    <div class="trending-body">
-                        <div class="trending-meta"><span>1</span><span class="trending-dot">·</span><span>Trending in South Korea</span>
-                        </div>
-                        <div class="trending-title">#영원을_약속한_플레이브와_3주년</div>
-                    </div>
-                    <button class="trending-more-btn" aria-label="More">
-                        <svg viewBox="0 0 24 24" width="18.75" height="18.75" fill="currentColor">
-                            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="trending-item" role="link" tabindex="0">
-                    <div class="trending-body">
-                        <div class="trending-meta"><span>2</span><span class="trending-dot">·</span><span>Trending in South Korea</span>
-                        </div>
-                        <div class="trending-title">#PLAVE_3RD_WITH_PLLI</div>
-                    </div>
-                    <button class="trending-more-btn" aria-label="More">
-                        <svg viewBox="0 0 24 24" width="18.75" height="18.75" fill="currentColor">
-                            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="trending-item" role="link" tabindex="0">
-                    <div class="trending-body">
-                        <div class="trending-meta"><span>3</span><span class="trending-dot">·</span><span>Trending in South Korea</span>
-                        </div>
-                        <div class="trending-title">시범경기</div>
-                    </div>
-                    <button class="trending-more-btn" aria-label="More">
-                        <svg viewBox="0 0 24 24" width="18.75" height="18.75" fill="currentColor">
-                            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="trending-item" role="link" tabindex="0">
-                    <div class="trending-body">
-                        <div class="trending-meta"><span>4</span><span class="trending-dot">·</span><span>Trending in South Korea</span>
-                        </div>
-                        <div class="trending-title">사모님알바</div>
-                    </div>
-                    <button class="trending-more-btn" aria-label="More">
-                        <svg viewBox="0 0 24 24" width="18.75" height="18.75" fill="currentColor">
-                            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="trending-item" role="link" tabindex="0">
-                    <div class="trending-body">
-                        <div class="trending-meta"><span>5</span><span class="trending-dot">·</span><span>Trending in South Korea</span>
-                        </div>
-                        <div class="trending-title">무사만루</div>
-                    </div>
-                    <button class="trending-more-btn" aria-label="More">
-                        <svg viewBox="0 0 24 24" width="18.75" height="18.75" fill="currentColor">
-                            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="trending-item" role="link" tabindex="0">
-                    <div class="trending-body">
-                        <div class="trending-meta"><span>6</span><span class="trending-dot">·</span><span>Trending in South Korea</span>
-                        </div>
-                        <div class="trending-title">오하욘사</div>
-                    </div>
-                    <button class="trending-more-btn" aria-label="More">
-                        <svg viewBox="0 0 24 24" width="18.75" height="18.75" fill="currentColor">
-                            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="trending-item" role="link" tabindex="0">
-                    <div class="trending-body">
-                        <div class="trending-meta"><span>7</span><span class="trending-dot">·</span><span>Trending in South Korea</span>
-                        </div>
-                        <div class="trending-title">계정 정지</div>
-                    </div>
-                    <button class="trending-more-btn" aria-label="More">
-                        <svg viewBox="0 0 24 24" width="18.75" height="18.75" fill="currentColor">
-                            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="trending-item" role="link" tabindex="0">
-                    <div class="trending-body">
-                        <div class="trending-meta"><span>8</span><span class="trending-dot">·</span><span>Trending in South Korea</span>
-                        </div>
-                        <div class="trending-title">로그아웃</div>
-                    </div>
-                    <button class="trending-more-btn" aria-label="More">
-                        <svg viewBox="0 0 24 24" width="18.75" height="18.75" fill="currentColor">
-                            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="trending-item" role="link" tabindex="0">
-                    <div class="trending-body">
-                        <div class="trending-meta"><span>9</span><span class="trending-dot">·</span><span>Trending in South Korea</span>
-                        </div>
-                        <div class="trending-title">무서웠던 에너미</div>
-                    </div>
-                    <button class="trending-more-btn" aria-label="More">
-                        <svg viewBox="0 0 24 24" width="18.75" height="18.75" fill="currentColor">
-                            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="trending-item" role="link" tabindex="0">
-                    <div class="trending-body">
-                        <div class="trending-meta"><span>10</span><span class="trending-dot">·</span><span>Trending in South Korea</span>
-                        </div>
-                        <div class="trending-title">도미니카</div>
-                    </div>
-                    <button class="trending-more-btn" aria-label="More">
-                        <svg viewBox="0 0 24 24" width="18.75" height="18.75" fill="currentColor">
-                            <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                        </svg>
-                    </button>
+                <div class="emptySection" id="trendingEmpty">
+                    <p class="emptyMessage">표시할 트렌드가 없습니다.</p>
                 </div>
             </div>
         </section>
@@ -372,21 +134,6 @@
             </div>
         </div>
     </main>
-
-</div>
-
-<!-- 트렌딩 더보기 메뉴 (공용) -->
-<div class="trend-report-menu" id="trendReportMenu" hidden role="menu">
-    <div class="more-menu" role="menuitem" tabindex="0">
-        <div class="more-menu-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <g>
-                    <path d="M9.5 7c.828 0 1.5 1.119 1.5 2.5S10.328 12 9.5 12 8 10.881 8 9.5 8.672 7 9.5 7zm5 0c.828 0 1.5 1.119 1.5 2.5s-.672 2.5-1.5 2.5S13 10.881 13 9.5 13.672 7 14.5 7zM12 22.25C6.348 22.25 1.75 17.652 1.75 12S6.348 1.75 12 1.75 22.25 6.348 22.25 12 17.652 22.25 12 22.25zm0-18.5c-4.549 0-8.25 3.701-8.25 8.25s3.701 8.25 8.25 8.25 8.25-3.701 8.25-8.25S16.549 3.75 12 3.75zM8.947 17.322l-1.896-.638C7.101 16.534 8.322 13 12 13s4.898 3.533 4.949 3.684l-1.897.633c-.031-.09-.828-2.316-3.051-2.316s-3.021 2.227-3.053 2.322z"></path>
-                </g>
-            </svg>
-        </div>
-        <span class="more-menu-text">관심 없습니다.</span>
-    </div>
 </div>
 </body>
 </html>
