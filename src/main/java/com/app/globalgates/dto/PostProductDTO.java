@@ -43,6 +43,13 @@ public class PostProductDTO {
     // 상품 이미지 (tbl_post_file JOIN)
     private List<String> postFiles = new ArrayList<>();
 
+    // 좋아요, 북마크 여부
+    private boolean isLiked;
+    private boolean isBookmarked;
+
+    // 좋아요 개수
+    private int likeCount;
+
     // 상품 태그
     private List<PostHashtagDTO> hashtags = new ArrayList<>();
 

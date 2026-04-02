@@ -30,8 +30,8 @@ public class PostProductDAO {
     }
 
 //    추천 상품 조회
-    public List<PostProductDTO> findRecommendProducts(Criteria criteria) {
-        return postProductMapper.selectRecommendProducts(criteria);
+    public List<PostProductDTO> findRecommendProducts(Criteria criteria, Long memberId) {
+        return postProductMapper.selectRecommendProducts(criteria, memberId);
     }
 
 //    특정 회원의 상품 총 개수

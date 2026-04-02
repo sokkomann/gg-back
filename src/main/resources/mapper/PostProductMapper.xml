@@ -64,7 +64,16 @@
                m.member_nickname,
                m.member_handle,
                p.title as post_title,
-               p.content as post_content
+               p.content as post_content,
+        (select count(*) from tbl_post_like pl where pl.post_id = pp.id) as like_count,
+        case when exists (
+           select 1 from tbl_post_like pl
+           where pl.post_id = pp.id and pl.member_id = #{memberId}
+        ) then true else false end as is_liked,
+        case when exists (
+           select 1 from tbl_bookmark b
+           where b.post_id = pp.id and b.member_id = #{memberId}
+        ) then true else false end as is_bookmarked
         from tbl_post_product pp
         join tbl_post p on pp.id = p.id
         join tbl_member m on p.member_id = m.id

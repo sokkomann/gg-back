@@ -23,7 +23,8 @@ public interface PostProductMapper {
     );
 
 //    추천 상품 전체 조회
-    public List<PostProductDTO> selectRecommendProducts(@Param("criteria") Criteria criteria);
+    public List<PostProductDTO> selectRecommendProducts(@Param("criteria") Criteria criteria,
+                                                        @Param("memberId") Long memberId);
 
 //    특정 회원의 상품 총 개수
     public int selectTotalByMemberId(Long memberId);
