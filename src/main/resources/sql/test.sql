@@ -48,6 +48,8 @@ select * from tbl_member;
 
 select * from tbl_follow;
 
+select * from tbl_bookmark;
+
 select * from tbl_subscription;
 
 select * from tbl_payment_subscribe;

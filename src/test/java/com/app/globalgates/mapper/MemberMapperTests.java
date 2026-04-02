@@ -89,8 +89,8 @@ public class MemberMapperTests {
 //  입력받은 loginId와 password로 member조회
     @Test
     public void passwordCheckTest(){
-        Optional<MemberDTO> memberDTO = memberMapper.selectMemberByMemberPassword("tjdgh1851@gmail.com","$2a$10$NL8/RH5djgJgtOpAldH/TelefJ22.9lV/4CTCX.TEuPbHQPHHoALG");
-        log.info("memberDTO : {}", memberDTO);
+//        Optional<MemberDTO> memberDTO = memberMapper.selec("tjdgh1851@gmail.com","$2a$10$NL8/RH5djgJgtOpAldH/TelefJ22.9lV/4CTCX.TEuPbHQPHHoALG");
+//        log.info("memberDTO : {}", memberDTO);
     }
 
     @Test

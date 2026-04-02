@@ -53,14 +53,14 @@ public class BookmarkService {
     }
 
     //    북마크 추가
-    @CacheEvict(value = {"bookmark:list", "community:post:list", "post:list", "post"}, allEntries = true)
+    @CacheEvict(value = {"bookmark", "bookmark:list", "community:post:list", "post:list", "post"}, allEntries = true)
     public void addBookmark(BookmarkDTO bookmarkDTO) {
         bookmarkDAO.save(bookmarkDTO);
     }
 
     //    북마크 삭제
     @Caching(evict = {
-            @CacheEvict(value = "bookmark", key = "#id"),
+            @CacheEvict(value = "bookmark", allEntries = true),
             @CacheEvict(value = "bookmark:list", allEntries = true)
     })
     public void deleteBookmark(Long id) {

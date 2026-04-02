@@ -169,16 +169,9 @@ const exploreService = (() => {
 
     // 북마크 체크
     const checkBookmark = async (postId, folderId = null) => {
-        const response = await fetch(`/api/explore/bookmarks`, {
+        const response = await fetch(`/api/explore/bookmarks/${postId}`, {
             method: "POST",
             credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                postId: Number(postId),
-                folderId: folderId
-            })
         });
 
         if (!response.ok) {
