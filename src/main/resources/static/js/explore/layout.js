@@ -270,7 +270,7 @@ const exploreLayout = (() => {
                             <span class="tweet-action-count">${post.likeCount ?? 0}</span>
                         </button>
                         <div class="tweet-action-right">
-                            <button type="button" class="tweet-action-btn tweet-action-btn--bookmark" data-testid="bookmark" aria-label="북마크">
+                            <button type="button" class="tweet-action-btn tweet-action-btn--bookmark" data-testid="bookmark" data-post-id="${post.id}" aria-label="북마크">
                                 <svg viewBox="0 0 24 24" aria-hidden="true" class="tweet-action-icon">
                                     <g><path
                                         d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"
@@ -323,7 +323,7 @@ const exploreLayout = (() => {
 
             // 팔로우 여부
             const isFollowed = member.followed ?? false;
-            const btnClass   = isFollowed ? "connect-btn connected" : "connect-btn default";
+            const btnClass   = isFollowed ? "connected" : "default";
             const btnText    = isFollowed ? "Connected" : "Connect";
 
             const card = document.createElement("div");
@@ -341,7 +341,7 @@ const exploreLayout = (() => {
                 </div>
                 ${bio ? `<div class="user-bio">${bio}</div>` : ""}
             </div>
-        `;
+            `;
             friendsList.appendChild(card);
         });
     };

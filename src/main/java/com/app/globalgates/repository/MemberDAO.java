@@ -41,17 +41,17 @@ public class MemberDAO {
     public Optional<MemberDTO> findMemberByMemberPhone(String memberPhone){
         return memberMapper.selectMemberByMemberPhone(memberPhone);
     }
-    //  비밀번호 유효성 검사
-    public Optional<MemberDTO> findMemberByMemberPassword(String loginId, String memberPassword){
-        return memberMapper.selectMemberByMemberPassword(loginId, memberPassword);
+    //  닉네임 또는 핸들로 검색한 회원 수
+    public int findTotalByKeyword(String keyword) {
+        return memberMapper.selectTotalByKeyword(keyword);
     }
     //  닉네임 또는 핸들로 회원 검색
     public List<MemberDTO> findMembersByKeyword(String keyword) {
         return memberMapper.selectMembersByKeyword(keyword);
     }
     //  닉네임 또는 핸들로 회원 검색 (팔로우 여부 포함)
-    public List<MemberDTO> findMembersByKeywordWithFollow(Long memberId, String keyword) {
-        return memberMapper.selectMembersByKeywordWithFollow(memberId, keyword);
+    public List<MemberDTO> findMembersByKeywordWithFollow(Long memberId, String keyword, Criteria criteria) {
+        return memberMapper.selectMembersByKeywordWithFollow(memberId, keyword, criteria);
     }
     //  Handle로 조회
     public Optional<MemberDTO> findMemberByMemberHandle(String memberHandle){

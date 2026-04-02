@@ -2,10 +2,7 @@ package com.app.globalgates.controller.explore;
 
 import com.app.globalgates.auth.CustomUserDetails;
 import com.app.globalgates.dto.*;
-import com.app.globalgates.service.NewsService;
-import com.app.globalgates.service.PostLikeService;
-import com.app.globalgates.service.PostProductService;
-import com.app.globalgates.service.SearchService;
+import com.app.globalgates.service.*;
 import com.app.globalgates.util.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +20,7 @@ import java.util.Optional;
 public class ExploreAPIController implements ExploreAPIControllerDocs {
     private final PostProductService postProductService;
     private final PostLikeService postLikeService;
+    private final BookmarkService bookmarkService;
     private final NewsService newsService;
     private final SearchService searchService;
 
@@ -65,6 +63,25 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
         } else {
             postLikeService.deleteLike(userDetails.getId(), postId);
             return ResponseEntity.ok("좋아요를 삭제했습니다.");
+        }
+    }
+
+    // 북마크 조회 후, 생성 or 삭제
+    @PostMapping("/api/explore/bookmarks")
+    public ResponseEntity<?> checkBookmarks(@RequestBody BookmarkDTO bookmarkDTO,
+                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Optional<BookmarkDTO> exising = bookmarkService.getBookmark(userDetails.getId(), bookmarkDTO.getPostId());
+        log.info("정보가 바인딩이 되었나?? : ", bookmarkDTO);
+
+        if(!exising.isPresent()) {
+            bookmarkDTO.setMemberId(userDetails.getId());
+            bookmarkDTO.setFolderId(null);
+            bookmarkService.addBookmark(bookmarkDTO);
+
+            return ResponseEntity.ok("북마크를 등록했습니다.");
+        } else {
+            bookmarkService.deleteBookmark(exising.get().getId());
+            return ResponseEntity.ok("북마크를 제거했습니다.");
         }
     }
 
