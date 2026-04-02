@@ -181,39 +181,9 @@
                         </div>
                     </section>
 
-                    <section class="detail-route" data-detail-route-view="notifications" data-route-title="알림" hidden
+                    <section class="detail-route" data-detail-route-view="notifications" data-route-title="푸시 알림" hidden
                              aria-hidden="true">
-                        <p class="detail-summary">활동, 관심사 및 추천에 관해 받는 알림의 종류를 선택합니다.</p>
-                        <div class="detail-list">
-                            <a class="detail-entry" href="/settings/notifications/filters" role="tab"
-                               aria-selected="false">
-                                        <span class="detail-entry__content">
-                                            <span class="detail-entry__icon"><svg viewBox="0 0 24 24"
-                                                                                  aria-hidden="true"><g><path
-                                                    d="M14 6V3h2v8h-2V8H3V6h11zm7 2h-3.5V6H21v2zM8 16v-3h2v8H8v-3H3v-2h5zm13 2h-9.5v-2H21v2z"></path></g></svg></span>
-                                            <span class="detail-entry__body">
-                                                <span class="detail-entry__title">필터</span>
-                                                <p class="detail-entry__description">확인하고자 하는 알림과 확인하고 싶지 않은 알림을 선택하세요.</p>
-                                            </span>
-                                        </span>
-                                <span class="detail-entry__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                            </a>
-                            <a class="detail-entry" href="/settings/notifications/preferences" role="tab"
-                               aria-selected="false">
-                                        <span class="detail-entry__content">
-                                            <span class="detail-entry__icon"><svg viewBox="0 0 24 24"
-                                                                                  aria-hidden="true"><g><path
-                                                    d="M7 17h6v2H7v-2zm7.5-15C15.88 2 17 3.12 17 4.5v15c0 1.38-1.12 2.5-2.5 2.5h-9C4.12 22 3 20.88 3 19.5v-15C3 3.12 4.12 2 5.5 2h9zM5 19.5c0 .28.22.5.5.5h9c.28 0 .5-.22.5-.5v-15c0-.28-.22-.5-.5-.5h-9c-.28 0-.5.22-.5.5v15zm15.74-3.49l1.64 1.15C23.4 15.7 24 13.92 24 12s-.6-3.7-1.62-5.16l-1.64 1.15C21.53 9.13 22 10.51 22 12s-.47 2.87-1.26 4.01zm-.82-7.45l-1.64 1.15c.45.65.72 1.43.72 2.29 0 .85-.27 1.64-.72 2.29l1.64 1.15C20.6 14.47 21 13.28 21 12s-.4-2.47-1.08-3.44z"></path></g></svg></span>
-                                            <span class="detail-entry__body">
-                                                <span class="detail-entry__title">환경설정</span>
-                                                <p class="detail-entry__description">알림 유형별로 환경설정을 선택하세요.</p>
-                                            </span>
-                                        </span>
-                                <span class="detail-entry__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                            </a>
-                        </div>
+                        <p class="detail-summary">받고 싶은 푸시 알림 종류를 선택합니다.</p>
                     </section>
 
                     <section class="detail-route" data-detail-route-view="privacy_and_safety"
@@ -629,133 +599,6 @@
                     </section>
 
                     <section
-                            class="detail-route detail-route--notification-filter"
-                            data-detail-route-view="notification-filter-edit"
-                            data-route-title="필터"
-                            hidden
-                            aria-hidden="true"
-                    >
-                        <section class="notification-filter-editor">
-                            <p class="notification-filter-editor__summary">
-                                확인하고자 하는 알림과 확인하고 싶지 않은 알림을 선택하세요.
-                            </p>
-
-                            <label class="notification-filter-editor__quality">
-                                        <span class="notification-filter-editor__quality-copy">
-                                            <span class="notification-filter-editor__quality-title">
-                                                퀄리티 필터
-                                            </span>
-                                            <span class="notification-filter-editor__quality-description">
-                                                선택한 중복 및 자동 게시물과 같은 콘텐츠가 필터링됩니다. 팔로우 중이거나 최근 대화한 계정의 알림에 적용되지 않습니다.
-                                                                                            </span>
-                                        </span>
-                                <span class="notification-filter-editor__quality-control">
-                                            <input
-                                                    type="checkbox"
-                                                    class="notification-filter-editor__checkbox"
-                                                    data-notification-filter-toggle
-                                            />
-                                            <span class="notification-filter-editor__checkbox-box" aria-hidden="true">
-                                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                                    <g>
-                                                        <path d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path>
-                                                    </g>
-                                                </svg>
-                                            </span>
-                                        </span>
-                            </label>
-
-                            <button
-                                    type="button"
-                                    class="notification-filter-editor__item"
-                                    data-notification-filter-route="muted"
-                            >
-                                        <span class="notification-filter-editor__item-title">
-                                            뮤트 상태의 알림
-                                        </span>
-                                <span class="notification-filter-editor__item-arrow" aria-hidden="true">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                                <g>
-                                                    <path d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path>
-                                                </g>
-                                            </svg>
-                                        </span>
-                            </button>
-                        </section>
-                    </section>
-
-                    <section
-                            class="detail-route detail-route--notification-muted"
-                            data-detail-route-view="notification-muted-edit"
-                            data-route-title="뮤트 상태의 알림"
-                            hidden
-                            aria-hidden="true"
-                    >
-                        <section class="notification-muted-editor">
-                            <h3 class="notification-muted-editor__title">다음 계정의 알림 뮤트하기:</h3>
-                            <div class="notification-muted-editor__list">
-                                <label class="notification-muted-editor__item">
-                                    <span class="notification-muted-editor__label">내가 팔로우하지 않는 계정</span>
-                                    <span class="notification-muted-editor__control">
-                                                <input type="checkbox" class="notification-muted-editor__checkbox"
-                                                       data-notification-muted-toggle="nonFollowing"/>
-                                                <span class="notification-muted-editor__box" aria-hidden="true"></span>
-                                            </span>
-                                </label>
-                                <label class="notification-muted-editor__item">
-                                    <span class="notification-muted-editor__label">나를 팔로우하지 않는 계정</span>
-                                    <span class="notification-muted-editor__control">
-                                                <input type="checkbox" class="notification-muted-editor__checkbox"
-                                                       data-notification-muted-toggle="notFollowingYou"/>
-                                                <span class="notification-muted-editor__box" aria-hidden="true"></span>
-                                            </span>
-                                </label>
-                                <label class="notification-muted-editor__item">
-                                    <span class="notification-muted-editor__label">새 계정</span>
-                                    <span class="notification-muted-editor__control">
-                                                <input type="checkbox" class="notification-muted-editor__checkbox"
-                                                       data-notification-muted-toggle="newAccount"/>
-                                                <span class="notification-muted-editor__box" aria-hidden="true"></span>
-                                            </span>
-                                </label>
-                                <label class="notification-muted-editor__item">
-                                    <span class="notification-muted-editor__label">기본 프로필 이미지를 사용하는 계정</span>
-                                    <span class="notification-muted-editor__control">
-                                                <input type="checkbox" class="notification-muted-editor__checkbox"
-                                                       data-notification-muted-toggle="defaultProfile"/>
-                                                <span class="notification-muted-editor__box" aria-hidden="true"></span>
-                                            </span>
-                                </label>
-                                <label class="notification-muted-editor__item">
-                                    <span class="notification-muted-editor__label">이메일을 인증하지 않은 계정</span>
-                                    <span class="notification-muted-editor__control">
-                                                <input type="checkbox" class="notification-muted-editor__checkbox"
-                                                       data-notification-muted-toggle="unverifiedEmail"/>
-                                                <span class="notification-muted-editor__box" aria-hidden="true"></span>
-                                            </span>
-                                </label>
-                                <label class="notification-muted-editor__item">
-                                    <span class="notification-muted-editor__label">휴대폰 번호를 인증하지 않은 계정</span>
-                                    <span class="notification-muted-editor__control">
-                                                <input type="checkbox" class="notification-muted-editor__checkbox"
-                                                       data-notification-muted-toggle="unverifiedPhone"/>
-                                                <span class="notification-muted-editor__box" aria-hidden="true"></span>
-                                            </span>
-                                </label>
-                            </div>
-                            <p class="notification-muted-editor__help">
-                                이 필터는 내가 팔로우하는 사람에게서 받는 알림에는 영향을 주지 않습니다.
-                            </p>
-                            <div class="notification-muted-editor__actions">
-                                <button type="button" class="notification-muted-editor__save"
-                                        data-notification-muted-save>
-                                    저장
-                                </button>
-                            </div>
-                        </section>
-                    </section>
-
-                    <section
                             class="detail-route detail-route--notification-muted"
                             data-detail-route-view="privacy-muted-notifications-edit"
                             data-route-title="뮤트 상태의 알림"
@@ -823,31 +666,6 @@
                                     저장
                                 </button>
                             </div>
-                        </section>
-                    </section>
-
-                    <section
-                            class="detail-route detail-route--notification-preferences"
-                            data-detail-route-view="notification-preferences-edit"
-                            data-route-title="환경설정"
-                            hidden
-                            aria-hidden="true"
-                    >
-                        <section class="notification-preferences-editor">
-                            <p class="notification-preferences-editor__summary">
-                                알림 유형별로 환경설정을 선택하세요.
-                            </p>
-                            <button
-                                    type="button"
-                                    class="notification-preferences-editor__item"
-                                    data-notification-preferences-route="push"
-                            >
-                                <span class="notification-preferences-editor__item-title">푸시 알림</span>
-                                <span class="notification-preferences-editor__item-arrow" aria-hidden="true">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                                    d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg>
-                                        </span>
-                            </button>
                         </section>
                     </section>
 
@@ -1445,65 +1263,7 @@
                              data-route-title="주소 변경" hidden aria-hidden="true">
                         <section class="country-editor">
                             <div class="country-editor__section">
-                                <label class="country-editor__field">
-                                    <span class="country-editor__label">주소</span>
-                                    <select class="country-editor__select" aria-label="국가" data-country-select>
-                                        <!-- Note: The address components in this sample are based on North American address format.
- You might need to adjust them for the locations relevant to your app. For more information, see
- https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
--->
-
-                                        <form id="address-form" action="" method="get" autocomplete="off">
-                                            <p class="title">Sample address form for North America</p>
-                                            <p class="note"><em>* = required field</em></p>
-                                            <label class="full-field">
-                                                <span class="form-label">Deliver to*</span>
-                                                <gmp-place-autocomplete
-                                                        included-primary-types="street_address"
-                                                        included-region-codes="US"></gmp-place-autocomplete>
-                                            </label>
-                                            <label class="full-field">
-                                                <span class="form-label">Street address*</span>
-                                                <input id="address1" name="address1" />
-                                            </label>
-                                            <label class="full-field">
-                <span class="form-label"
-                >Apartment, unit, suite, or floor #</span
-                >
-                                                <input id="address2" name="address2" />
-                                            </label>
-                                            <label class="full-field">
-                                                <span class="form-label">City*</span>
-                                                <input id="locality" name="locality" required />
-                                            </label>
-                                            <div class="address-row">
-                                                <label class="slim-field-left">
-                                                    <span class="form-label">State/Province*</span>
-                                                    <input id="state" name="state" required />
-                                                </label>
-                                                <label class="slim-field-right">
-                                                    <span class="form-label">Postal code*</span>
-                                                    <input id="postcode" name="postcode" required />
-                                                </label>
-                                            </div>
-                                            <label class="full-field">
-                                                <span class="form-label">Country/Region*</span>
-                                                <input id="country" name="country" required />
-                                            </label>
-                                            <button type="button" class="my-button">Save address</button>
-
-                                            <!-- Reset button provided for development testing convenience.
-                                  Not recommended for user-facing forms due to risk of mis-click when aiming for Submit button. -->
-                                            <input type="reset" value="Clear form" />
-                                        </form>
-                                    <span class="country-editor__arrow" aria-hidden="true">
-                                                <svg viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                                        d="M3.543 8.96l1.414-1.42L12 14.59l7.043-7.05 1.414 1.42L12 17.41 3.543 8.96z"></path></g></svg>
-                                            </span>
-                                </label>
-                                <p class="country-editor__help">
-                                    사용자 계정과 연결된 기본 국가입니다. 사용자의 국가는 X 환경을 맞춤화하는 데 사용됩니다.
-                                </p>
+                                
                             </div>
                         </section>
                     </section>
@@ -2340,13 +2100,6 @@
      * event.js는 이 객체를 읽어 화면 상태만 구성하고, 저장은 별도 settings API로 보낸다.
      */
     window.settingNotificationPreference = {
-        qualityFilterEnabled: [[${notificationPreference.qualityFilterEnabled}]],
-        mutedNonFollowing: [[${notificationPreference.mutedNonFollowing}]],
-        mutedNotFollowingYou: [[${notificationPreference.mutedNotFollowingYou}]],
-        mutedNewAccount: [[${notificationPreference.mutedNewAccount}]],
-        mutedDefaultProfile: [[${notificationPreference.mutedDefaultProfile}]],
-        mutedUnverifiedEmail: [[${notificationPreference.mutedUnverifiedEmail}]],
-        mutedUnverifiedPhone: [[${notificationPreference.mutedUnverifiedPhone}]],
         pushConnect: [[${notificationPreference.pushConnect}]],
         pushExpert: [[${notificationPreference.pushExpert}]],
         pushLikes: [[${notificationPreference.pushLikes}]],

@@ -1108,13 +1108,6 @@ document.addEventListener("DOMContentLoaded", () => {
      * routeRoot 하나에 서버/프론트 상태를 다시 주입하는 계열 함수들.
      * Spring으로 바꿀 때는 각 함수가 "DTO -> DOM 반영" 책임만 갖도록 유지하면 된다.
      */
-    function syncNotificationFilterRoute(routeRoot) {
-        const toggle = routeRoot.querySelector("[data-notification-filter-toggle]");
-        if (toggle instanceof HTMLInputElement) {
-            toggle.checked = notificationFilterState.isQualityFilterEnabled;
-        }
-    }
-
     function syncNotificationMutedRoute(routeRoot) {
         routeRoot.querySelectorAll("[data-notification-muted-toggle]").forEach((input) => {
             if (!(input instanceof HTMLInputElement)) {
@@ -1398,15 +1391,14 @@ document.addEventListener("DOMContentLoaded", () => {
             syncDeactivateConfirmRoute(routeRoot);
             return;
         }
-        if (activeDetailRoute === "notification-filter-edit") {
-            syncNotificationFilterRoute(routeRoot);
-            return;
-        }
-        if (activeDetailRoute === "notification-muted-edit" || activeDetailRoute === "privacy-muted-notifications-edit") {
+        if (activeDetailRoute === "privacy-muted-notifications-edit") {
             syncNotificationMutedRoute(routeRoot);
             return;
         }
-        if (activeDetailRoute === "notification-push-edit") {
+        if (
+            activeDetailRoute === "notification-push-edit" ||
+            (!activeDetailRoute && activeSectionId === "notifications")
+        ) {
             syncNotificationPushRoute(routeRoot);
             return;
         }
@@ -1507,12 +1499,18 @@ document.addEventListener("DOMContentLoaded", () => {
         hideDetailRouteViews();
         detailBackButton.hidden = !activeDetailRoute;
 
-        const routeName = activeDetailRoute || activeSectionId;
+        const routeName =
+            !activeDetailRoute && activeSectionId === "notifications"
+                ? "notification-push-edit"
+                : (activeDetailRoute || activeSectionId);
         const routeRoot = showDetailRouteView(routeName);
 
         if (routeRoot instanceof HTMLElement) {
             detailTitle.textContent = routeRoot.dataset.routeTitle || "";
-            if (activeDetailRoute) {
+            if (
+                activeDetailRoute ||
+                (!activeDetailRoute && activeSectionId === "notifications")
+            ) {
                 syncDetailRoute(routeRoot);
             }
             if (window.matchMedia("(max-width: 400px)").matches && !activeDetailRoute) {
@@ -1826,21 +1824,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (
             activeSectionId === "notifications" &&
-            entryLink.getAttribute("href") === "/settings/notifications/filters"
+            (
+                entryLink.getAttribute("href") === "/settings/notifications/filters" ||
+                entryLink.getAttribute("href") ===
+                "/settings/notifications/preferences"
+            )
         ) {
             event.preventDefault();
-            activeDetailRoute = "notification-filter-edit";
-            renderDetail();
-            return;
-        }
-
-        if (
-            activeSectionId === "notifications" &&
-            entryLink.getAttribute("href") ===
-            "/settings/notifications/preferences"
-        ) {
-            event.preventDefault();
-            activeDetailRoute = "notification-preferences-edit";
+            activeDetailRoute = "notification-push-edit";
             renderDetail();
             return;
         }
@@ -1999,43 +1990,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const notificationFilterToggle = target.closest(
-            "[data-notification-filter-toggle]",
-        );
-        if (notificationFilterToggle instanceof HTMLInputElement) {
-            notificationFilterState.isQualityFilterEnabled =
-                notificationFilterToggle.checked;
-            return;
-        }
-
-        const notificationFilterRoute = target.closest(
-            "[data-notification-filter-route]",
-        );
-        if (notificationFilterRoute instanceof HTMLButtonElement) {
-            if (
-                notificationFilterRoute.dataset.notificationFilterRoute ===
-                "muted"
-            ) {
-                activeDetailRoute = "notification-muted-edit";
-                renderDetail();
-            }
-            return;
-        }
-
-        const notificationPreferencesRoute = target.closest(
-            "[data-notification-preferences-route]",
-        );
-        if (notificationPreferencesRoute instanceof HTMLButtonElement) {
-            if (
-                notificationPreferencesRoute.dataset
-                    .notificationPreferencesRoute === "push"
-            ) {
-                activeDetailRoute = "notification-push-edit";
-                renderDetail();
-            }
-            return;
-        }
-
         const privacyPostsRoute = target.closest("[data-privacy-posts-route]");
         if (privacyPostsRoute instanceof HTMLButtonElement) {
             if (privacyPostsRoute.dataset.privacyPostsRoute === "location") {
@@ -2151,12 +2105,6 @@ document.addEventListener("DOMContentLoaded", () => {
     detailContent.addEventListener("change", (event) => {
         const target = event.target;
         if (!(target instanceof HTMLInputElement)) {
-            return;
-        }
-
-        if (target.matches("[data-notification-filter-toggle]")) {
-            notificationFilterState.isQualityFilterEnabled = target.checked;
-            void saveNotificationFilter(false);
             return;
         }
 
@@ -2297,8 +2245,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (
             activeDetailRoute === "password-edit" ||
             activeDetailRoute === "deactivate-edit" ||
-            activeDetailRoute === "notification-filter-edit" ||
-            activeDetailRoute === "notification-preferences-edit" ||
             activeDetailRoute === "privacy-mute-block-edit" ||
             activeDetailRoute === "privacy-posts-edit" ||
             activeDetailRoute === "privacy-chat-edit" ||
@@ -2317,10 +2263,8 @@ document.addEventListener("DOMContentLoaded", () => {
             activeDetailRoute = "privacy-muted-words-edit";
         } else if (activeDetailRoute === "privacy-posts-location-edit") {
             activeDetailRoute = "privacy-posts-edit";
-        } else if (activeDetailRoute === "notification-muted-edit") {
-            activeDetailRoute = "notification-filter-edit";
         } else if (activeDetailRoute === "notification-push-edit") {
-            activeDetailRoute = "notification-preferences-edit";
+            activeDetailRoute = "";
         } else if (activeDetailRoute === "account-info-list") {
             activeDetailRoute = "account-info-auth";
         } else {

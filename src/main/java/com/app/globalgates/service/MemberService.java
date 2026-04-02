@@ -354,21 +354,11 @@ public class MemberService {
 
     // 회원가입(join) 단계에서 이미 pushEnabled=true/false가 저장되므로,
     // 상세 푸시 알림 기본값은 그 선택을 그대로 따라간다.
-    // 반면 quality filter와 muted 옵션은 "누구의 알림을 걸러낼지"에 대한 축이라 별도 기본값을 유지한다.
     private NotificationPreferenceDTO createDefaultNotificationPreference(MemberDTO member) {
         boolean pushEnabled = member.isPushEnabled();
 
         NotificationPreferenceDTO dto = new NotificationPreferenceDTO();
         dto.setMemberId(member.getId());
-
-        dto.setQualityFilterEnabled(true);
-
-        dto.setMutedNonFollowing(false);
-        dto.setMutedNotFollowingYou(false);
-        dto.setMutedNewAccount(false);
-        dto.setMutedDefaultProfile(false);
-        dto.setMutedUnverifiedEmail(false);
-        dto.setMutedUnverifiedPhone(false);
 
         dto.setPushConnect(pushEnabled);
         dto.setPushExpert(pushEnabled);
@@ -381,27 +371,6 @@ public class MemberService {
         dto.setPushMentions(pushEnabled);
 
         return dto;
-    }
-
-    @Transactional
-    public void updateNotificationFilter(String loginId, NotificationPreferenceDTO request) {
-        MemberDTO member = memberDAO.findMemberByLoginId(loginId)
-                .orElseThrow(MemberNotFoundException::new);
-
-        NotificationPreferenceDTO current = notificationPreferenceDAO.findByMemberId(member.getId())
-                .orElseGet(() -> createDefaultNotificationPreference(member));
-
-        // filter 저장은 quality/muted 관련 필드만 바꿔
-        // push 상세 체크 상태를 다른 화면 저장에서 덮어쓰지 않게 유지한다.
-        current.setQualityFilterEnabled(request.isQualityFilterEnabled());
-        current.setMutedNonFollowing(request.isMutedNonFollowing());
-        current.setMutedNotFollowingYou(request.isMutedNotFollowingYou());
-        current.setMutedNewAccount(request.isMutedNewAccount());
-        current.setMutedDefaultProfile(request.isMutedDefaultProfile());
-        current.setMutedUnverifiedEmail(request.isMutedUnverifiedEmail());
-        current.setMutedUnverifiedPhone(request.isMutedUnverifiedPhone());
-
-        notificationPreferenceDAO.save(current);
     }
 
     @Transactional
