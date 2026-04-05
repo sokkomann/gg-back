@@ -7,6 +7,11 @@ select * from tbl_post;
 select * from tbl_block;
 
 delete from tbl_block where blocked_id = 85;
+delete from tbl_block where blocked_id = 41;
+
+delete from tbl_report where reporter_id = 87;
+delete from tbl_report where reporter_id = 88;
+delete from tbl_report where reporter_id = 41;
 
 select * from tbl_report;
 
@@ -62,8 +67,6 @@ select * from tbl_search_history;
 
 select * from tbl_conversation;
 
-alter table tbl_subscription add column quartz boolean default true;
-
 update tbl_subscription set quartz = false, expires_at = '2026-03-30' where member_id = 41;
 update tbl_subscription set expires_at = '2026-03-30' where member_id = 41;
 
@@ -72,3 +75,4 @@ delete from tbl_badge where member_id = 41;
 update tbl_member set member_role = 'business' where id = 41;
 delete from tbl_payment_subscribe where member_id = 41;
 delete from tbl_subscription where member_id = 41;
+

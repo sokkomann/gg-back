@@ -308,7 +308,6 @@ public class MainAPIController {
     public void report(@RequestBody ReportDTO reportDTO) {
         log.info("신고합니다~ 내아이디: {}, 신고당한거아이디: {}, 신고한게 글인지 회원인지: {}, 사유는? {}", reportDTO.getReporterId(), reportDTO.getTargetId(), reportDTO.getTargetType(), reportDTO.getReason());
         reportService.report(reportDTO);
-        log.info("게시물신고해서 방금 신고한 포스트만 안나옴 — targetId: {}", reportDTO.getTargetId());
     }
 
 //    임시저장하기

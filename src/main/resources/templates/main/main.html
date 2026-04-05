@@ -152,7 +152,7 @@
                 <h2 class="newsFeedTitle" id="newsFeedTitle">주요 뉴스</h2>
                 <div class="newsFeedList" id="newsFeedList">
                 </div>
-                <a class="newsFeedLink sidebarMoreLink">더 보기</a>
+                <a class="newsFeedLink sidebarMoreLink" href="/explore?tab=news">더 보기</a>
             </section>
             <footer class="footerSection" id="footerSection">
                 <p class="footerText">이용약관 · 개인정보 처리방침 · 쿠키 정책 · 접근성 · 광고 정보 · 더 보기 ··· © 2026 Trade Market Corp.</p>
@@ -678,7 +678,7 @@
     <div class="notification-dialog__card notification-dialog__card--small">
         <h2 class="notification-dialog__title">
             <span>@user</span> 님을 차단할까요? </h2>
-        <p class="notification-dialog__description"> 내 공개 게시물을 볼 수 있지만 더 이상 게시물에 참여할 수 없습니다. 또한 <span>@user</span> 님은 나를 팔로우하거나 쪽지를 보낼 수 없으며, 이 계정과 관련된 알림도 내게 표시되지 않습니다. </p>
+        <p class="notification-dialog__description"> 내 게시물을 볼 수 없고 더 이상 게시물에 참여할 수 없습니다. 또한 <span>@user</span> 님은 나를 팔로우하거나 쪽지를 보낼 수 없으며, 이 계정과 관련된 알림도 내게 표시되지 않습니다. </p>
         <div class="notification-dialog__actions">
             <button class="notification-dialog__danger">차단</button>
             <button class="notification-dialog__secondary">취소</button>
@@ -736,23 +736,6 @@
                 </li>
             </ul>
         </div>
-    </div>
-</div>
-<!-- 공유용 채팅 시트: 사용자 목록만 JS가 `#mainShareChatUserList` 안에서 다시 그린다. -->
-<div class="share-sheet off" id="mainShareChatSheet">
-    <div class="share-sheet__backdrop"></div>
-    <div class="share-sheet__card" role="dialog" aria-modal="true">
-        <div class="share-sheet__header">
-            <button type="button" class="share-sheet__icon-btn" aria-label="돌아가기">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path></g></svg>
-            </button>
-            <h2 class="share-sheet__title">사용자 찾기</h2>
-            <span class="share-sheet__header-spacer"></span>
-        </div>
-        <div class="share-sheet__search">
-            <input type="text" class="share-sheet__search-input" id="shareChatSearchInput" placeholder="검색" aria-label="검색"/>
-        </div>
-        <div class="share-sheet__list" id="shareChatUserList"></div>
     </div>
 </div>
 <!-- 전역 레이어 마운트: 더보기/공유 드롭다운과 계정 팝업이 이 루트에 올라온다. -->
@@ -834,12 +817,6 @@
                                         <svg viewBox="0 0 24 24" aria-hidden="true" class="r-4qtqp9 r-yyyyoo r-1xvli5t r-dnmrzs r-bnwqim r-lrvibr r-m6rgpd r-18jsvk2 r-1q142lx"><g><path d="M18.36 5.64c-1.95-1.96-5.11-1.96-7.07 0L9.88 7.05 8.46 5.64l1.42-1.42c2.73-2.73 7.16-2.73 9.9 0 2.73 2.74 2.73 7.17 0 9.9l-1.42 1.42-1.41-1.42 1.41-1.41c1.96-1.96 1.96-5.12 0-7.07zm-2.12 3.53l-7.07 7.07-1.41-1.41 7.07-7.07 1.41 1.41zm-12.02.71l1.42-1.42 1.41 1.42-1.41 1.41c-1.96 1.96-1.96 5.12 0 7.07 1.95 1.96 5.11 1.96 7.07 0l1.41-1.41 1.42 1.41-1.42 1.42c-2.73 2.73-7.16 2.73-9.9 0-2.73-2.74-2.73-7.17 0-9.9z"></path></g></svg>
                                     </span>
                             <span class="menu-item__label">링크 복사하기</span>
-                        </button>
-                        <button class="menu-item share-menu-item share-menu-item--chat">
-                                    <span class="menu-item__icon share-menu-item__icon">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true" class="r-4qtqp9 r-yyyyoo r-1xvli5t r-dnmrzs r-bnwqim r-lrvibr r-m6rgpd r-18jsvk2 r-1q142lx"><g><path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v13c0 1.381-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.119-2.5-2.5v-13zm2.5-.5c-.276 0-.5.224-.5.5v2.764l8 3.638 8-3.636V5.5c0-.276-.224-.5-.5-.5h-15zm15.5 5.463l-8 3.636-8-3.638V18.5c0 .276.224.5.5.5h15c.276 0 .5-.224.5-.5v-8.037z"></path></g></svg>
-                                    </span>
-                            <span class="menu-item__label">Chat으로 전송하기</span>
                         </button>
                         <button class="menu-item share-menu-item share-menu-item--bookmark">
                                     <span class="menu-item__icon share-menu-item__icon">

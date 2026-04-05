@@ -2,8 +2,10 @@ package com.app.globalgates.service;
 
 import com.app.globalgates.dto.BlockDTO;
 import com.app.globalgates.repository.BlockDAO;
+import com.app.globalgates.repository.FollowDAO;
 import com.app.globalgates.repository.chat.ChatRoomDAO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,17 +16,25 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional(rollbackFor = Exception.class)
+@Slf4j
 public class BlockService {
     private final BlockDAO blockDAO;
     private final ChatRoomDAO chatRoomDAO;
+    private final FollowDAO followDAO;
 
     //    차단 추가
-    @CacheEvict(value = {"post:list", "page:search"}, allEntries = true)
+    @CacheEvict(value = {"member", "post:list", "page:search"}, allEntries = true)
     public void block(BlockDTO blockDTO) {
+        log.info("서비스들어옴. 차단한사람 {} 차단당한사람 {}", blockDTO.getBlockerId(), blockDTO.getBlockedId());
+        followDAO.delete(blockDTO.getBlockerId(), blockDTO.getBlockedId());
+        followDAO.delete(blockDTO.getBlockedId(), blockDTO.getBlockerId());
+        log.info("서로 커넥트 삭제 - '완'");
         blockDAO.save(blockDTO);
+        log.info("차단 - '완'");
     }
 
     //    차단 해제
+    @CacheEvict(value = {"member", "post:list", "page:search"}, allEntries = true)
     public void unblock(Long blockerId, Long blockedId) {
         blockDAO.delete(blockerId, blockedId);
     }

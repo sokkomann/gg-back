@@ -1518,8 +1518,7 @@ a.post-detail-reply-card {
     width: max-content;
     border-radius: 12px;
     background: #ffffff;
-    box-shadow: rgba(101, 119, 134, 0.2) 0 0 15px 0,
-    rgba(101, 119, 134, 0.15) 0 0 3px 1px;
+    box-shadow: rgba(101, 119, 134, 0.2) 0 0 15px 0, rgba(101, 119, 134, 0.15) 0 0 3px 1px;
     overflow: hidden;
     pointer-events: auto;
 }

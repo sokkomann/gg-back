@@ -527,14 +527,9 @@ window.onload = () => {
             const meta = reportDialog._meta;
             const reason = item.dataset.reason || item.querySelector("span")?.textContent?.trim() || "";
             closeDialog(reportDialog);
-            if (meta.postId === String(postId)) {
-                await service.report(memberId, meta.postId, "POST", reason);
-                location.href = "/main/main";
-            } else {
-                await service.report(memberId, meta.postId, "POST", reason);
-                showToast("신고가 접수되었습니다");
-                await refreshReplies();
-            }
+            console.log("신고 접수 postId:", meta.postId);
+            await service.report(memberId, meta.postId, "post", reason);
+            showToast("신고가 접수되었습니다");
         }
     });
 

@@ -262,9 +262,8 @@ window.onload = () => {
             if (reportItem) {
                 e.preventDefault();
                 if (postId) {
+                    console.log("신고 접수 postId:", postId);
                     await service.report(memberId, postId, 'post', reportItem.dataset.reason);
-                    const card = document.querySelector(`.postCard[data-post-id="${postId}"]`);
-                    if (card) card.remove();
                 }
                 showPostMoreToast("신고가 접수되었습니다");
                 closePostMoreModal();
@@ -471,8 +470,6 @@ window.onload = () => {
     });
 
     // 공유 드롭다운 항목
-    const mainShareChatSheet = document.getElementById("mainShareChatSheet");
-
     function showShareToast(message) {
         const existing = document.querySelector(".share-toast");
         if (existing) { existing.remove(); }
@@ -488,46 +485,6 @@ window.onload = () => {
         navigator.clipboard.writeText(url);
         closeAllMenus();
         showShareToast("링크가 복사되었습니다.");
-    });
-
-    document.querySelector(".share-menu-item--chat").addEventListener("click", async (e) => {
-        closeAllMenus();
-        const followings = await service.getFollowings(memberId);
-        const userList = document.getElementById("shareChatUserList");
-        if (followings.length === 0) {
-            userList.innerHTML = '<p style="padding:16px;color:#71767b;text-align:center;">팔로우 중인 사용자가 없습니다.</p>';
-        } else {
-            userList.innerHTML = followings.map(f => {
-                const initial = (f.memberNickname || f.memberHandle || "?").charAt(0);
-                const avatarHtml = f.memberProfileFileName
-                    ? `<span class="share-sheet__user-avatar"><img src="${f.memberProfileFileName}" alt="${f.memberNickname || ''}"/></span>`
-                    : `<span class="share-sheet__user-avatar"><img src="${layout.buildAvatarDataUri(initial)}" alt="${f.memberNickname || ''}"/></span>`;
-                return `<button type="button" class="share-sheet__user" data-share-user-id="${f.followingId}">
-                    ${avatarHtml}
-                    <span class="share-sheet__user-body">
-                        <span class="share-sheet__user-name">${f.memberNickname || f.memberHandle || ""}</span>
-                        <span class="share-sheet__user-handle">${f.memberHandle || ""}</span>
-                    </span>
-                </button>`;
-            }).join("");
-        }
-        mainShareChatSheet.classList.remove("off");
-    });
-
-    // 공유 사용자 클릭 시 전송 (채팅 API 연결 시 교체)
-    document.getElementById("shareChatUserList").addEventListener("click", (e) => {
-        const userBtn = e.target.closest(".share-sheet__user");
-        if (!userBtn) return;
-        const userName = userBtn.querySelector(".share-sheet__user-name").textContent;
-        mainShareChatSheet.classList.add("off");
-        showShareToast(userName + " 님에게 공유했습니다.");
-    });
-
-    mainShareChatSheet.querySelector(".share-sheet__backdrop").addEventListener("click", (e) => {
-        mainShareChatSheet.classList.add("off");
-    });
-    mainShareChatSheet.querySelector(".share-sheet__icon-btn").addEventListener("click", (e) => {
-        mainShareChatSheet.classList.add("off");
     });
 
     document.addEventListener("click", (e) => {
