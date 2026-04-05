@@ -21,7 +21,7 @@ public class MeetingService {
     // 회의 등록
     @Transactional
     public void save(MeetingDTO meetingDTO) {
-        meetingDAO.save(meetingDTO.toVO());
+        meetingDAO.save(meetingDTO);
     }
 
     // 회의 목록 조회

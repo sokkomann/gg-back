@@ -10,7 +10,7 @@ import java.util.List;
 public interface MeetingMapper {
 
     // 회의 등록
-    public void insert(MeetingVO meetingVO);
+    public void insert(MeetingDTO meetingDTO);
 
     // 회의 단건 조회
     public List<MeetingDTO> selectByMemberId(Long requesterId);

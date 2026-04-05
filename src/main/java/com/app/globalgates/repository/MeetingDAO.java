@@ -14,8 +14,8 @@ public class MeetingDAO {
     private final MeetingMapper meetingMapper;
 
     // 회의 등록
-    public void save(MeetingVO meetingVO) {
-        meetingMapper.insert(meetingVO);
+    public void save(MeetingDTO meetingDTO) {
+        meetingMapper.insert(meetingDTO);
     }
 
     // 멤버 id로 회의 목록 조회

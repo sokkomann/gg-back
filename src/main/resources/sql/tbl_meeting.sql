@@ -23,7 +23,7 @@ ALTER TABLE tbl_video_recoding DROP CONSTRAINT IF EXISTS fk_recoding_session;
 ALTER TABLE tbl_video_recoding DROP COLUMN IF EXISTS video_session_id;
 
 -- 2. meeting_id 컬럼 추가 및 FK 설정
-ALTER TABLE tbl_video_recoding ADD COLUMN meeting_id bigint;
+ALTER TABLE tbl_video_recoding ADD COLUMN meeting_id bigint not null;
 ALTER TABLE tbl_video_recoding ADD CONSTRAINT fk_video_recoding_meeting
     FOREIGN KEY (meeting_id) REFERENCES tbl_meeting (id);
 
@@ -36,3 +36,6 @@ select
 from tbl_video_recoding vr
 join tbl_meeting m on vr.meeting_id = m.id
 join tbl_file f on vr.id = f.id;
+
+alter table tbl_video_recoding alter column meeting_id set not null;
+

@@ -74,16 +74,14 @@
             if (track.kind === "video") removeVideoContainer(partnerName);
         });
 
-        // 상대방 입장 - 자동 녹화 시작
+        // 상대방 입장
         room.on(LivekitClient.RoomEvent.ParticipantConnected, (participant) => {
             console.log("참가자 입장:", partnerName);
             showToast(`${partnerName}님이 입장했습니다.`);
             updateParticipantList(userName, partnerName);
 
-            const totalParticipants = room.remoteParticipants.size + 1;
-            if (totalParticipants >= 2 && !isRecording) {
-                startRecording();
-            }
+            // 상대방이 입장에 성공하면 바로 녹화 시작
+            startRecording();
         });
 
         // 상대방 퇴장 - 녹화 종료
@@ -120,11 +118,6 @@
             console.log("LiveKit 연결 성공 - 내 identity:", room.localParticipant.identity);
             console.log("현재 원격 참가자:", [...room.remoteParticipants.values()].map(p => p.identity));
 
-            // 이미 상대방이 있으면 바로 녹화 시작
-            if (room.remoteParticipants.size >= 1 && !isRecording) {
-                startRecording();
-            }
-
             // 카메라/마이크 활성화
             try {
                 await room.localParticipant.enableCameraAndMicrophone();
@@ -137,6 +130,11 @@
                 room = null;
                 setTimeout(() => { window.location.href = "/chat"; }, 2000);
                 return;
+            }
+
+            // 마이크 활성화 후 상대방이 이미 있으면 녹화 시작
+            if (room.remoteParticipants.size >= 1 && !isRecording) {
+                startRecording();
             }
 
             // 로컬 비디오 트랙 렌더링
@@ -221,6 +219,7 @@
             if (event.data.size > 0) audioChunks.push(event.data);
         };
 
+        // 녹화가 멈추면 녹화 파일을 서버에 업로드
         mediaRecorder.onstop = async () => {
             const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
             const duration = Math.floor((Date.now() - recordingStartTime) / 1000);

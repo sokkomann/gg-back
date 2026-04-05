@@ -80,10 +80,10 @@ public class VideoChatService {
     }
 
     @Transactional
+    @LogStatus
     public void endSession(Long conversationId) {
         videoChatDAO.updateSessionEnd(conversationId);
     }
-
 
     public VideoChatDTO toDTO (VideoChatVO videoChatVO) {
         return VideoChatDTO.builder()

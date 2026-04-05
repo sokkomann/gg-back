@@ -21,6 +21,7 @@ select * from tbl_business_member;
 select * from tbl_category;
 select * from tbl_member_category_rel;
 
+alter table tbl_member add member_country varchar(255);
 alter table tbl_member add member_language varchar(255);
 alter table tbl_member drop website_url;
 alter table tbl_member
@@ -53,7 +54,7 @@ select * from tbl_member_category_rel;
 
 drop view  vw_category_member;
 
-drop table tbl_oauth
+drop table tbl_oauth;
 drop type oauth_provider;
 
 select * from tbl_post;
