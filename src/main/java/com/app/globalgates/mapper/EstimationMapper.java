@@ -18,6 +18,10 @@ public interface EstimationMapper {
 
     List<EstimationDTO> selectAll(@Param("criteria") Criteria criteria, @Param("receiverId") Long receiverId);
 
+    int selectRequestedTotal(@Param("requesterId") Long requesterId);
+
+    List<EstimationDTO> selectRequestedAll(@Param("criteria") Criteria criteria, @Param("requesterId") Long requesterId);
+
     Optional<EstimationDTO> selectById(Long id);
 
     List<EstimationExpertDTO> selectExpertsForRequest(@Param("memberId") Long memberId,

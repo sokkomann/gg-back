@@ -7,7 +7,7 @@
     </insert>
 
     <select id="selectByMemberId">
-        select id, member_id, tier, billing_cycle, status, started_at, expires_at, created_datetime, updated_datetime
+        select id, member_id, tier, billing_cycle, status, started_at, expires_at, created_datetime, updated_datetime, quartz
         from tbl_subscription
         where member_id = #{memberId} and status = 'active'
         order by id desc

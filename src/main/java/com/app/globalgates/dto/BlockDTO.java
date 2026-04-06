@@ -14,9 +14,15 @@ public class BlockDTO {
     private Long blockedId;
     private String createdDatetime;
 
-    // 차단된 회원 정보
-    private String memberNickname;
+    private String memberName;
     private String memberHandle;
+    private String memberBio;
+
+    // DB에서 읽은 S3 key
+    private String profileImageFileName;
+
+    // 화면에 내려줄 최종 URL
+    private String profileImageUrl;
 
     public BlockVO toBlockVO() {
         return BlockVO.builder()

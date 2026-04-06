@@ -1,19 +1,20 @@
 package com.app.globalgates.controller.setting;
 
 import com.app.globalgates.auth.CustomUserDetails;
+import com.app.globalgates.dto.BlockDTO;
+import com.app.globalgates.dto.BlockWithPagingDTO;
+import com.app.globalgates.dto.MemberWithPagingDTO;
 import com.app.globalgates.dto.NotificationPreferenceDTO;
+import com.app.globalgates.service.BlockService;
 import com.app.globalgates.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,6 +24,7 @@ import java.util.Map;
 public class SettingAPIController {
 
     private final MemberService memberService;
+    private final BlockService blockService;
 
     // loginId를 프론트에서 받지 않고 인증 객체에서만 꺼내서 조회해서 유효성 검사를 한다.
     @GetMapping("check-password")
@@ -191,6 +193,16 @@ public class SettingAPIController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
+    }
+
+    //    차단 목록 조회
+    @GetMapping("blocks/list/{page}")
+    public ResponseEntity<?> getBlockList(
+            @PathVariable int page,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        BlockWithPagingDTO result = blockService.getBlockListByMemberId(page, userDetails.getId());
+        return ResponseEntity.ok(result);
     }
 
 }

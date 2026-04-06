@@ -37,6 +37,9 @@ public interface PostMapper {
     //    좋아요한 게시글 목록 조회 (mypage Likes 탭)
     public List<PostDTO> selectLikedPostsByMemberId(@Param("criteria") Criteria criteria, @Param("memberId") Long memberId);
 
+    //    내가 작성한 댓글 목록 조회 (mypage Replies 탭)
+    public List<PostDTO> selectRepliesWrittenByMemberId(@Param("criteria") Criteria criteria, @Param("memberId") Long memberId);
+
     //    게시글 전체 개수
     public int selectTotal();
 
@@ -45,6 +48,9 @@ public interface PostMapper {
 
     //    member가 좋아요한 게시글 전체 개수
     public int selectLikedPostTotalByMemberId(@Param("memberId") Long memberId);
+
+    //    member가 작성한 댓글 전체 개수
+    public int selectReplyTotalByMemberId(@Param("memberId") Long memberId);
 
     //    게시글 검색 조회
     public List<PostDTO> selectBySearch(@Param("criteria") Criteria criteria, @Param("postSearch") PostSearch postSearch);

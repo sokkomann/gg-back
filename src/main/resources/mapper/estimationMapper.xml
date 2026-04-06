@@ -54,6 +54,35 @@
         offset #{criteria.offset}
     </select>
 
+    <select id="selectRequestedTotal" resultType="_int">
+        select count(id)
+        from tbl_estimation
+        where requester_id = #{requesterId}
+    </select>
+
+    <select id="selectRequestedAll" resultType="com.app.globalgates.dto.EstimationDTO">
+        select e.id,
+               e.requester_id,
+               e.receiver_id,
+               e.product_id,
+               e.title,
+               e.content,
+               e.location,
+               e.deadline as deadLine,
+               e.status,
+               requester.member_email as requesterEmail,
+               receiver.member_email as receiverEmail,
+               e.created_datetime as createdDateTime,
+               e.updated_datetime as updatedDateTime
+        from tbl_estimation e
+                 join tbl_member requester on e.requester_id = requester.id
+                 left join tbl_member receiver on e.receiver_id = receiver.id
+        where e.requester_id = #{requesterId}
+        order by e.created_datetime desc
+        limit #{criteria.count}
+        offset #{criteria.offset}
+    </select>
+
     <select id="selectById" resultType="com.app.globalgates.dto.EstimationDTO">
         select e.id,
                e.requester_id,

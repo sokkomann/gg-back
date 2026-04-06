@@ -86,6 +86,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const emailVerifyEditButton = document.getElementById(
         "emailVerifyEditButton",
     );
+    const blockedUnblockModal = document.getElementById("blockedUnblockModal");
+    const blockedUnblockHandle = document.querySelector(
+        "[data-blocked-unblock-handle]",
+    );
+    const blockedUnblockConfirmButton = document.getElementById(
+        "blockedUnblockConfirmButton",
+    );
+    const blockedUnblockCancelButton = document.getElementById(
+        "blockedUnblockCancelButton",
+    );
     const appearanceFontRange = document.getElementById("appearanceFontRange");
     const appearanceAccentList = document.getElementById(
         "appearanceAccentList",
@@ -140,6 +150,10 @@ document.addEventListener("DOMContentLoaded", () => {
         !emailVerifyAddress ||
         !emailVerifyConfirmButton ||
         !emailVerifyEditButton ||
+        !blockedUnblockModal ||
+        !blockedUnblockHandle ||
+        !blockedUnblockConfirmButton ||
+        !blockedUnblockCancelButton ||
         !appearanceFontRange ||
         !appearanceAccentList ||
         !appearanceSurfaceList ||
@@ -243,6 +257,9 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     const settingMember = window.settingMember || {};
     const settingNotificationPreference = window.settingNotificationPreference || {};
+    // OAuth 계정 중 비밀번호가 아직 없는 회원은 setting에서 재인증 단계를 강제하지 않는다.
+    // 서버도 같은 기준으로 분기하므로 프런트는 화면/동선만 맞춰 주면 된다.
+    const isPasswordlessAccount = Boolean(settingMember.isPasswordlessAccount);
 
     /*
      * 푸시 알림 환경설정 상태.
@@ -268,30 +285,6 @@ document.addEventListener("DOMContentLoaded", () => {
             mentions: settingNotificationPreference.pushMentions ?? Boolean(settingMember.pushEnabled),
         },
     };
-    // 내 게시물 관련 개인정보 설정 상태.
-    const privacyPostsState = {
-        isSensitiveMediaMarked: false,
-        isLocationEnabled: true,
-    };
-    // 채팅 권한/필터 상태.
-    const privacyChatState = {
-        allow: "everyone",
-        isLowQualityFilterEnabled: true,
-        areReadReceiptsEnabled: true,
-    };
-    // 계정찾기 및 연락처 허용 상태.
-    const privacyDiscoverabilityState = {
-        isEmailDiscoverable: true,
-        isPhoneDiscoverable: true,
-    };
-    // 뮤트 단어 추가 폼 상태. 저장 전 입력값을 유지하기 위한 프론트 상태다.
-    const mutedWordFormState = {
-        value: "",
-        muteFromTimeline: true,
-        muteNotifications: true,
-        notificationAudience: "non-following",
-        duration: "until-unmuted",
-    };
     // 현재 로그인 계정 요약 정보. 비활성화 화면/헤더 등 공통 영역에서 사용한다.
     const currentAccountState = {
         // 표시 이름/핸들은 서버가 심어준 값을 우선 사용하고,
@@ -307,6 +300,33 @@ document.addEventListener("DOMContentLoaded", () => {
         createdAt: settingMember.createdDatetime || "생성일 정보 없음",
         memberProvider: settingMember.memberProvider
     };
+    let blockedAccountsLoaded = false;
+    let blockedAccountsLoading = false;
+    let blockedAccountsPage = 1;
+    let pendingBlockedId = null;
+    // 구독 화면은 setting 안에서 조회/해지만 처리하므로 현재 구독값과 최초 로드 여부만 상태로 둔다.
+    let subscriptionLoaded = false;
+    let subscriptionLoading = false;
+    let subscriptionState = null;
+
+    async function loadBlockedAccounts(page = 1) {
+        if (blockedAccountsLoading) {
+            return;
+        }
+
+        blockedAccountsLoading = true;
+
+        try {
+            const result = await settingService.getBlockedAccounts(page);
+            SettingLayout.createBlockedCard(result.blocks || []);
+            blockedAccountsLoaded = true;
+        } catch (error) {
+            SettingLayout.createBlockedCard([]);
+            alert(error.message || "차단한 계정 목록을 불러오지 못했습니다.");
+        } finally {
+            blockedAccountsLoading = false;
+        }
+    }
 
     function buildNotificationPushPreferencePayload() {
         return {
@@ -940,9 +960,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const canSave =
-            passwordChangeState.currentPassword.length > 0 &&
             passwordChangeState.nextPassword.length > 0 &&
             passwordChangeState.confirmPassword.length > 0 &&
+            (isPasswordlessAccount || passwordChangeState.currentPassword.length > 0) &&
             passwordChangeState.nextPassword === passwordChangeState.confirmPassword;
 
         passwordEditorSaveButton.disabled = !canSave;
@@ -953,6 +973,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function syncPasswordEditorRoute(routeRoot) {
+        const currentPasswordGroup = routeRoot.querySelector(".password-editor__group");
+        const forgotLink = routeRoot.querySelector(".password-editor__link");
+        const labels = routeRoot.querySelectorAll(".password-editor__label");
+
+        // provider 계정이 아직 로컬 비밀번호를 만들지 않은 상태라면
+        // "현재 비밀번호 확인" 단계는 존재하지 않으므로 입력칸과 보조 링크를 숨긴다.
+        if (currentPasswordGroup instanceof HTMLElement) {
+            currentPasswordGroup.hidden = isPasswordlessAccount;
+            currentPasswordGroup.setAttribute("aria-hidden", String(isPasswordlessAccount));
+        }
+
+        if (forgotLink instanceof HTMLElement) {
+            forgotLink.hidden = isPasswordlessAccount;
+            forgotLink.setAttribute("aria-hidden", String(isPasswordlessAccount));
+        }
+
+        if (labels.length >= 2) {
+            labels[1].textContent = isPasswordlessAccount ? "비밀번호" : "새 비밀번호";
+        }
+
         routeRoot.querySelectorAll("[data-password-editor-input]").forEach((input) => {
             if (!(input instanceof HTMLInputElement)) {
                 return;
@@ -963,6 +1003,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.value = passwordChangeState[stateKey];
             }
         });
+
+        if (isPasswordlessAccount && currentPasswordInput instanceof HTMLInputElement) {
+            currentPasswordInput.value = "";
+            passwordChangeState.currentPassword = "";
+        }
 
         applyPasswordEditorState(routeRoot);
     }
@@ -992,9 +1037,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const passwordInput = routeRoot.querySelector("[data-deactivate-password-input]");
         const passwordMessage = routeRoot.querySelector("[data-deactivate-password-message]");
         const submitButton = routeRoot.querySelector("[data-deactivate-submit]");
+        const summary = routeRoot.querySelector(".deactivate-confirm-editor__summary");
+        const forgotLink = routeRoot.querySelector(".deactivate-confirm-editor__forgot");
 
+        // 비밀번호가 없는 provider 계정은 확인 문구와 버튼 상태도 같이 바꿔
+        // "입력할 비밀번호가 없는데 막히는" UX를 피한다.
         if (passwordField instanceof HTMLElement) {
             passwordField.classList.remove("deactivate-confirm-editor__field--active");
+            passwordField.hidden = isPasswordlessAccount;
+            passwordField.setAttribute("aria-hidden", String(isPasswordlessAccount));
         }
         if (passwordInput instanceof HTMLInputElement) {
             passwordInput.value = "";
@@ -1003,8 +1054,17 @@ document.addEventListener("DOMContentLoaded", () => {
             passwordMessage.hidden = true;
             passwordMessage.textContent = "";
         }
+        if (summary instanceof HTMLElement) {
+            summary.textContent = isPasswordlessAccount
+                ? "비밀번호 없이 계정 비활성화 요청을 완료할 수 있습니다."
+                : "계정에 연결된 비밀번호를 입력하여 비활성화 요청을 완료하세요.";
+        }
+        if (forgotLink instanceof HTMLElement) {
+            forgotLink.hidden = isPasswordlessAccount;
+            forgotLink.setAttribute("aria-hidden", String(isPasswordlessAccount));
+        }
         if (submitButton instanceof HTMLButtonElement) {
-            submitButton.disabled = true;
+            submitButton.disabled = !isPasswordlessAccount;
         }
     }
 
@@ -1049,7 +1109,7 @@ document.addEventListener("DOMContentLoaded", () => {
         submitButton.addEventListener("click", async () => {
             const password = passwordInput.value.trim();
 
-            if (!password) {
+            if (!isPasswordlessAccount && !password) {
                 return;
             }
 
@@ -1098,131 +1158,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? Boolean(notificationPreferenceState.pushAlerts[toggleKey])
                 : false;
         });
-    }
-
-    function syncPrivacyChatRoute(routeRoot) {
-        routeRoot.querySelectorAll("[data-privacy-chat-allow]").forEach((input) => {
-            if (input instanceof HTMLInputElement) {
-                input.checked = input.value === privacyChatState.allow;
-            }
-        });
-        routeRoot.querySelectorAll("[data-privacy-chat-toggle]").forEach((input) => {
-            if (!(input instanceof HTMLInputElement)) {
-                return;
-            }
-
-            input.checked =
-                input.dataset.privacyChatToggle === "filter-low-quality"
-                    ? privacyChatState.isLowQualityFilterEnabled
-                    : privacyChatState.areReadReceiptsEnabled;
-        });
-    }
-
-    function syncPrivacyDiscoverabilityRoute(routeRoot) {
-        routeRoot
-            .querySelectorAll("[data-privacy-discoverability-toggle]")
-            .forEach((input) => {
-                if (!(input instanceof HTMLInputElement)) {
-                    return;
-                }
-
-                input.checked =
-                    input.dataset.privacyDiscoverabilityToggle === "email"
-                        ? privacyDiscoverabilityState.isEmailDiscoverable
-                        : privacyDiscoverabilityState.isPhoneDiscoverable;
-            });
-    }
-
-    function applyMutedWordFormState(routeRoot) {
-        const mutedWordField = routeRoot.querySelector("[data-privacy-muted-word-field]");
-        const mutedWordInput = routeRoot.querySelector("[data-privacy-muted-word-input]");
-        const mutedWordSave = routeRoot.querySelector("[data-privacy-muted-word-save]");
-
-        if (
-            !(mutedWordField instanceof HTMLElement) ||
-            !(mutedWordInput instanceof HTMLInputElement) ||
-            !(mutedWordSave instanceof HTMLButtonElement)
-        ) {
-            return;
-        }
-
-        const hasValue = mutedWordInput.value.trim().length > 0;
-        mutedWordField.classList.toggle(
-            "privacy-muted-word-form__field-shell--active",
-            document.activeElement === mutedWordInput || hasValue,
-        );
-        mutedWordSave.disabled = !hasValue;
-        mutedWordSave.classList.toggle("privacy-muted-word-form__save--enabled", hasValue);
-    }
-
-    function syncMutedWordFormRoute(routeRoot) {
-        const mutedWordInput = routeRoot.querySelector("[data-privacy-muted-word-input]");
-        if (mutedWordInput instanceof HTMLInputElement) {
-            mutedWordInput.value = mutedWordFormState.value;
-        }
-
-        const timelineToggle = routeRoot.querySelector(
-            "[data-privacy-muted-word-timeline-toggle]",
-        );
-        if (timelineToggle instanceof HTMLInputElement) {
-            timelineToggle.checked = mutedWordFormState.muteFromTimeline;
-        }
-        const notificationsToggle = routeRoot.querySelector(
-            "[data-privacy-muted-word-notifications-toggle]",
-        );
-        if (notificationsToggle instanceof HTMLInputElement) {
-            notificationsToggle.checked = mutedWordFormState.muteNotifications;
-        }
-
-        routeRoot.querySelectorAll("[data-privacy-muted-word-audience]").forEach((input) => {
-            if (input instanceof HTMLInputElement) {
-                input.checked =
-                    input.value === mutedWordFormState.notificationAudience;
-            }
-        });
-
-        routeRoot.querySelectorAll("[data-privacy-muted-word-duration]").forEach((input) => {
-            if (input instanceof HTMLInputElement) {
-                input.checked = input.value === mutedWordFormState.duration;
-            }
-        });
-
-        applyMutedWordFormState(routeRoot);
-    }
-
-    function bindMutedWordFormRoute(routeRoot) {
-        const mutedWordForm = routeRoot.querySelector("[data-privacy-muted-word-form]");
-        const mutedWordInput = routeRoot.querySelector("[data-privacy-muted-word-input]");
-
-        if (mutedWordInput instanceof HTMLInputElement) {
-            mutedWordInput.addEventListener("focus", () => applyMutedWordFormState(routeRoot));
-            mutedWordInput.addEventListener("blur", () => applyMutedWordFormState(routeRoot));
-            mutedWordInput.addEventListener("input", () => {
-                mutedWordFormState.value = mutedWordInput.value;
-                applyMutedWordFormState(routeRoot);
-            });
-        }
-
-        if (mutedWordForm instanceof HTMLFormElement) {
-            mutedWordForm.addEventListener("submit", (event) => {
-                event.preventDefault();
-                applyMutedWordFormState(routeRoot);
-            });
-        }
-    }
-
-    function syncPrivacyPostsRoute(routeRoot) {
-        const toggle = routeRoot.querySelector("[data-privacy-posts-sensitive-toggle]");
-        if (toggle instanceof HTMLInputElement) {
-            toggle.checked = privacyPostsState.isSensitiveMediaMarked;
-        }
-    }
-
-    function syncPrivacyPostsLocationRoute(routeRoot) {
-        const toggle = routeRoot.querySelector("[data-privacy-posts-location-toggle]");
-        if (toggle instanceof HTMLInputElement) {
-            toggle.checked = privacyPostsState.isLocationEnabled;
-        }
     }
 
     /*
@@ -1381,35 +1316,6 @@ document.addEventListener("DOMContentLoaded", () => {
             syncNotificationPushRoute(routeRoot);
             return;
         }
-        if (activeDetailRoute === "privacy-chat-edit") {
-            syncPrivacyChatRoute(routeRoot);
-            return;
-        }
-        if (activeDetailRoute === "privacy-discoverability-edit") {
-            syncPrivacyDiscoverabilityRoute(routeRoot);
-            return;
-        }
-        if (activeDetailRoute === "privacy-muted-words-edit") {
-            setDetailHeaderAction({
-                iconPath: icons.add,
-                ariaLabel: "뮤트한 단어 추가",
-                action: "muted-words-add",
-            });
-            return;
-        }
-        if (activeDetailRoute === "privacy-muted-words-add-edit") {
-            bindRouteOnce(routeRoot, "boundMutedWordForm", bindMutedWordFormRoute);
-            syncMutedWordFormRoute(routeRoot);
-            return;
-        }
-        if (activeDetailRoute === "privacy-posts-edit") {
-            syncPrivacyPostsRoute(routeRoot);
-            return;
-        }
-        if (activeDetailRoute === "privacy-posts-location-edit") {
-            syncPrivacyPostsLocationRoute(routeRoot);
-            return;
-        }
         if (activeDetailRoute === "phone-edit") {
             syncPhoneRoute(routeRoot);
             return;
@@ -1432,6 +1338,133 @@ document.addEventListener("DOMContentLoaded", () => {
             if (languageValue instanceof HTMLElement) {
                 languageValue.textContent = currentAccountState.language || "설정되지 않음";
             }
+            return;
+        }
+        if (
+            activeDetailRoute === "privacy-blocked-accounts-edit" ||
+            (!activeDetailRoute && activeSectionId === "privacy_and_safety")
+        ) {
+            if (!blockedAccountsLoaded) {
+                void loadBlockedAccounts(blockedAccountsPage);
+            }
+            return;
+        }
+        if (activeDetailRoute === "subscription" || (!activeDetailRoute && activeSectionId === "subscription")) {
+            const emptyMessage = routeRoot.querySelector("[data-subscription-empty]");
+            const card = routeRoot.querySelector("[data-subscription-card]");
+            const planValue = routeRoot.querySelector("[data-subscription-plan]");
+            const billingCycleValue = routeRoot.querySelector("[data-subscription-billing-cycle]");
+            const nextBillingDateValue = routeRoot.querySelector("[data-subscription-next-billing-date]");
+            const statusValue = routeRoot.querySelector("[data-subscription-status]");
+            const helpValue = routeRoot.querySelector("[data-subscription-help]");
+            const cancelButton = routeRoot.querySelector("[data-subscription-cancel]");
+
+            if (
+                !(emptyMessage instanceof HTMLElement) ||
+                !(card instanceof HTMLElement) ||
+                !(planValue instanceof HTMLElement) ||
+                !(billingCycleValue instanceof HTMLElement) ||
+                !(nextBillingDateValue instanceof HTMLElement) ||
+                !(statusValue instanceof HTMLElement) ||
+                !(helpValue instanceof HTMLElement) ||
+                !(cancelButton instanceof HTMLButtonElement)
+            ) {
+                return;
+            }
+
+            // 구독 화면은 진입 시 한 번만 조회하고, 해지 성공 후에만 다시 읽어온다.
+            if (!subscriptionLoaded && !subscriptionLoading) {
+                subscriptionLoading = true;
+
+                void settingService.getSubscription()
+                    .then((subscription) => {
+                        subscriptionState = subscription;
+                        subscriptionLoaded = true;
+                        renderDetail();
+                    })
+                    .catch((error) => {
+                        alert(error.message || "구독 정보를 불러오지 못했습니다.");
+                    })
+                    .finally(() => {
+                        subscriptionLoading = false;
+                    });
+
+                return;
+            }
+
+            const hasSubscription =
+                Boolean(subscriptionState?.id) &&
+                Boolean(subscriptionState?.tier);
+            const isFreeMember =
+                !hasSubscription || subscriptionState?.tier === "free";
+
+            emptyMessage.hidden = true;
+            card.hidden = false;
+
+            if (isFreeMember) {
+                planValue.textContent = "Free";
+                billingCycleValue.textContent = "-";
+                nextBillingDateValue.textContent = "-";
+                statusValue.textContent = "미구독";
+                statusValue.classList.remove(
+                    "subscription-panel__badge--scheduled",
+                    "subscription-panel__badge--inactive",
+                );
+                statusValue.classList.add("subscription-panel__badge--inactive");
+                cancelButton.hidden = true;
+                helpValue.textContent =
+                    "현재 활성화된 구독이 없습니다. 플랜 변경에서 구독을 시작할 수 있습니다.";
+                return;
+            }
+
+            planValue.textContent =
+                subscriptionState.tier === "pro_plus"
+                    ? "Pro+"
+                    : subscriptionState.tier === "pro"
+                        ? "Pro"
+                        : subscriptionState.tier === "expert"
+                            ? "Expert"
+                            : subscriptionState.tier;
+
+            billingCycleValue.textContent =
+                subscriptionState.billingCycle === "annual" ? "연간" : "월간";
+
+            nextBillingDateValue.textContent = subscriptionState.expiresAt
+                ? String(subscriptionState.expiresAt).slice(0, 10)
+                : "-";
+
+            statusValue.classList.remove(
+                "subscription-panel__badge--scheduled",
+                "subscription-panel__badge--inactive",
+            );
+
+            if (
+                subscriptionState.status === "active" &&
+                subscriptionState.billingCycle === "monthly" &&
+                subscriptionState.quartz === false
+            ) {
+                statusValue.textContent = "해지 예정";
+                statusValue.classList.add("subscription-panel__badge--scheduled");
+                cancelButton.hidden = true;
+                helpValue.textContent = "현재 결제 주기가 끝나면 자동으로 해지됩니다.";
+                return;
+            }
+
+            if (subscriptionState.status === "active") {
+                statusValue.textContent = "활성";
+                cancelButton.hidden = subscriptionState.billingCycle === "annual";
+                cancelButton.disabled = subscriptionState.billingCycle === "annual";
+                helpValue.textContent =
+                    subscriptionState.billingCycle === "annual"
+                        ? "연간 구독은 setting에서 해지할 수 없습니다."
+                        : "월간 구독은 현재 결제 주기가 끝나면 해지됩니다.";
+                return;
+            }
+
+            statusValue.textContent = "만료";
+            statusValue.classList.add("subscription-panel__badge--inactive");
+            cancelButton.hidden = true;
+            helpValue.textContent = "구독이 종료되었습니다.";
             return;
         }
     }
@@ -1481,6 +1514,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const routeName =
             !activeDetailRoute && activeSectionId === "notifications"
                 ? "notification-push-edit"
+                : !activeDetailRoute && activeSectionId === "privacy_and_safety"
+                    ? "privacy-blocked-accounts-edit"
                 : (activeDetailRoute || activeSectionId);
         const routeRoot = showDetailRouteView(routeName);
 
@@ -1488,7 +1523,9 @@ document.addEventListener("DOMContentLoaded", () => {
             detailTitle.textContent = routeRoot.dataset.routeTitle || "";
             if (
                 activeDetailRoute ||
-                (!activeDetailRoute && activeSectionId === "notifications")
+                (!activeDetailRoute && activeSectionId === "notifications") ||
+                (!activeDetailRoute && activeSectionId === "privacy_and_safety") ||
+                (!activeDetailRoute && activeSectionId === "subscription")
             ) {
                 syncDetailRoute(routeRoot);
             }
@@ -1676,6 +1713,7 @@ document.addEventListener("DOMContentLoaded", () => {
         phoneVerifyModal.hidden = true;
         emailAddModal.hidden = modalType !== "email-add";
         emailVerifyModal.hidden = true;
+        blockedUnblockModal.hidden = modalType !== "blocked-unblock";
 
         if (modalType === "appearance") {
             appearanceCompleteButton.focus();
@@ -1716,6 +1754,8 @@ document.addEventListener("DOMContentLoaded", () => {
         phoneVerifyModal.hidden = true;
         emailAddModal.hidden = true;
         emailVerifyModal.hidden = true;
+        blockedUnblockModal.hidden = true;
+        pendingBlockedId = null;
         resetPhoneModal();
         resetEmailModal();
     }
@@ -1776,7 +1816,11 @@ document.addEventListener("DOMContentLoaded", () => {
             "/settings/your_twitter_data/account"
         ) {
             event.preventDefault();
-            activeDetailRoute = "account-info-auth";
+            // 일반 계정은 기존처럼 비밀번호 확인을 거치고,
+            // passwordless provider 계정만 바로 계정 정보 상세로 보낸다.
+            activeDetailRoute = isPasswordlessAccount
+                ? "account-info-list"
+                : "account-info-auth";
             renderDetail();
             return;
         }
@@ -1818,43 +1862,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (
             activeSectionId === "privacy_and_safety" &&
             entryLink.getAttribute("href") ===
-            "/settings/privacy_and_safety/your_posts"
-        ) {
-            event.preventDefault();
-            activeDetailRoute = "privacy-posts-edit";
-            renderDetail();
-            return;
-        }
-
-        if (
-            activeSectionId === "privacy_and_safety" &&
-            entryLink.getAttribute("href") ===
             "/settings/privacy_and_safety/mute_and_block"
         ) {
             event.preventDefault();
-            activeDetailRoute = "privacy-mute-block-edit";
-            renderDetail();
-            return;
-        }
-
-        if (
-            activeSectionId === "privacy_and_safety" &&
-            entryLink.getAttribute("href") ===
-            "/settings/privacy_and_safety/direct_messages"
-        ) {
-            event.preventDefault();
-            activeDetailRoute = "privacy-chat-edit";
-            renderDetail();
-            return;
-        }
-
-        if (
-            activeSectionId === "privacy_and_safety" &&
-            entryLink.getAttribute("href") ===
-            "/settings/privacy_and_safety/discoverability_and_contacts"
-        ) {
-            event.preventDefault();
-            activeDetailRoute = "privacy-discoverability-edit";
+            // 개인정보 및 안전 섹션은 차단한 계정을 루트처럼 보여주고,
+            // 기존 중간 "뮤트 및 차단" 화면은 최소 리스크 단계에서 접근만 끊는다.
+            activeDetailRoute = "privacy-blocked-accounts-edit";
             renderDetail();
             return;
         }
@@ -1893,62 +1906,10 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const privacyPostsLink = target.closest("[data-privacy-posts-link]");
-        if (privacyPostsLink instanceof HTMLAnchorElement) {
-            event.preventDefault();
-            return;
-        }
-
-        const privacyPostsLocationLink = target.closest(
-            "[data-privacy-posts-location-link]",
-        );
-        if (privacyPostsLocationLink instanceof HTMLAnchorElement) {
-            event.preventDefault();
-            return;
-        }
-
         const blockedAccountsLink = target.closest(
             "[data-privacy-blocked-accounts-link]",
         );
         if (blockedAccountsLink instanceof HTMLAnchorElement) {
-            event.preventDefault();
-            return;
-        }
-
-        const mutedAccountsLink = target.closest(
-            "[data-privacy-muted-accounts-link]",
-        );
-        if (mutedAccountsLink instanceof HTMLAnchorElement) {
-            event.preventDefault();
-            return;
-        }
-
-        const mutedWordsLink = target.closest(
-            "[data-privacy-muted-words-link]",
-        );
-        if (mutedWordsLink instanceof HTMLAnchorElement) {
-            event.preventDefault();
-            return;
-        }
-
-        const mutedWordFormLink = target.closest(
-            "[data-privacy-muted-word-link]",
-        );
-        if (mutedWordFormLink instanceof HTMLAnchorElement) {
-            event.preventDefault();
-            return;
-        }
-
-        const privacyChatLink = target.closest("[data-privacy-chat-link]");
-        if (privacyChatLink instanceof HTMLAnchorElement) {
-            event.preventDefault();
-            return;
-        }
-
-        const privacyDiscoverabilityLink = target.closest(
-            "[data-privacy-discoverability-link]",
-        );
-        if (privacyDiscoverabilityLink instanceof HTMLAnchorElement) {
             event.preventDefault();
             return;
         }
@@ -1962,45 +1923,50 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        const blockedUnblockOpenButton = target.closest("[data-blocked-unblock-open]");
+        if (blockedUnblockOpenButton instanceof HTMLButtonElement) {
+            pendingBlockedId = Number(blockedUnblockOpenButton.dataset.blockedId);
+            blockedUnblockHandle.textContent = `${blockedUnblockOpenButton.dataset.blockedHandle || ""}`;
+            openModal("blocked-unblock");
+            return;
+        }
+
+        const subscriptionCancelButton = target.closest("[data-subscription-cancel]");
+        if (subscriptionCancelButton instanceof HTMLButtonElement) {
+            if (!subscriptionState?.id) {
+                return;
+            }
+
+            const planName =
+                subscriptionState.tier === "pro_plus"
+                    ? "Pro+"
+                    : subscriptionState.tier === "pro"
+                        ? "Pro"
+                        : subscriptionState.tier === "expert"
+                            ? "Expert"
+                            : subscriptionState.tier;
+
+            // setting에서는 별도 모달을 늘리지 않고 최소 확인만 거친다.
+            if (!confirm(`${planName} 구독을 해지하겠습니까?`)) {
+                return;
+            }
+
+            void settingService.cancelSubscription(subscriptionState.id)
+                .then(() => {
+                    subscriptionLoaded = false;
+                    alert("구독 해지가 예약되었습니다.");
+                    renderDetail();
+                })
+                .catch((error) => {
+                    alert(error.message || "구독 해지 중 오류가 발생했습니다.");
+                });
+            return;
+        }
+
         const deactivateConfirmButton = target.closest("[data-deactivate-confirm]");
         if (deactivateConfirmButton instanceof HTMLButtonElement) {
             activeDetailRoute = "deactivate-confirm";
             renderDetail();
-            return;
-        }
-
-        const privacyPostsRoute = target.closest("[data-privacy-posts-route]");
-        if (privacyPostsRoute instanceof HTMLButtonElement) {
-            if (privacyPostsRoute.dataset.privacyPostsRoute === "location") {
-                activeDetailRoute = "privacy-posts-location-edit";
-                renderDetail();
-            }
-            return;
-        }
-
-        const privacyMuteBlockItem = target.closest(
-            "[data-privacy-mute-block-item]",
-        );
-        if (privacyMuteBlockItem instanceof HTMLButtonElement) {
-            if (
-                privacyMuteBlockItem.dataset.privacyMuteBlockItem ===
-                "blocked-accounts"
-            ) {
-                activeDetailRoute = "privacy-blocked-accounts-edit";
-                renderDetail();
-            } else if (
-                privacyMuteBlockItem.dataset.privacyMuteBlockItem ===
-                "muted-accounts"
-            ) {
-                activeDetailRoute = "privacy-muted-accounts-edit";
-                renderDetail();
-            } else if (
-                privacyMuteBlockItem.dataset.privacyMuteBlockItem ===
-                "muted-words"
-            ) {
-                activeDetailRoute = "privacy-muted-words-edit";
-                renderDetail();
-            }
             return;
         }
 
@@ -2015,13 +1981,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const pushSaveButton = target.closest("[data-notification-push-save]");
         if (pushSaveButton instanceof HTMLButtonElement) {
             void saveNotificationPushPreference();
-            return;
-        }
-
-        const privacyPostsLocationDelete = target.closest(
-            "[data-privacy-posts-location-delete]",
-        );
-        if (privacyPostsLocationDelete instanceof HTMLButtonElement) {
             return;
         }
 
@@ -2105,76 +2064,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        if (target.matches("[data-privacy-posts-sensitive-toggle]")) {
-            privacyPostsState.isSensitiveMediaMarked = target.checked;
-            return;
-        }
-
-        if (target.matches("[data-privacy-posts-location-toggle]")) {
-            privacyPostsState.isLocationEnabled = target.checked;
-            return;
-        }
-
-        if (target.matches("[data-privacy-chat-toggle]")) {
-            const toggleKey = target.dataset.privacyChatToggle;
-            if (toggleKey === "filter-low-quality") {
-                privacyChatState.isLowQualityFilterEnabled = target.checked;
-                return;
-            }
-
-            if (toggleKey === "read-receipts") {
-                privacyChatState.areReadReceiptsEnabled = target.checked;
-                return;
-            }
-        }
-
-        if (target.matches("[data-privacy-chat-allow]")) {
-            privacyChatState.allow = target.value;
-            return;
-        }
-
-        if (target.matches("[data-privacy-discoverability-toggle]")) {
-            const toggleKey = target.dataset.privacyDiscoverabilityToggle;
-            if (toggleKey === "email") {
-                privacyDiscoverabilityState.isEmailDiscoverable =
-                    target.checked;
-                return;
-            }
-
-            if (toggleKey === "phone") {
-                privacyDiscoverabilityState.isPhoneDiscoverable =
-                    target.checked;
-                return;
-            }
-        }
-
-        if (target.matches("[data-privacy-muted-word-timeline-toggle]")) {
-            mutedWordFormState.muteFromTimeline = target.checked;
-            return;
-        }
-
-        if (target.matches("[data-privacy-muted-word-notifications-toggle]")) {
-            mutedWordFormState.muteNotifications = target.checked;
-            return;
-        }
-
-        if (target.matches("[data-privacy-muted-word-audience]")) {
-            mutedWordFormState.notificationAudience = target.value;
-            return;
-        }
-
-        if (target.matches("[data-privacy-muted-word-duration]")) {
-            mutedWordFormState.duration = target.value;
-        }
-    });
-
-    detailActionButton.addEventListener("click", () => {
-        const action = detailActionButton.dataset.detailAction;
-        if (action === "muted-words-add") {
-            activeDetailRoute = "privacy-muted-words-add-edit";
-            renderDetail();
-            return;
-        }
     });
 
     detailBackButton.addEventListener("click", () => {
@@ -2196,23 +2085,11 @@ document.addEventListener("DOMContentLoaded", () => {
             activeDetailRoute = "account-info-list";
         } else if (
             activeDetailRoute === "password-edit" ||
-            activeDetailRoute === "deactivate-edit" ||
-            activeDetailRoute === "privacy-mute-block-edit" ||
-            activeDetailRoute === "privacy-posts-edit" ||
-            activeDetailRoute === "privacy-chat-edit" ||
-            activeDetailRoute === "privacy-discoverability-edit"
+            activeDetailRoute === "deactivate-edit"
         ) {
             activeDetailRoute = "";
         } else if (activeDetailRoute === "privacy-blocked-accounts-edit") {
-            activeDetailRoute = "privacy-mute-block-edit";
-        } else if (activeDetailRoute === "privacy-muted-accounts-edit") {
-            activeDetailRoute = "privacy-mute-block-edit";
-        } else if (activeDetailRoute === "privacy-muted-words-edit") {
-            activeDetailRoute = "privacy-mute-block-edit";
-        } else if (activeDetailRoute === "privacy-muted-words-add-edit") {
-            activeDetailRoute = "privacy-muted-words-edit";
-        } else if (activeDetailRoute === "privacy-posts-location-edit") {
-            activeDetailRoute = "privacy-posts-edit";
+            activeDetailRoute = "";
         } else if (activeDetailRoute === "notification-push-edit") {
             activeDetailRoute = "";
         } else if (activeDetailRoute === "account-info-list") {
@@ -2523,6 +2400,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    blockedUnblockCancelButton.addEventListener("click", () => {
+        closeModal();
+    });
+
+    blockedUnblockConfirmButton.addEventListener("click", async () => {
+        try {
+            await settingService.unblockMember(settingMember.id, pendingBlockedId);
+            closeModal();
+            blockedAccountsLoaded = false;
+            await loadBlockedAccounts(blockedAccountsPage);
+        } catch (error) {
+            alert(error.message || "차단 해제 중 오류가 발생했습니다.");
+        }
+    });
+
     appearanceAccentList.addEventListener("click", (event) => {
         const target = event.target;
         if (!(target instanceof Element)) {
@@ -2565,6 +2457,8 @@ document.addEventListener("DOMContentLoaded", () => {
             closeModal();
         }
     });
+
+
 
     applyAppearanceState();
     renderNavigation();

@@ -210,6 +210,7 @@ const mypageLayout = (() => {
         // 옵션이 켜지면 DTO 값보다 우선해서 채워진 하트를 보여준다.
         const isLiked = options.forceLiked || !!post.isLiked;
         const isBookmarked = !!post.isBookmarked;
+        const cardType = options.cardType || "mypost";
 
         let mediaHtml = ""; // 이미지나 첨부파일이 있을 때만 채울 영역이다.
         let dataType = "text"; // 기본 카드 타입은 텍스트 게시글이다.
@@ -229,7 +230,7 @@ const mypageLayout = (() => {
           `;
         }
 
-        return `<article class="Post-Card" data-type="${dataType}">
+        return `<article class="Post-Card" data-type="${dataType}" data-post-id="${post.id}" data-member-id="${post.memberId}" data-member-handle="${post.memberHandle ?? ""}" data-card-type="${cardType}">
               <div class="Post-Avatar-Wrapper">
                   <div class="Post-Avatar">${(post.memberNickname || post.memberHandle || "?").charAt(0)}</div>
               </div>
@@ -240,7 +241,7 @@ const mypageLayout = (() => {
                           <span class="Post-Handle">${post.memberHandle ?? ""}</span>
                           <span class="Post-Time">${post.createdDatetime ?? ""}</span>
                       </div>
-                      <button class="Post-More-Button" type="button" aria-label="더 보기" data-action="more">
+                      <button class="Post-More-Button" type="button" aria-label="더 보기" data-action="more" data-card-type="${cardType}">
                           <svg viewBox="0 0 24 24" class="Post-More-Icon" aria-hidden="true">
                               <path d="${ICON_PATHS.more}"/>
                           </svg>
@@ -292,7 +293,7 @@ const mypageLayout = (() => {
         if (!postSection) return; // 목록 영역이 없으면 끝낸다.
 
         const posts = postWithPagingDTO?.posts ?? []; // posts가 없을 때도 빈 배열로 처리한다.
-        const html = posts.map(createMyPostCard).join(""); // 게시글마다 카드 HTML을 만들어 하나의 문자열로 합친다.
+        const html = posts.map((post) => createMyPostCard(post, { cardType: "mypost" })).join(""); // 게시글마다 카드 HTML을 만들어 하나의 문자열로 합친다.
 
         if (posts.length === 0 && page === 1) { // 첫 페이지부터 비어 있으면 빈 문구를 보여준다.
             postSection.innerHTML = `
@@ -307,6 +308,28 @@ const mypageLayout = (() => {
             postSection.innerHTML = html;
         } else {
             postSection.innerHTML += html;
+        }
+    };
+
+    const showMyReplyList = (postWithPagingDTO, page) => {
+        const replySection = document.querySelector(".Profile-Content.Replies .Profile-Content-List");
+        if (!replySection) return;
+
+        const posts = postWithPagingDTO?.posts ?? [];
+        const html = posts.map((post) => createMyPostCard(post, { cardType: "myreply" })).join("");
+
+        if (posts.length === 0 && page === 1) {
+            replySection.innerHTML = `
+              <p class="feedEmpty" style="padding: 20px; text-align: center; color: #536471;">
+                  작성한 답글이 없습니다.
+              </p>`;
+            return;
+        }
+
+        if (page === 1) {
+            replySection.innerHTML = html;
+        } else {
+            replySection.innerHTML += html;
         }
     };
 
@@ -335,9 +358,70 @@ const mypageLayout = (() => {
         }
     };
 
+    const createMyEstimationCard = (estimation, isExpert) => {
+        const partner = isExpert
+            ? (estimation.requesterEmail || "요청자 정보 없음")
+            : (estimation.receiverEmail || "공개 요청");
+        const createdAt = estimation.createdDateTime || "";
+
+        return `
+            <div class="Request-Container">
+                <div class="Request-Card">
+                    <div class="Request-Title">${estimation.title ?? ""}</div>
+                    <div class="Request-With">
+                        <span class="With-People">${partner}</span>
+                        <span class="With-People">${estimation.status ?? ""}</span>
+                    </div>
+                    <div class="Request-With">
+                        <span class="With-People">${createdAt}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
+    const showMyEstimationSummary = (data) => {
+        const section = document.querySelector("[data-mypage-estimation-list]");
+        if (!section) return;
+
+        const estimations = data?.estimations ?? [];
+        const isExpert = !!data?.expert;
+
+        if (estimations.length === 0) {
+            section.innerHTML = `
+                <div class="Request-Container">
+                    <div class="Request-Title">견적 요청이 없습니다.</div>
+                </div>
+            `;
+            return;
+        }
+
+        section.innerHTML = estimations.map((estimation) => createMyEstimationCard(estimation, isExpert)).join("");
+    };
+
+    const appendMyRequestedEstimationList = (data, page) => {
+        const section = document.querySelector("[data-mypage-estimation-list]");
+        if (!section) return;
+
+        // 사이드바 첫 화면은 summary API가 이미 5개를 렌더링한다.
+        // 그래서 non-expert의 첫 "더 보기"는 page 1 전체를 다시 덮어쓰지 않고,
+        // 같은 1페이지 안의 6번째 이후 항목만 뒤에 이어 붙여야 한다.
+        const estimations = (data?.estimations ?? []).slice(page === 1 ? 5 : 0);
+        const html = estimations.map((estimation) => createMyEstimationCard(estimation, false)).join("");
+
+        if (estimations.length === 0 && page === 1) {
+            return;
+        }
+
+        section.innerHTML += html;
+    };
+
     return {
         showMyProductList: showMyProductList,
         showMyPostList: showMyPostList,
-        showMyLikedPostList: showMyLikedPostList
+        showMyReplyList: showMyReplyList,
+        showMyLikedPostList: showMyLikedPostList,
+        showMyEstimationSummary: showMyEstimationSummary,
+        appendMyRequestedEstimationList: appendMyRequestedEstimationList
     };
 })();

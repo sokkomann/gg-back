@@ -298,6 +298,65 @@ const settingService = (() => {
         return result;
     };
 
+    const getBlockedAccounts = async (page = 1) => {
+        const response = await fetch(`/api/settings/blocks/list/${page}`);
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || "차단한 계정 목록 조회 실패");
+        }
+
+        return result;
+    };
+
+    const unblockMember = async (blockerId, blockedId) => {
+        const response = await fetch(
+            `/api/v1/blocks?blockerId=${blockerId}&blockedId=${blockedId}`,
+            {
+                method: "DELETE",
+            },
+        );
+
+        if (!response.ok) {
+            throw new Error("차단 해제 실패");
+        }
+    };
+
+    // setting의 구독 관리는 기존 subscription API를 그대로 재사용한다.
+    const getSubscription = async () => {
+        const response = await fetch("/api/subscriptions/my");
+
+        if (!response.ok) {
+            throw new Error("구독 정보 조회 실패");
+        }
+
+        const text = await response.text();
+
+        if (!text || !text.trim()) {
+            return null;
+        }
+
+        return JSON.parse(text);
+    };
+
+    // 월간 구독 해지는 subscription 도메인의 기존 cancel API에 위임한다.
+    const cancelSubscription = async (id) => {
+        const response = await fetch("/api/subscriptions/cancel", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id: id,
+            }),
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || "구독 해지 실패");
+        }
+    };
+
     return {
         checkPassword: checkPassword,
         updatePassword: updatePassword,
@@ -315,5 +374,9 @@ const settingService = (() => {
         updateNotificationPushEnabled: updateNotificationPushEnabled,
         updateNotificationPushPreference: updateNotificationPushPreference,
         updateCountry: updateCountry,
+        getBlockedAccounts: getBlockedAccounts,
+        unblockMember: unblockMember,
+        getSubscription: getSubscription,
+        cancelSubscription: cancelSubscription,
     };
 })();

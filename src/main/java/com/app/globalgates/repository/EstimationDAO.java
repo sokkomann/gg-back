@@ -27,6 +27,14 @@ public class EstimationDAO {
         return estimationMapper.selectAll(criteria, receiverId);
     }
 
+    public int findRequestedTotal(Long requesterId) {
+        return estimationMapper.selectRequestedTotal(requesterId);
+    }
+
+    public List<EstimationDTO> findRequestedAll(Criteria criteria, Long requesterId) {
+        return estimationMapper.selectRequestedAll(criteria, requesterId);
+    }
+
     public Optional<EstimationDTO> findById(Long id) {
         return estimationMapper.selectById(id);
     }

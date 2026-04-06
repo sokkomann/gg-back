@@ -182,11 +182,24 @@ public class MemberService {
         return memberDAO.findMemberByMemberPhone(memberPhone).isEmpty();
     }
 
+    // OAuth 가입 직후처럼 DB에 로컬 비밀번호가 아직 없는 계정은
+    // setting에서 "현재 비밀번호 확인"을 강제할 수 없으므로 별도 타입으로 취급한다.
+    private boolean isPasswordlessOauthMember(MemberDTO member) {
+        return member.getProvider() != null &&
+                (member.getMemberPassword() == null || member.getMemberPassword().isBlank());
+    }
+
     // 현재 로그인한 사용자의 raw password가 DB의 encoded password와 일치하는지 검사한다.
     // 기존 "중복검사" 계열 메서드와 달리, 이 메서드는 인증 성공 여부를 그대로 true/false로 돌려준다.
     public boolean checkPassword(String loginId, String memberPassword){
         MemberDTO member = memberDAO.findMemberByLoginId(loginId)
                 .orElseThrow(MemberNotFoundException::new);
+
+        // provider 계정이 아직 비밀번호를 만들지 않았다면 재인증 단계는 통과시켜
+        // 프런트가 계정 정보 화면으로 바로 들어갈 수 있게 한다.
+        if (isPasswordlessOauthMember(member)) {
+            return true;
+        }
 
         return passwordEncoder.matches(memberPassword, member.getMemberPassword());
     }
@@ -196,7 +209,10 @@ public class MemberService {
         MemberDTO member = memberDAO.findMemberByLoginId(loginId)
                 .orElseThrow(MemberNotFoundException::new);
 
-        if (!passwordEncoder.matches(currentPassword, member.getMemberPassword())) {
+        // passwordless provider 계정은 "변경"이 아니라 최초 비밀번호 생성에 가깝다.
+        // 이 경우에만 현재 비밀번호 검증을 생략하고 새 비밀번호를 바로 저장한다.
+        if (!isPasswordlessOauthMember(member) &&
+                !passwordEncoder.matches(currentPassword, member.getMemberPassword())) {
             throw new IllegalArgumentException("현재 비밀번호를 다시 확인하세요.");
         }
 
@@ -440,6 +456,13 @@ public class MemberService {
         MemberDTO member = memberDAO.findMemberByLoginId(loginId)
                 .orElseThrow(MemberNotFoundException::new);
 
+        // passwordless provider 계정은 확인용 비밀번호 자체가 없으므로
+        // 최소 리스크 버전에서는 추가 입력 없이 비활성화를 허용한다.
+        if (isPasswordlessOauthMember(member)) {
+            memberDAO.softDelete(member.getId());
+            return;
+        }
+
         String normalizedPassword = memberPassword == null ? "" : memberPassword.trim();
 
         if (normalizedPassword.isEmpty()) {
@@ -521,6 +544,12 @@ public class MemberService {
     @Cacheable(value="member", key="#loginId")
     public MemberDTO getMember(String loginId){
         return memberDAO.findMemberByLoginId(loginId).orElseThrow(MemberNotFoundException::new);
+    }
+
+    // 마이페이지의 상대 프로필 조회는 로그인 식별값이 아니라 회원 id로 바로 조회한다.
+    // 1차는 화면 분기만 필요하므로 별도 DTO 가공 없이 기존 member 조회를 그대로 재사용한다.
+    public MemberDTO getMemberById(Long memberId) {
+        return memberDAO.findByMemberId(memberId).orElseThrow(MemberNotFoundException::new);
     }
 
     // 검색 값에 따른 회원들 조회

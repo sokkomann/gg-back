@@ -1,9 +1,12 @@
 package com.app.globalgates.controller.mypage;
 
 import com.app.globalgates.auth.CustomUserDetails;
+import com.app.globalgates.common.enumeration.MemberRole;
+import com.app.globalgates.dto.EstimationWithPagingDTO;
 import com.app.globalgates.dto.PostProductWithPagingDTO;
 import com.app.globalgates.dto.PostProductDTO;
 import com.app.globalgates.dto.PostWithPagingDTO;
+import com.app.globalgates.service.EstimationService;
 import com.app.globalgates.service.PostProductService;
 import com.app.globalgates.service.PostService;
 import com.app.globalgates.service.S3Service;
@@ -33,6 +36,7 @@ public class MypageAPIController {
     private final PostProductService postProductService;
     private final S3Service s3Service;
     private final PostService postService;
+    private final EstimationService estimationService;
 
     // 마이페이지의 "내 상품" 탭은 로그인한 사용자 본인의 상품만 보여줘야 한다.
     // 그래서 memberId를 프론트에서 받지 않고, 인증 객체에서만 꺼내서 조회한다.
@@ -50,6 +54,30 @@ public class MypageAPIController {
         // 하지만 이 프로젝트의 다른 화면(main, 프로필 등)은
         // "응답 직전에 presigned URL로 바꿔서 브라우저에 전달"하는 방식을 이미 사용한다.
         // 따라서 mypage도 동일한 정책으로 맞추는 것이 가장 일관적이고 안전하다.
+        result.getPosts().forEach(product -> {
+            if (product.getPostFiles() == null || product.getPostFiles().isEmpty()) {
+                return;
+            }
+
+            product.setPostFiles(
+                    product.getPostFiles().stream()
+                            .map(this::toPresignedUrlOrOriginal)
+                            .collect(Collectors.toList())
+            );
+        });
+
+        return result;
+    }
+
+    // 상대 프로필의 상품 탭도 같은 카드 UI를 재사용하므로,
+    // owner 전용 응답 구조는 유지하고 조회 기준만 페이지 주인 memberId로 바꾼다.
+    @GetMapping("/profile/products")
+    public PostProductWithPagingDTO getProfileProducts(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam Long memberId
+    ) {
+        PostProductWithPagingDTO result = postProductService.getMyProducts(page, memberId);
+
         result.getPosts().forEach(product -> {
             if (product.getPostFiles() == null || product.getPostFiles().isEmpty()) {
                 return;
@@ -94,6 +122,74 @@ public class MypageAPIController {
         return result;
     }
 
+    // 상대 프로필의 게시물 탭은 페이지 주인이 작성한 일반 게시글만 공개 조회한다.
+    @GetMapping("/profile/posts")
+    public PostWithPagingDTO getProfilePosts(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam Long memberId
+    ) {
+        PostWithPagingDTO result = postService.getMyPosts(page, memberId);
+
+        result.getPosts().forEach(post -> {
+            if (post.getPostFiles() == null || post.getPostFiles().isEmpty()) {
+                return;
+            }
+
+            post.getPostFiles().forEach(file ->
+                    file.setFilePath(toPresignedUrlOrOriginal(file.getFilePath()))
+            );
+        });
+
+        return result;
+    }
+
+    // Replies 탭도 Posts / Likes와 같은 PostDTO 구조를 사용한다.
+    // 마이페이지에서는 "내가 작성한 댓글"만 별도 조건으로 조회하고,
+    // 화면 렌더는 동일한 카드 컴포넌트를 재사용한다.
+    @GetMapping("/replies")
+    public PostWithPagingDTO getMyReplies(
+            @RequestParam(defaultValue = "1") int page,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        PostWithPagingDTO result = postService.getMyReplies(page, userDetails.getId());
+
+        // 댓글 목록도 게시글 카드와 같은 첨부파일 구조를 가지므로,
+        // 브라우저가 직접 쓸 수 있도록 presigned URL로 가공해서 내려준다.
+        result.getPosts().forEach(post -> {
+            if (post.getPostFiles() == null || post.getPostFiles().isEmpty()) {
+                return;
+            }
+
+            post.getPostFiles().forEach(file ->
+                    file.setFilePath(toPresignedUrlOrOriginal(file.getFilePath()))
+            );
+        });
+
+        return result;
+    }
+
+    // 상대 프로필의 답글 탭도 동일한 카드 구조를 재사용하므로
+    // 조회 기준만 현재 로그인 사용자가 아니라 페이지 주인으로 바꾼다.
+    @GetMapping("/profile/replies")
+    public PostWithPagingDTO getProfileReplies(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam Long memberId
+    ) {
+        PostWithPagingDTO result = postService.getMyReplies(page, memberId);
+
+        result.getPosts().forEach(post -> {
+            if (post.getPostFiles() == null || post.getPostFiles().isEmpty()) {
+                return;
+            }
+
+            post.getPostFiles().forEach(file ->
+                    file.setFilePath(toPresignedUrlOrOriginal(file.getFilePath()))
+            );
+        });
+
+        return result;
+    }
+
     // Likes 탭도 Posts 탭과 같은 PostDTO 구조를 사용한다.
     // 화면은 동일한 카드 컴포넌트를 재사용하고,
     // 데이터만 "내가 좋아요한 게시글"로 바꿔 내려주는 방식이 유지보수에 가장 유리하다.
@@ -117,6 +213,33 @@ public class MypageAPIController {
         });
 
         return result;
+    }
+
+    @GetMapping("/estimations/summary")
+    public ResponseEntity<?> getMyEstimationsSummary(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        boolean isExpert = userDetails.getMemberRole() == MemberRole.EXPERT;
+
+        // expert는 받은 견적 요약을, non-expert는 보낸 견적 요약을 같은 카드에 렌더링한다.
+        EstimationWithPagingDTO result = isExpert
+                ? estimationService.getList(1, userDetails.getId())
+                : estimationService.getRequestedList(1, userDetails.getId());
+
+        return ResponseEntity.ok(Map.of(
+                "expert", isExpert,
+                "hasMore", result.getCriteria().isHasMore() || result.getEstimations().size() > 5,
+                "estimations", result.getEstimations().stream().limit(5).toList()
+        ));
+    }
+
+    @GetMapping("/estimations/requested")
+    public EstimationWithPagingDTO getMyRequestedEstimations(
+            @RequestParam(defaultValue = "1") int page,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        // non-expert 더보기는 마이페이지 안에서 requester 기준 목록을 이어 붙인다.
+        return estimationService.getRequestedList(page, userDetails.getId());
     }
 
     // 회원가입 join 흐름처럼:

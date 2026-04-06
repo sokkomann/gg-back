@@ -6,6 +6,13 @@
 // 나머지 로직(이모지, 첨부파일, 위치, 태그, 임시저장, 공유 등)은 Notification event.js 100% 동일
 
 window.onload = function () {
+    // 목록 탭은 동일한 UI를 유지하고, owner/visitor에 따라 호출 API만 event 계층에서 분기한다.
+    const mypageContext = window.mypageContext || {
+        isOwner: true,
+        loginMemberId: null,
+        pageMemberId: null,
+    };
+
     // ===== 1. DOM =====
     const replyModalOverlay = document.querySelector("[data-reply-modal]");
     const q = (sel) => replyModalOverlay?.querySelector(sel);
@@ -1967,6 +1974,10 @@ window.onload = function () {
     let myPostCheckScroll = true;
     let myPostHasMore = true;
     let myPostLoaded = false;
+    let myReplyPage = 1;
+    let myReplyCheckScroll = true;
+    let myReplyHasMore = true;
+    let myReplyLoaded = false;
     let myProductPage = 1;
     let myProductCheckScroll = true;
     let myProductHasMore = true;
@@ -1975,6 +1986,11 @@ window.onload = function () {
     let myLikedCheckScroll = true;
     let myLikedHasMore = true;
     let myLikedLoaded = false;
+    let myRequestedEstimationPage = 1;
+    let myRequestedEstimationCheckScroll = true;
+    let myRequestedEstimationHasMore = true;
+    let myRequestedEstimationOpened = false;
+    let myEstimationSummary = null;
 
     // main의 Connected 버튼 UX를 마이페이지 요약 카드에만 좁혀 이식한다.
     // 이 페이지는 "이미 팔로우 중인 사람"만 렌더링하므로,
@@ -2030,16 +2046,39 @@ window.onload = function () {
                 // 이후에는 이미 그려진 목록을 유지하고,
                 // 추가 페이지는 아래 scroll 이벤트에서 이어 붙인다.
                 if (!myPostLoaded) {
-                    myPageService.getMyPosts(myPostPage, (data) => {
-                        mypageLayout.showMyPostList(data, myPostPage);
-                        myPostHasMore = data.criteria.hasMore;
-                    });
+                    if (mypageContext.isOwner) {
+                        myPageService.getMyPosts(myPostPage, (data) => {
+                            mypageLayout.showMyPostList(data, myPostPage);
+                            myPostHasMore = data.criteria.hasMore;
+                        });
+                    } else {
+                        myPageService.getProfilePosts(mypageContext.pageMemberId, myPostPage, (data) => {
+                            mypageLayout.showMyPostList(data, myPostPage);
+                            myPostHasMore = data.criteria.hasMore;
+                        });
+                    }
                     myPostLoaded = true;
                 }
             }
 
             if (nav.classList.contains("Replies")) {
                 activeProfileTab = "Replies";
+
+                // Replies 탭도 다른 목록 탭과 같은 규칙으로 첫 진입 시에만 1페이지를 로드한다.
+                if (!myReplyLoaded) {
+                    if (mypageContext.isOwner) {
+                        myPageService.getMyReplies(myReplyPage, (data) => {
+                            mypageLayout.showMyReplyList(data, myReplyPage);
+                            myReplyHasMore = data.criteria.hasMore;
+                        });
+                    } else {
+                        myPageService.getProfileReplies(mypageContext.pageMemberId, myReplyPage, (data) => {
+                            mypageLayout.showMyReplyList(data, myReplyPage);
+                            myReplyHasMore = data.criteria.hasMore;
+                        });
+                    }
+                    myReplyLoaded = true;
+                }
             }
 
             if (nav.classList.contains("MyProducts")) {
@@ -2048,10 +2087,17 @@ window.onload = function () {
                 // 첫 진입 시에만 1페이지를 로드한다.
                 // 이후에는 스크롤로 다음 페이지를 이어서 불러온다.
                 if (!myProductLoaded) {
-                    myPageService.getMyProducts(myProductPage, (data) => {
-                        mypageLayout.showMyProductList(data, myProductPage);
-                        myProductHasMore = data.criteria.hasMore;
-                    });
+                    if (mypageContext.isOwner) {
+                        myPageService.getMyProducts(myProductPage, (data) => {
+                            mypageLayout.showMyProductList(data, myProductPage);
+                            myProductHasMore = data.criteria.hasMore;
+                        });
+                    } else {
+                        myPageService.getProfileProducts(mypageContext.pageMemberId, myProductPage, (data) => {
+                            mypageLayout.showMyProductList(data, myProductPage);
+                            myProductHasMore = data.criteria.hasMore;
+                        });
+                    }
                     myProductLoaded = true;
                 }
             }
@@ -2074,6 +2120,100 @@ window.onload = function () {
     });
     document.querySelector(".Profile-Tab-Item.Posts")?.click();
 
+    const profileConnectButton = document.querySelector(".Profile-Edit-Btn.Connect, .Profile-Edit-Btn.Connected");
+    const profileChatButton = document.querySelector(".Profile-Edit-Btn.Chat");
+    const profileMoreButton = document.querySelector(".Profile-Edit-Btn.More");
+    let pendingProfileBlock = false;
+    let pendingProfileReport = false;
+    let activeProfileMoreDropdown = null;
+    let activeProfileMoreButton = null;
+    let pendingBlockMemberId = null;
+    let pendingReportTargetId = null;
+    let pendingReportTargetType = null;
+    let selectedOwnedPostId = null;
+    let selectedOwnedCardType = "";
+    let activePostMoreDropdown = null;
+    let activePostMoreButton = null;
+
+    const MORE_MENU_ICONS = {
+        follow: '<svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM6 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4zm13 4v3h2v-3h3V8h-3V5h-2v3h-3v2h3zM3.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C13.318 13.65 11.838 13 10 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C5.627 11.85 7.648 11 10 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H1.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46z"></path></g></svg>',
+        unfollow: '<svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM6 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4zm12.586 3l-2.043-2.04 1.414-1.42L20 7.59l2.043-2.05 1.414 1.42L21.414 9l2.043 2.04-1.414 1.42L20 10.41l-2.043 2.05-1.414-1.42L18.586 9zM3.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C13.318 13.65 11.838 13 10 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C5.627 11.85 7.648 11 10 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H1.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46z"></path></g></svg>',
+        block: '<svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 3.75c-4.55 0-8.25 3.69-8.25 8.25 0 1.92.66 3.68 1.75 5.08L17.09 5.5C15.68 4.4 13.92 3.75 12 3.75zm6.5 3.17L6.92 18.5c1.4 1.1 3.16 1.75 5.08 1.75 4.56 0 8.25-3.69 8.25-8.25 0-1.92-.65-3.68-1.75-5.08zM1.75 12C1.75 6.34 6.34 1.75 12 1.75S22.25 6.34 22.25 12 17.66 22.25 12 22.25 1.75 17.66 1.75 12z"></path></g></svg>',
+        report: '<svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 2h18.61l-3.5 7 3.5 7H5v6H3V2zm2 12h13.38l-2.5-5 2.5-5H5v10z"></path></g></svg>',
+        edit: '<svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></g></svg>',
+        delete: '<svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"></path></g></svg>',
+    };
+
+    function buildMenuItem(actionClass, icon, label) {
+        return '<button type="button" role="menuitem" class="menu-item ' + actionClass + '">' +
+            '<span class="menu-item__icon">' + icon + '</span>' +
+            '<span class="menu-item__label">' + label + '</span>' +
+            '</button>';
+    }
+
+    if (!mypageContext.isOwner && profileChatButton instanceof HTMLButtonElement) {
+        // 상대 프로필의 Chat 버튼은 새 채팅방 생성 로직을 여기서 직접 만들지 않고,
+        // 기존 chat 진입점에 partnerId만 넘겨 현재 채팅 화면 흐름을 그대로 재사용한다.
+        profileChatButton.addEventListener("click", () => {
+            if (!mypageContext.pageMemberId) {
+                return;
+            }
+
+            window.location.href = `/chat?partnerId=${mypageContext.pageMemberId}`;
+        });
+    }
+
+    if (!mypageContext.isOwner && profileConnectButton instanceof HTMLButtonElement) {
+        // 상대 프로필의 상단 Approve 버튼은 사이드바 카드와 달리
+        // "현재 보고 있는 페이지 주인" 한 명에 대해서만 팔로우 상태를 토글한다.
+        profileConnectButton.addEventListener("click", async () => {
+            if (!mypageContext.loginMemberId || !mypageContext.pageMemberId) {
+                return;
+            }
+
+            try {
+                if (profileConnectButton.classList.contains("Connected")) {
+                    await myPageService.unfollow(mypageContext.loginMemberId, mypageContext.pageMemberId);
+                    profileConnectButton.classList.remove("Connected");
+                    profileConnectButton.classList.add("Connect");
+                    profileConnectButton.textContent = "Approve";
+                    return;
+                }
+
+                await myPageService.follow(mypageContext.loginMemberId, mypageContext.pageMemberId);
+                profileConnectButton.classList.remove("Connect");
+                profileConnectButton.classList.add("Connected");
+                profileConnectButton.textContent = "Approved";
+            } catch (error) {
+                alert(error.message || "연결 상태 변경 중 오류가 발생했습니다.");
+            }
+        });
+    }
+
+    // 사이드바 견적 요청 목록은 탭 전환과 무관한 요약 카드라서
+    // 마이페이지 진입 시 한 번만 읽어와서 렌더한다.
+    myPageService.getMyEstimationsSummary((data) => {
+        myEstimationSummary = data;
+        mypageLayout.showMyEstimationSummary(data);
+    });
+
+    // non-expert만 마이페이지 안에서 같은 카드 아래에 추가 페이지를 이어 붙인다.
+    document.querySelector("[data-mypage-estimation-more]")?.addEventListener("click", () => {
+        if (myRequestedEstimationOpened) {
+            return;
+        }
+
+        // non-expert는 summary에서 이미 5개를 보고 시작하므로,
+        // 첫 클릭에서는 requester 목록 1페이지를 다시 받아와 6번째 이후만 append 한다.
+        myRequestedEstimationOpened = true;
+        myRequestedEstimationPage = 1;
+
+        myPageService.getMyRequestedEstimations(myRequestedEstimationPage, (data) => {
+            mypageLayout.appendMyRequestedEstimationList(data, myRequestedEstimationPage);
+            myRequestedEstimationHasMore = data.criteria.hasMore;
+        });
+    });
+
     // 기존 main/event.js의 스크롤 페이징 구조와 같은 방식이다.
     // 현재 활성 탭이 내 상품이고, 다음 페이지가 남아 있을 때만 추가 로드한다.
     window.addEventListener("scroll", (e) => {
@@ -2087,13 +2227,41 @@ window.onload = function () {
             myPostCheckScroll = false;
             myPostPage++;
 
-            myPageService.getMyPosts(myPostPage, (data) => {
-                mypageLayout.showMyPostList(data, myPostPage);
-                myPostHasMore = data.criteria.hasMore;
-            });
+            if (mypageContext.isOwner) {
+                myPageService.getMyPosts(myPostPage, (data) => {
+                    mypageLayout.showMyPostList(data, myPostPage);
+                    myPostHasMore = data.criteria.hasMore;
+                });
+            } else {
+                myPageService.getProfilePosts(mypageContext.pageMemberId, myPostPage, (data) => {
+                    mypageLayout.showMyPostList(data, myPostPage);
+                    myPostHasMore = data.criteria.hasMore;
+                });
+            }
 
             setTimeout(() => {
                 myPostCheckScroll = true;
+            }, 1000);
+        }
+
+        if (activeProfileTab === "Replies" && myReplyCheckScroll && myReplyHasMore) {
+            myReplyCheckScroll = false;
+            myReplyPage++;
+
+            if (mypageContext.isOwner) {
+                myPageService.getMyReplies(myReplyPage, (data) => {
+                    mypageLayout.showMyReplyList(data, myReplyPage);
+                    myReplyHasMore = data.criteria.hasMore;
+                });
+            } else {
+                myPageService.getProfileReplies(mypageContext.pageMemberId, myReplyPage, (data) => {
+                    mypageLayout.showMyReplyList(data, myReplyPage);
+                    myReplyHasMore = data.criteria.hasMore;
+                });
+            }
+
+            setTimeout(() => {
+                myReplyCheckScroll = true;
             }, 1000);
         }
 
@@ -2101,10 +2269,17 @@ window.onload = function () {
             myProductCheckScroll = false;
             myProductPage++;
 
-            myPageService.getMyProducts(myProductPage, (data) => {
-                mypageLayout.showMyProductList(data, myProductPage);
-                myProductHasMore = data.criteria.hasMore;
-            });
+            if (mypageContext.isOwner) {
+                myPageService.getMyProducts(myProductPage, (data) => {
+                    mypageLayout.showMyProductList(data, myProductPage);
+                    myProductHasMore = data.criteria.hasMore;
+                });
+            } else {
+                myPageService.getProfileProducts(mypageContext.pageMemberId, myProductPage, (data) => {
+                    mypageLayout.showMyProductList(data, myProductPage);
+                    myProductHasMore = data.criteria.hasMore;
+                });
+            }
 
             setTimeout(() => {
                 myProductCheckScroll = true;
@@ -2122,6 +2297,20 @@ window.onload = function () {
 
             setTimeout(() => {
                 myLikedCheckScroll = true;
+            }, 1000);
+        }
+
+        if (myRequestedEstimationOpened && myRequestedEstimationCheckScroll && myRequestedEstimationHasMore) {
+            myRequestedEstimationCheckScroll = false;
+            myRequestedEstimationPage++;
+
+            myPageService.getMyRequestedEstimations(myRequestedEstimationPage, (data) => {
+                mypageLayout.appendMyRequestedEstimationList(data, myRequestedEstimationPage);
+                myRequestedEstimationHasMore = data.criteria.hasMore;
+            });
+
+            setTimeout(() => {
+                myRequestedEstimationCheckScroll = true;
             }, 1000);
         }
     });
@@ -2785,6 +2974,7 @@ window.onload = function () {
         activeMenuEl = null,
         menuTrackRaf = null;
     const postMoreMenuPost = document.querySelector(".Post-More-Menu.Post");
+    const postMoreMenuOwnerPost = document.querySelector(".Post-More-Menu.OwnerPost");
     const postMoreMenuProduct = document.querySelector(
         ".Post-More-Menu.Product",
     );
@@ -2799,6 +2989,7 @@ window.onload = function () {
     let selectedMyProductId = null;
     const allMoreMenus = [
         postMoreMenuPost,
+        postMoreMenuOwnerPost,
         postMoreMenuProduct,
         postMoreMenuProductOther,
         postMoreMenuShare,
@@ -2811,6 +3002,16 @@ window.onload = function () {
         if (menuTrackRaf) {
             cancelAnimationFrame(menuTrackRaf);
             menuTrackRaf = null;
+        }
+        if (activeProfileMoreDropdown) {
+            activeProfileMoreDropdown.remove();
+            activeProfileMoreDropdown = null;
+            activeProfileMoreButton = null;
+        }
+        if (activePostMoreDropdown) {
+            activePostMoreDropdown.remove();
+            activePostMoreDropdown = null;
+            activePostMoreButton = null;
         }
     }
 
@@ -2862,6 +3063,330 @@ window.onload = function () {
         modalBackDrop?.classList.add("off");
     }
 
+    function getProfileHandleText() {
+        // 현재 마이페이지 템플릿에서 프로필 handle은 .Profile-Handle-Text 에 렌더된다.
+        // 이전 selector(.Profile-Name-Handle)는 존재하지 않아서 메뉴 문구가 항상 @user로 떨어졌다.
+        return document.querySelector(".Profile-Handle-Text")?.textContent?.trim() || "@user";
+    }
+
+    function openReportDialog(question, reasons, targetId, targetType) {
+        pendingProfileReport = true;
+        pendingReportTargetId = targetId;
+        pendingReportTargetType = targetType;
+
+        const dialog = document.querySelector(".Notification-Dialog--Report");
+        const questionEl = dialog?.querySelector(".Notification-Dialog__Question");
+        const itemEls = dialog?.querySelectorAll(".Notification-Report__Item span");
+        if (questionEl) {
+            questionEl.textContent = question;
+        }
+
+        itemEls?.forEach((span, index) => {
+            if (reasons[index]) {
+                span.textContent = reasons[index];
+            }
+        });
+
+        dialog?.classList.remove("off");
+    }
+
+    function openProfileReportDialog() {
+        openReportDialog(
+            "이 프로필에 어떤 문제가 있나요?",
+            [
+                "사칭 또는 허위 프로필 신고",
+                "스팸 또는 반복 홍보 신고",
+                "욕설 또는 부적절한 표현 신고",
+                "허위 전문가 정보 신고",
+                "기타 운영정책 위반 신고",
+                "반복적인 악성 활동 신고"
+            ],
+            mypageContext.pageMemberId,
+            "member"
+        );
+    }
+
+    function closePostMoreDropdown() {
+        activePostMoreDropdown?.remove();
+        activePostMoreDropdown = null;
+        activePostMoreButton = null;
+    }
+
+    function getPostMetaFromButton(button) {
+        const card = button.closest(".Post-Card");
+        if (!card) return null;
+
+        return {
+            postId: Number(card.dataset.postId),
+            memberId: Number(card.dataset.memberId),
+            handle: card.dataset.memberHandle || card.querySelector(".Post-Handle")?.textContent?.trim() || "@user",
+            cardType: card.dataset.cardType || button.dataset.cardType || "",
+        };
+    }
+
+    function reloadOwnedPostList(cardType) {
+        if (cardType === "myreply") {
+            myReplyPage = 1;
+            myReplyHasMore = true;
+            myPageService.getMyReplies(1, (data) => {
+                mypageLayout.showMyReplyList(data, 1);
+                myReplyHasMore = data.criteria.hasMore;
+            });
+            return;
+        }
+
+        myPostPage = 1;
+        myPostHasMore = true;
+        myPageService.getMyPosts(1, (data) => {
+            mypageLayout.showMyPostList(data, 1);
+            myPostHasMore = data.criteria.hasMore;
+        });
+    }
+
+    async function handlePostDropdownAction(button, actionClass) {
+        const meta = getPostMetaFromButton(button);
+        if (!meta) return;
+
+        if (actionClass === "menu-item--follow-toggle") {
+            const isFollowing = profileConnectButton?.classList.contains("Connected");
+
+            if (isFollowing) {
+                await myPageService.unfollow(mypageContext.loginMemberId, meta.memberId);
+            } else {
+                await myPageService.follow(mypageContext.loginMemberId, meta.memberId);
+            }
+
+            closePostMoreDropdown();
+            return;
+        }
+
+        if (actionClass === "menu-item--block") {
+            pendingProfileBlock = true;
+            pendingBlockMemberId = meta.memberId;
+            closePostMoreDropdown();
+            openSmallModal(".Small-Modal.Ban-User");
+            return;
+        }
+
+        if (actionClass === "menu-item--report") {
+            closePostMoreDropdown();
+            openReportDialog(
+                "이 게시물에 어떤 문제가 있나요?",
+                [
+                    "허위 정보 또는 오해를 유발하는 내용",
+                    "스팸 또는 반복 홍보",
+                    "욕설 또는 혐오 표현",
+                    "저작권 또는 도용 문제",
+                    "부적절한 이미지 또는 첨부파일",
+                    "기타 운영정책 위반"
+                ],
+                meta.postId,
+                "post"
+            );
+            return;
+        }
+
+        if (actionClass === "menu-item--edit") {
+            const post = await myPageService.getPost(meta.postId, mypageContext.loginMemberId);
+            const nextContent = window.prompt("게시물 내용을 수정하세요.", post.postContent || "");
+
+            if (nextContent == null) {
+                closePostMoreDropdown();
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("id", meta.postId);
+            formData.append("postContent", nextContent.trim());
+
+            await myPageService.updatePost(meta.postId, formData);
+            reloadOwnedPostList(meta.cardType);
+            closePostMoreDropdown();
+            return;
+        }
+
+        if (actionClass === "menu-item--delete") {
+            if (!window.confirm("게시물을 삭제할까요?")) {
+                closePostMoreDropdown();
+                return;
+            }
+
+            await myPageService.deletePost(meta.postId);
+            reloadOwnedPostList(meta.cardType);
+            closePostMoreDropdown();
+        }
+    }
+
+    function openPostMoreDropdown(button) {
+        closePostMoreDropdown();
+
+        const meta = getPostMetaFromButton(button);
+        if (!meta) return;
+
+        const isMyPost = Number(meta.memberId) === Number(mypageContext.loginMemberId);
+        const isFollowing = profileConnectButton?.classList.contains("Connected");
+        const rect = button.getBoundingClientRect();
+        const top = rect.bottom + window.scrollY + 8;
+        const right = Math.max(16, window.innerWidth - rect.right);
+
+        const menuItemsHtml = isMyPost
+            ? buildMenuItem("menu-item--edit", MORE_MENU_ICONS.edit, "게시물 수정하기") +
+              buildMenuItem("menu-item--delete", MORE_MENU_ICONS.delete, "게시물 삭제하기")
+            : buildMenuItem(
+                "menu-item--follow-toggle",
+                isFollowing ? MORE_MENU_ICONS.unfollow : MORE_MENU_ICONS.follow,
+                isFollowing ? `${meta.handle} 님 언팔로우하기` : `${meta.handle} 님 팔로우하기`
+            ) +
+              buildMenuItem("menu-item--block", MORE_MENU_ICONS.block, `${meta.handle} 님 차단하기`) +
+              buildMenuItem("menu-item--report", MORE_MENU_ICONS.report, "게시물 신고하기");
+
+        const dropdown = document.createElement("div");
+        dropdown.className = "layers-dropdown-container";
+        dropdown.style.position = "absolute";
+        dropdown.style.top = "0";
+        dropdown.style.left = "0";
+        dropdown.style.width = "100%";
+        dropdown.style.height = "0";
+        dropdown.style.pointerEvents = "none";
+        dropdown.style.zIndex = "30";
+        dropdown.innerHTML =
+            '<div class="layers-overlay"></div>' +
+            '<div class="layers-dropdown-inner">' +
+            '<div role="menu" class="dropdown-menu" style="top:' + top + 'px;right:' + right + 'px;display:flex;">' +
+            '<div><div class="dropdown-inner">' + menuItemsHtml + '</div></div>' +
+            '</div></div>';
+
+        dropdown.addEventListener("click", (e) => {
+            const item = e.target.closest(".menu-item");
+            if (!item) {
+                e.stopPropagation();
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            let actionClass = "";
+            if (item.classList.contains("menu-item--follow-toggle")) actionClass = "menu-item--follow-toggle";
+            else if (item.classList.contains("menu-item--block")) actionClass = "menu-item--block";
+            else if (item.classList.contains("menu-item--report")) actionClass = "menu-item--report";
+            else if (item.classList.contains("menu-item--edit")) actionClass = "menu-item--edit";
+            else if (item.classList.contains("menu-item--delete")) actionClass = "menu-item--delete";
+
+            if (actionClass && activePostMoreButton) {
+                handlePostDropdownAction(activePostMoreButton, actionClass);
+            }
+        });
+
+        document.body.appendChild(dropdown);
+        activePostMoreDropdown = dropdown;
+        activePostMoreButton = button;
+    }
+
+    function closeProfileMoreDropdown() {
+        if (!activeProfileMoreDropdown) {
+            return;
+        }
+
+        activeProfileMoreDropdown.remove();
+        activeProfileMoreDropdown = null;
+        activeProfileMoreButton = null;
+    }
+
+    function openProfileVisitorDropdown(button) {
+        closeProfileMoreDropdown();
+
+        const handle = getProfileHandleText();
+        const isFollowing = profileConnectButton?.classList.contains("Connected");
+        const rect = button.getBoundingClientRect();
+        const top = rect.bottom + window.scrollY + 8;
+        const right = Math.max(16, window.innerWidth - rect.right);
+
+        const followIcon = isFollowing
+            ? '<svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM6 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4zm12.586 3l-2.043-2.04 1.414-1.42L20 7.59l2.043-2.05 1.414 1.42L21.414 9l2.043 2.04-1.414 1.42L20 10.41l-2.043 2.05-1.414-1.42L18.586 9zM3.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C13.318 13.65 11.838 13 10 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C5.627 11.85 7.648 11 10 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H1.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46z"></path></g></svg>'
+            : '<svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM6 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4zm13 4v3h2v-3h3V8h-3V5h-2v3h-3v2h3zM3.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C13.318 13.65 11.838 13 10 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C5.627 11.85 7.648 11 10 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H1.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46z"></path></g></svg>';
+        const followLabel = isFollowing ? `${handle} 님 언팔로우하기` : `${handle} 님 팔로우하기`;
+
+        const dropdown = document.createElement("div");
+        dropdown.className = "layers-dropdown-container";
+        dropdown.style.position = "absolute";
+        dropdown.style.top = "0";
+        dropdown.style.left = "0";
+        dropdown.style.width = "100%";
+        dropdown.style.height = "0";
+        dropdown.style.pointerEvents = "none";
+        dropdown.style.zIndex = "30";
+        dropdown.innerHTML =
+            '<div class="layers-overlay"></div>' +
+            '<div class="layers-dropdown-inner">' +
+            '<div role="menu" class="dropdown-menu" style="top:' + top + 'px;right:' + right + 'px;display:flex;">' +
+            '<div><div class="dropdown-inner">' +
+            '<button type="button" role="menuitem" class="menu-item menu-item--follow-toggle">' +
+            '<span class="menu-item__icon">' + followIcon + '</span>' +
+            '<span class="menu-item__label">' + followLabel + '</span>' +
+            '</button>' +
+            '<button type="button" role="menuitem" class="menu-item menu-item--block">' +
+            '<span class="menu-item__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M12 3.75c-4.55 0-8.25 3.69-8.25 8.25 0 1.92.66 3.68 1.75 5.08L17.09 5.5C15.68 4.4 13.92 3.75 12 3.75zm6.5 3.17L6.92 18.5c1.4 1.1 3.16 1.75 5.08 1.75 4.56 0 8.25-3.69 8.25-8.25 0-1.92-.65-3.68-1.75-5.08zM1.75 12C1.75 6.34 6.34 1.75 12 1.75S22.25 6.34 22.25 12 17.66 22.25 12 22.25 1.75 17.66 1.75 12z"></path></g></svg></span>' +
+            '<span class="menu-item__label">' + handle + ' 님 차단하기</span>' +
+            '</button>' +
+            '<button type="button" role="menuitem" class="menu-item menu-item--report">' +
+            '<span class="menu-item__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3 2h18.61l-3.5 7 3.5 7H5v6H3V2zm2 12h13.38l-2.5-5 2.5-5H5v10z"></path></g></svg></span>' +
+            '<span class="menu-item__label">프로필 신고하기</span>' +
+            '</button>' +
+            '</div></div>' +
+            '</div>' +
+            '</div>';
+
+        dropdown.addEventListener("click", (e) => {
+            const item = e.target.closest(".menu-item");
+            if (!item) {
+                e.stopPropagation();
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (item.classList.contains("menu-item--follow-toggle")) {
+                closeProfileMoreDropdown();
+                profileConnectButton?.click();
+                return;
+            }
+
+            if (item.classList.contains("menu-item--block")) {
+                pendingProfileBlock = true;
+                pendingBlockMemberId = mypageContext.pageMemberId;
+                closeProfileMoreDropdown();
+                openSmallModal(".Small-Modal.Ban-User");
+                return;
+            }
+
+            if (item.classList.contains("menu-item--report")) {
+                closeProfileMoreDropdown();
+                openProfileReportDialog();
+                return;
+            }
+        });
+
+        document.body.appendChild(dropdown);
+        activeProfileMoreDropdown = dropdown;
+        activeProfileMoreButton = button;
+    }
+
+    if (!mypageContext.isOwner && profileMoreButton instanceof HTMLButtonElement) {
+        profileMoreButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (activeProfileMoreButton === profileMoreButton) {
+                closeProfileMoreDropdown();
+                return;
+            }
+
+            closeAllMoreMenus();
+            openProfileVisitorDropdown(profileMoreButton);
+        });
+    }
+
     // ── 게시글 더보기 메뉴 ──
     postMoreMenuPost?.addEventListener("click", (e) => {
         const btn = e.target.closest(".Menu-Button");
@@ -2902,6 +3427,45 @@ window.onload = function () {
         closeAllMoreMenus();
     });
 
+    postMoreMenuOwnerPost?.addEventListener("click", async (e) => {
+        const btn = e.target.closest(".DeleteOwnedPost");
+        if (!btn || !selectedOwnedPostId) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!window.confirm("게시물을 삭제할까요?")) {
+            closeAllMoreMenus();
+            return;
+        }
+
+        try {
+            await myPageService.deletePost(selectedOwnedPostId);
+
+            if (selectedOwnedCardType === "myreply") {
+                myReplyPage = 1;
+                myReplyHasMore = true;
+                myPageService.getMyReplies(1, (data) => {
+                    mypageLayout.showMyReplyList(data, 1);
+                    myReplyHasMore = data.criteria.hasMore;
+                });
+            } else {
+                myPostPage = 1;
+                myPostHasMore = true;
+                myPageService.getMyPosts(1, (data) => {
+                    mypageLayout.showMyPostList(data, 1);
+                    myPostHasMore = data.criteria.hasMore;
+                });
+            }
+
+            selectedOwnedPostId = null;
+            selectedOwnedCardType = "";
+            closeAllMoreMenus();
+        } catch (error) {
+            alert(error.message || "게시물 삭제 중 오류가 발생했습니다.");
+        }
+    });
+
     // ── 내 상품 더보기 메뉴 ──
     postMoreMenuProduct?.addEventListener("click", (e) => {
         const btn = e.target.closest(".Menu-Button");
@@ -2937,13 +3501,34 @@ window.onload = function () {
 
     // ── 차단 모달 이벤트 ──
     document
+        .querySelector(".Small-Modal.Ban-User .Small-Button.Ban")
+        ?.addEventListener("click", async () => {
+            if (!pendingProfileBlock || !pendingBlockMemberId) {
+                closeSmallModal(".Small-Modal.Ban-User");
+                return;
+            }
+
+            try {
+                await myPageService.block(mypageContext.loginMemberId, pendingBlockMemberId);
+                pendingProfileBlock = false;
+                pendingBlockMemberId = null;
+                closeSmallModal(".Small-Modal.Ban-User");
+                showClipboardToast("차단되었습니다.");
+            } catch (error) {
+                alert(error.message || "차단 처리 중 오류가 발생했습니다.");
+            }
+        });
+
+    document
         .querySelectorAll(
-            ".Small-Modal.Ban-User .Small-Button.Ban, .Small-Modal.Ban-User .Small-Button.Cancel, .Small-Modal.Ban-User .Close-Button",
+            ".Small-Modal.Ban-User .Small-Button.Cancel, .Small-Modal.Ban-User .Close-Button",
         )
         .forEach((el) => {
-            el.addEventListener("click", () =>
-                closeSmallModal(".Small-Modal.Ban-User"),
-            );
+            el.addEventListener("click", () => {
+                pendingProfileBlock = false;
+                pendingBlockMemberId = null;
+                closeSmallModal(".Small-Modal.Ban-User");
+            });
         });
 
     // ── 관심없음 모달 이벤트 ──
@@ -3006,27 +3591,66 @@ window.onload = function () {
     // ── 신고 모달 이벤트 ──
     document
         .querySelector(".Notification-Dialog__Close")
-        ?.addEventListener("click", () =>
+        ?.addEventListener("click", () => {
+            pendingProfileReport = false;
+            pendingReportTargetId = null;
+            pendingReportTargetType = null;
             document
                 .querySelector(".Notification-Dialog--Report")
-                ?.classList.add("off"),
-        );
+                ?.classList.add("off");
+        });
     document
         .querySelector(".Notification-Dialog__Backdrop")
-        ?.addEventListener("click", () =>
+        ?.addEventListener("click", () => {
+            pendingProfileReport = false;
+            pendingReportTargetId = null;
+            pendingReportTargetType = null;
             document
                 .querySelector(".Notification-Dialog--Report")
-                ?.classList.add("off"),
-        );
+                ?.classList.add("off");
+        });
+
+    document
+        .querySelectorAll(".Notification-Report__Item")
+        .forEach((item) => {
+            item.addEventListener("click", async () => {
+                if (!pendingProfileReport) {
+                    return;
+                }
+
+                const reason = item.querySelector("span")?.textContent?.trim() || "";
+
+                try {
+                    await myPageService.report(
+                        mypageContext.loginMemberId,
+                        pendingReportTargetId,
+                        pendingReportTargetType,
+                        reason
+                    );
+
+                    pendingProfileReport = false;
+                    pendingReportTargetId = null;
+                    pendingReportTargetType = null;
+                    document.querySelector(".Notification-Dialog--Report")?.classList.add("off");
+                    showClipboardToast("신고가 접수되었습니다.");
+                } catch (error) {
+                    alert(error.message || "신고 처리 중 오류가 발생했습니다.");
+                }
+            });
+        });
 
     // ── 외부 클릭 시 더보기 메뉴 닫기 ──
     document.addEventListener("click", (e) => {
         if (
             !e.target.closest(".Post-More-Menu") &&
             !e.target.closest(".Post-More-Button") &&
-            !e.target.closest(".Post-Action-Btn.Share")
-        )
+            !e.target.closest(".Post-Action-Btn.Share") &&
+            !e.target.closest(".Profile-Edit-Btn.More") &&
+            !e.target.closest(".layers-dropdown-container")
+        ) {
             closeAllMoreMenus();
+            closeProfileMoreDropdown();
+        }
     });
 
     // ── 카드 액션 버튼 이벤트 위임 ──
@@ -3074,6 +3698,7 @@ window.onload = function () {
                 e.preventDefault();
                 e.stopPropagation();
                 const card = moreBtn.closest(".Post-Card");
+                const cardType = moreBtn.dataset.cardType || card?.dataset.cardType || "";
 
                 // 내 상품 카드의 더보기 버튼을 누른 순간
                 // 어떤 상품을 대상으로 메뉴를 열었는지 먼저 기억해둔다.
@@ -3084,14 +3709,16 @@ window.onload = function () {
                 const isMyProduct = !!card?.closest(
                     ".Profile-Content.MyProducts",
                 );
-                // data-card-type 속성으로도 판별 가능
-                const cardType = moreBtn.dataset.cardType;
                 let targetMenu;
                 if (isMyProduct || cardType === "myproduct") {
                     targetMenu = postMoreMenuProduct;
                 } else if (card?.querySelector(".Post-Title")) {
                     // 내 탭이 아닌데 상품 카드면 → 타인 상품 (관심없음)
                     targetMenu = postMoreMenuProductOther;
+                } else if (cardType === "mypost" || cardType === "myreply") {
+                    closeAllMoreMenus();
+                    openPostMoreDropdown(moreBtn);
+                    return;
                 } else {
                     targetMenu = postMoreMenuPost;
                 }

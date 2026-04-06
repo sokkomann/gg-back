@@ -9,12 +9,14 @@ import com.app.globalgates.service.FollowService;
 import com.app.globalgates.service.MemberService;
 import com.app.globalgates.service.PostService;
 import com.app.globalgates.service.S3Service;
+import com.app.globalgates.service.SubscriptionService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.ArrayList;
@@ -31,14 +33,36 @@ public class MypageController {
     private final S3Service s3Service;
     private final FollowService followService;
     private final PostService postService;
+    private final SubscriptionService subscriptionService;
 
     @GetMapping("/mypage")
-    public String goToMypage(HttpServletRequest request, Model model) {
+    public String goToMypage(@RequestParam(required = false) Long memberId, HttpServletRequest request, Model model) {
         // 메인 페이지와 같은 방식으로 로그인 토큰에서 사용자 식별자를 꺼낸다.
-        // 이렇게 해야 템플릿이 현재 로그인 회원 기준으로 이름/핸들을 렌더링할 수 있다.
+        // 이렇게 해야 현재 로그인 사용자를 기준으로 내 페이지/상대 페이지를 구분할 수 있다.
         String token = jwtTokenProvider.parseTokenFromHeader(request);
         String loginId = jwtTokenProvider.getUsername(token);
-        MemberDTO member = memberService.getMember(loginId);
+        MemberDTO loginMember = memberService.getMember(loginId);
+
+        // memberId가 없으면 내 페이지, 있으면 해당 회원의 페이지를 본다.
+        Long pageMemberId = memberId != null ? memberId : loginMember.getId();
+        boolean isOwner = loginMember.getId().equals(pageMemberId);
+
+        // 템플릿은 항상 "현재 보고 있는 페이지 주인" 정보를 기준으로 렌더링해야 하므로
+        // 상대 프로필에서는 로그인 사용자 대신 조회 대상을 바꿔 끼운다.
+        MemberDTO member = isOwner
+                ? loginMember
+                : memberService.getMemberById(pageMemberId);
+
+        // 상대 페이지의 상단 Approve 버튼은 첫 렌더에서 현재 팔로우 상태를 알아야
+        // JS 연결 전에도 Approve/Approved 문구가 실제 상태와 어긋나지 않는다.
+        boolean isFollowing = !isOwner && followService.getFollowings(loginMember.getId()).stream()
+                .anyMatch(following -> following.getFollowingId().equals(pageMemberId));
+
+        // 뱃지는 owner 여부와 무관하게 페이지 주인의 role + subscription tier 기준으로만 구분한다.
+        // 활성 구독 row가 없으면 free로 보고 뱃지를 숨긴다.
+        String subscriptionTier = subscriptionService.findByMemberId(member.getId())
+                .map(subscription -> subscription.getTier().getValue())
+                .orElse("free");
 
         // 프로필/배너 파일이 없을 때도 화면이 깨지지 않도록 기본 이미지를 먼저 둔다.
         String profileImageUrl = "/images/main/global-gates-logo.png";
@@ -62,7 +86,7 @@ public class MypageController {
             bannerImageUrl = "/images/main/lown1.jpg";
         }
 
-        // 마이페이지 상단의 커넥팅/커넥터 수는 현재 로그인한 회원 기준으로 렌더링해야 한다.
+        // 마이페이지 상단의 커넥팅/커넥터 수는 현재 보고 있는 페이지 주인 기준으로 렌더링해야 한다.
         // follow 도메인에는 이미 팔로잉/팔로워 목록 조회가 있으므로,
         // 이번 단계에서는 count 전용 쿼리를 새로 만들지 않고 목록 크기만 사용해서 가장 가볍게 연결한다.
         int connectingCount = followService.getFollowings(member.getId()).size();
@@ -103,6 +127,10 @@ public class MypageController {
 
         // mypage 템플릿에서는 member + 이미지 url 모델을 같이 사용한다.
         model.addAttribute("member", member);
+        model.addAttribute("isOwner", isOwner);
+        model.addAttribute("isFollowing", isFollowing);
+        model.addAttribute("loginMemberId", loginMember.getId());
+        model.addAttribute("subscriptionTier", subscriptionTier);
         model.addAttribute("profileImageUrl", profileImageUrl);
         model.addAttribute("bannerImageUrl", bannerImageUrl);
         model.addAttribute("connectingCount", connectingCount);

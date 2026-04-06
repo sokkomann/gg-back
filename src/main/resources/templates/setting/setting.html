@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>설정 / G</title>
     <link rel="stylesheet" href="/css/setting/setting.css"/>
-    <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
-    ({key: "AIzaSyBvskCpZg5-38p-M_xpfRiXYXYeqAF_ZD4", v: "weekly", internalUsageAttributionIds: "gmp_git_jsapisamples_v1_places-api" });</script>
 </head>
 </head>
 <body>
@@ -79,14 +77,25 @@
                                 <span class="navigation-entry__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
                                         d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
                             </a>
+                            <span class="navigation-entry__indicator" aria-hidden="true"></span>
                         </div>
                         <div class="navigation-entry" data-nav-entry="privacy_and_safety">
                             <a class="navigation-entry__link" href="/settings/privacy_and_safety" role="tab"
                                aria-selected="false" data-section-id="privacy_and_safety">
-                                <span class="navigation-entry__label">개인정보 및 안전</span>
+                                <span class="navigation-entry__label">차단한 계정</span>
                                 <span class="navigation-entry__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
                                         d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
                             </a>
+                            <span class="navigation-entry__indicator" aria-hidden="true"></span>
+                        </div>
+                        <div class="navigation-entry" data-nav-entry="subscription">
+                            <a class="navigation-entry__link" href="/settings/subscription" role="tab"
+                               aria-selected="false" data-section-id="subscription">
+                                <span class="navigation-entry__label">구독</span>
+                                <span class="navigation-entry__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
+                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
+                            </a>
+                            <span class="navigation-entry__indicator" aria-hidden="true"></span>
                         </div>
                     </div>
                 </nav>
@@ -186,69 +195,6 @@
                         <p class="detail-summary">받고 싶은 푸시 알림 종류를 선택합니다.</p>
                     </section>
 
-                    <section class="detail-route" data-detail-route-view="privacy_and_safety"
-                             data-route-title="개인정보 및 안전" hidden aria-hidden="true">
-                        <p class="detail-summary">노출 범위와 상호작용 방식을 조정하고, 뮤트 및 차단 같은 안전 도구를 관리합니다.</p>
-                        <div class="detail-list">
-                            <a class="detail-entry" href="/settings/privacy_and_safety/your_posts" role="tab"
-                               aria-selected="false">
-                                        <span class="detail-entry__content">
-                                            <span class="detail-entry__icon"><svg viewBox="0 0 24 24"
-                                                                                  aria-hidden="true"><g><path
-                                                    d="M5.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C15.318 13.65 13.838 13 12 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C7.627 11.85 9.648 11 12 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H3.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46zM12 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM8 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4z"></path></g></svg></span>
-                                            <span class="detail-entry__body">
-                                                <span class="detail-entry__title">내 게시물</span>
-                                                <p class="detail-entry__description">게시물 공개 범위와 태그 허용 여부 같은 공개 설정을 관리합니다.</p>
-                                            </span>
-                                        </span>
-                                <span class="detail-entry__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                            </a>
-                            <a class="detail-entry" href="/settings/privacy_and_safety/mute_and_block" role="tab"
-                               aria-selected="false">
-                                        <span class="detail-entry__content">
-                                            <span class="detail-entry__icon"><svg viewBox="0 0 24 24"
-                                                                                  aria-hidden="true"><g><path
-                                                    d="M14 6V3h2v8h-2V8H3V6h11zm7 2h-3.5V6H21v2zM8 16v-3h2v8H8v-3H3v-2h5zm13 2h-9.5v-2H21v2z"></path></g></svg></span>
-                                            <span class="detail-entry__body">
-                                                <span class="detail-entry__title">뮤트 및 차단</span>
-                                                <p class="detail-entry__description">뮤트하거나 차단한 계정, 단어, 알림을 한곳에서 관리합니다.</p>
-                                            </span>
-                                        </span>
-                                <span class="detail-entry__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                            </a>
-                            <a class="detail-entry" href="/settings/privacy_and_safety/direct_messages" role="tab"
-                               aria-selected="false">
-                                        <span class="detail-entry__content">
-                                            <span class="detail-entry__icon"><svg viewBox="0 0 24 24"
-                                                                                  aria-hidden="true"><g><path
-                                                    d="M7 17h6v2H7v-2zm7.5-15C15.88 2 17 3.12 17 4.5v15c0 1.38-1.12 2.5-2.5 2.5h-9C4.12 22 3 20.88 3 19.5v-15C3 3.12 4.12 2 5.5 2h9zM5 19.5c0 .28.22.5.5.5h9c.28 0 .5-.22.5-.5v-15c0-.28-.22-.5-.5-.5h-9c-.28 0-.5.22-.5.5v15zm15.74-3.49l1.64 1.15C23.4 15.7 24 13.92 24 12s-.6-3.7-1.62-5.16l-1.64 1.15C21.53 9.13 22 10.51 22 12s-.47 2.87-1.26 4.01zm-.82-7.45l-1.64 1.15c.45.65.72 1.43.72 2.29 0 .85-.27 1.64-.72 2.29l1.64 1.15C20.6 14.47 21 13.28 21 12s-.4-2.47-1.08-3.44z"></path></g></svg></span>
-                                            <span class="detail-entry__body">
-                                                <span class="detail-entry__title">채팅</span>
-                                                <p class="detail-entry__description">누가 메시지를 보낼 수 있는지와 메시지 관련 권한을 조정합니다.</p>
-                                            </span>
-                                        </span>
-                                <span class="detail-entry__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                            </a>
-                            <a class="detail-entry" href="/settings/privacy_and_safety/discoverability_and_contacts"
-                               role="tab" aria-selected="false">
-                                        <span class="detail-entry__content">
-                                            <span class="detail-entry__icon"><svg viewBox="0 0 24 24"
-                                                                                  aria-hidden="true"><g><path
-                                                    d="M14.828 9.172c-1.315-1.315-3.326-1.522-4.86-.618L3.707 2.293 2.293 3.707l2.428 2.429c-2.478 2.421-3.606 5.376-3.658 5.513L.932 12l.131.351C1.196 12.704 4.394 21 12 21c2.063 0 3.989-.622 5.737-1.849l2.556 2.556 1.414-1.414-6.261-6.261c.904-1.534.698-3.545-.618-4.86zm-1.414 1.414c.522.522.695 1.264.518 1.932l-2.449-2.449c.669-.177 1.409-.005 1.931.517zM3.085 11.999c.107-.24.272-.588.497-1.002l7.993 7.992c-5.14-.279-7.85-5.563-8.489-6.989zm13.21 5.71c-.695.448-1.422.781-2.175.996L4.672 9.258c.412-.57.899-1.158 1.464-1.708l10.16 10.16h-.001zm6.772-5.71l-.131.352c-.062.164-.801 2.055-2.33 4.027l-1.438-1.438c.917-1.217 1.494-2.378 1.746-2.941-.658-1.467-3.5-7-8.915-7-.712 0-1.376.1-2 .27V3.223c.633-.131 1.291-.223 2-.223 7.605 0 10.804 8.296 10.937 8.648l.131.352z"></path></g></svg></span>
-                                            <span class="detail-entry__body">
-                                                <span class="detail-entry__title">계정찾기 및 연락처</span>
-                                                <p class="detail-entry__description">이메일 주소와 휴대폰 번호로 내 계정을 찾을 수 있는지 관리합니다.</p>
-                                            </span>
-                                        </span>
-                                <span class="detail-entry__arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                            </a>
-                        </div>
-                    </section>
-
                     <section
                             class="detail-route"
                             data-detail-route-view="account-info-auth"
@@ -292,29 +238,82 @@
                             aria-hidden="true"
                     >
                         <div class="account-info-list" data-account-info-list>
-                            <th:block th:if="${member.provider != null and member.provider.name() == 'GOOGLE'}">
+                            <th:block
+                                    th:if="${member.memberEmail != null and !#strings.isEmpty(member.memberEmail)}"
+                                    th:with="providerKey=${member.provider != null ? member.provider.name() : 'LOCAL'}"
+                            >
                                 <div
-                                        class="account-connect-card account-connect-card--google"
-                                        th:if="${member.memberEmail != null and !#strings.isEmpty(member.memberEmail)}"
+                                        class="account-connect-card"
+                                        th:classappend="
+                                            ${providerKey == 'GOOGLE'} ? ' account-connect-card--google' :
+                                            (${providerKey == 'NAVER'} ? ' account-connect-card--naver' :
+                                            (${providerKey == 'KAKAO'} ? ' account-connect-card--kakao' :
+                                            (${providerKey == 'FACEBOOK'} ? ' account-connect-card--facebook' :
+                                            ' account-connect-card--local')))"
                                 >
-
                                     <div class="account-connect-card__brand">
-                                        <img
-                                                class="account-connect-card__logo"
-                                                src="https://static.cdn.kmong.com/assets/icon/google-logo_v2.png?w=24"
-                                                alt="Google 로고"
-                                                loading="lazy"
-                                        />
+                                        <th:block th:switch="${providerKey}">
+                                            <img
+                                                    th:case="'GOOGLE'"
+                                                    class="account-connect-card__logo"
+                                                    src="https://static.cdn.kmong.com/assets/icon/google-logo_v2.png?w=24"
+                                                    alt="Google 로고"
+                                                    loading="lazy"
+                                            />
+                                            <img
+                                                    th:case="'NAVER'"
+                                                    class="account-connect-card__logo"
+                                                    src="/images/NAVER_login_KR/NAVER_login_Light_KR_green_icon_H48.png"
+                                                    alt="네이버 로고"
+                                                    loading="lazy"
+                                            />
+                                            <img
+                                                    th:case="'KAKAO'"
+                                                    class="account-connect-card__logo"
+                                                    src="https://static.cdn.kmong.com/assets/icon/kakao-logo_v2.png?w=24"
+                                                    alt="카카오 로고"
+                                                    loading="lazy"
+                                                    style="background-color: #FEE500; padding: 1px; border-radius: 999px;"
+                                            />
+                                            <img
+                                                    th:case="'FACEBOOK'"
+                                                    class="account-connect-card__logo"
+                                                    src="https://static.cdn.kmong.com/assets/icon/facebook-logo_v2.png?w=24"
+                                                    alt="페이스북 로고"
+                                                    loading="lazy"
+                                            />
+                                            <img
+                                                    th:case="*"
+                                                    class="account-connect-card__logo"
+                                                    src="/images/main/global-gates-logo.png"
+                                                    alt="Global Gates 로고"
+                                                    loading="lazy"
+                                            />
+                                        </th:block>
 
                                         <div class="account-connect-card__meta">
-                                            <strong class="account-connect-card__name">Google</strong>
+                                            <strong class="account-connect-card__name">
+                                                <th:block th:switch="${providerKey}">
+                                                    <th:block th:case="'GOOGLE'">Google</th:block>
+                                                    <th:block th:case="'NAVER'">Naver</th:block>
+                                                    <th:block th:case="'KAKAO'">Kakao</th:block>
+                                                    <th:block th:case="'FACEBOOK'">Facebook</th:block>
+                                                    <th:block th:case="*">Global Gates</th:block>
+                                                </th:block>
+                                            </strong>
+
                                             <span class="account-connect-card__status">
                                                 <span class="account-connect-card__status-icon" aria-hidden="true">✓</span>
-                                                <span class="account-connect-card__status-text">연결됨</span>
+                                                <span
+                                                        class="account-connect-card__status-text"
+                                                        th:text="${providerKey == 'LOCAL' ? '가입됨' : '연결됨'}"
+                                                >
+                                                    연결됨
+                                                </span>
                                             </span>
                                         </div>
-
                                     </div>
+
                                     <span
                                             class="account-connect-card__email"
                                             th:text="${member.memberEmail}"
@@ -764,197 +763,6 @@
                         </section>
                     </section>
 
-                    <section
-                            class="detail-route detail-route--privacy-mute-block"
-                            data-detail-route-view="privacy-mute-block-edit"
-                            data-route-title="뮤트 및 차단"
-                            hidden
-                            aria-hidden="true"
-                    >
-                        <section class="privacy-mute-block-editor">
-                            <p class="privacy-mute-block-editor__summary">
-                                내가 뮤트했거나 차단한 계정, 단어 및 알림을 관리합니다.
-                            </p>
-                            <button type="button" class="privacy-mute-block-editor__item"
-                                    data-privacy-mute-block-item="blocked-accounts">
-                                <span class="privacy-mute-block-editor__item-title">차단한 계정</span>
-                                <span class="privacy-mute-block-editor__item-arrow" aria-hidden="true"><svg
-                                        viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                            </button>
-                            <button type="button" class="privacy-mute-block-editor__item"
-                                    data-privacy-mute-block-item="muted-accounts">
-                                <span class="privacy-mute-block-editor__item-title">뮤트한 계정</span>
-                                <span class="privacy-mute-block-editor__item-arrow" aria-hidden="true"><svg
-                                        viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                            </button>
-                            <button type="button" class="privacy-mute-block-editor__item"
-                                    data-privacy-mute-block-item="muted-words">
-                                <span class="privacy-mute-block-editor__item-title">뮤트한 단어</span>
-                                <span class="privacy-mute-block-editor__item-arrow" aria-hidden="true"><svg
-                                        viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                            </button>
-                        </section>
-                    </section>
-
-                    <section
-                            class="detail-route detail-route--privacy-chat"
-                            data-detail-route-view="privacy-chat-edit"
-                            data-route-title="채팅"
-                            hidden
-                            aria-hidden="true"
-                    >
-                        <section class="privacy-chat-editor">
-                            <section class="privacy-chat-editor__section privacy-chat-editor__section--request">
-                                <h3 class="privacy-chat-editor__section-title">다음 사용자의 쪽지 요청 허용</h3>
-                                <p class="privacy-chat-editor__section-copy">
-                                    내가 팔로우하는 사용자가 보낸 쪽지는 항상 받을 수 있습니다.
-                                </p>
-                                <label class="privacy-chat-editor__request-option">
-                                    <span class="privacy-chat-editor__request-label">받지 않음</span>
-                                    <span class="privacy-chat-editor__request-control">
-                                                <input type="radio" name="privacyChatAllow" value="none"
-                                                       class="privacy-chat-editor__radio"
-                                                       data-privacy-chat-allow="none"/>
-                                                <span class="privacy-chat-editor__radio-box" aria-hidden="true"><svg
-                                                        viewBox="0 0 24 24" aria-hidden="true"
-                                                        class="privacy-chat-editor__radio-icon"><g><path
-                                                        d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span>
-                                            </span>
-                                </label>
-                                <label class="privacy-chat-editor__request-option">
-                                    <span class="privacy-chat-editor__request-label">인증된 사용자</span>
-                                    <span class="privacy-chat-editor__request-control">
-                                                <input type="radio" name="privacyChatAllow" value="verified"
-                                                       class="privacy-chat-editor__radio"
-                                                       data-privacy-chat-allow="verified"/>
-                                                <span class="privacy-chat-editor__radio-box" aria-hidden="true"><svg
-                                                        viewBox="0 0 24 24" aria-hidden="true"
-                                                        class="privacy-chat-editor__radio-icon"><g><path
-                                                        d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span>
-                                            </span>
-                                </label>
-                                <label class="privacy-chat-editor__request-option">
-                                    <span class="privacy-chat-editor__request-label">모든 사람</span>
-                                    <span class="privacy-chat-editor__request-control">
-                                                <input type="radio" name="privacyChatAllow" value="everyone"
-                                                       class="privacy-chat-editor__radio"
-                                                       data-privacy-chat-allow="everyone"/>
-                                                <span class="privacy-chat-editor__radio-box" aria-hidden="true"><svg
-                                                        viewBox="0 0 24 24" aria-hidden="true"
-                                                        class="privacy-chat-editor__radio-icon"><g><path
-                                                        d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span>
-                                            </span>
-                                </label>
-                            </section>
-                            <section class="privacy-chat-editor__section privacy-chat-editor__section--toggle">
-                                <label class="privacy-chat-editor__toggle-row">
-                                            <span class="privacy-chat-editor__toggle-copy">
-                                                <span class="privacy-chat-editor__toggle-title">저품질 받은 쪽지 필터링하기</span>
-                                                <span class="privacy-chat-editor__toggle-description">
-                                                    스팸 또는 저질스러운 내용이 포함된 것으로 파악되는 쪽지 요청을 숨깁니다. 이러한 요청은 쪽지 요청함의 하단에 있는 별도의 받은 쪽지함으로 전송됩니다. 원하는 경우 언제든지 확인할 수 있습니다.
-                                                                                                    </span>
-                                            </span>
-                                    <span class="privacy-chat-editor__toggle-control">
-                                                <input type="checkbox" class="privacy-chat-editor__checkbox"
-                                                       data-privacy-chat-toggle="filter-low-quality"/>
-                                                <span class="privacy-chat-editor__checkbox-box" aria-hidden="true"><svg
-                                                        viewBox="0 0 24 24" aria-hidden="true"
-                                                        class="privacy-chat-editor__checkbox-icon"><g><path
-                                                        d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span>
-                                            </span>
-                                </label>
-                            </section>
-                            <section class="privacy-chat-editor__section privacy-chat-editor__section--toggle">
-                                <label class="privacy-chat-editor__toggle-row">
-                                            <span class="privacy-chat-editor__toggle-copy">
-                                                <span class="privacy-chat-editor__toggle-title">읽음 표시 보기</span>
-                                                <span class="privacy-chat-editor__toggle-description">
-                                                    쪽지를 주고 받은 사람들이 내가 메시지를 확인했을 때를 알 수 있도록 허용합니다. 읽음 표시는 쪽지 요청에 나타나지 않습니다.
-                                                                                                    </span>
-                                            </span>
-                                    <span class="privacy-chat-editor__toggle-control">
-                                                <input type="checkbox" class="privacy-chat-editor__checkbox"
-                                                       data-privacy-chat-toggle="read-receipts"/>
-                                                <span class="privacy-chat-editor__checkbox-box" aria-hidden="true"><svg
-                                                        viewBox="0 0 24 24" aria-hidden="true"
-                                                        class="privacy-chat-editor__checkbox-icon"><g><path
-                                                        d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span>
-                                            </span>
-                                </label>
-                            </section>
-                        </section>
-                    </section>
-
-                    <section
-                            class="detail-route detail-route--privacy-discoverability"
-                            data-detail-route-view="privacy-discoverability-edit"
-                            data-route-title="계정찾기 및 연락처"
-                            hidden
-                            aria-hidden="true"
-                    >
-                        <section class="privacy-discoverability-editor">
-                            <p class="privacy-discoverability-editor__summary">
-                                계정찾기 설정을 제어하고 가져온 연락처를 관리합니다.
-                            </p>
-                            <section
-                                    class="privacy-discoverability-editor__section privacy-discoverability-editor__section--search">
-                                <h3 class="privacy-discoverability-editor__section-title">검색 가능성</h3>
-                                <p class="privacy-discoverability-editor__section-copy">
-                                    내 이메일 주소 또는 휴대폰 번호를 알고 있는 사람들이 X에서 나를 찾고 연락할 수 있게 할지 여부를 결정합니다.
-                                </p>
-                                <label class="privacy-discoverability-editor__toggle-row">
-                                            <span class="privacy-discoverability-editor__toggle-copy">
-                                                <span class="privacy-discoverability-editor__toggle-title">내 이메일 주소를 알고 있는 사람들이 X에서 나를 찾을 수 있도록 허용</span>
-                                                <span class="privacy-discoverability-editor__toggle-description">
-                                                    내 이메일 주소를 알고 있는 사람들이 X에서 나를 찾고 연락할 수 있도록 합니다.
-                                                                                                    </span>
-                                            </span>
-                                    <span class="privacy-discoverability-editor__toggle-control">
-                                                <input type="checkbox" class="privacy-discoverability-editor__checkbox"
-                                                       data-privacy-discoverability-toggle="email"/>
-                                                <span class="privacy-discoverability-editor__checkbox-box"
-                                                      aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"
-                                                                              class="privacy-discoverability-editor__checkbox-icon"><g><path
-                                                        d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span>
-                                            </span>
-                                </label>
-                                <label class="privacy-discoverability-editor__toggle-row">
-                                            <span class="privacy-discoverability-editor__toggle-copy">
-                                                <span class="privacy-discoverability-editor__toggle-title">내 휴대폰 번호를 알고 있는 사람들이 X에서 나를 찾을 수 있도록 허용</span>
-                                                <span class="privacy-discoverability-editor__toggle-description">
-                                                    내 휴대폰 번호를 알고 있는 사람이 X에서 나를 찾고 연락할 수 있도록 합니다.
-                                                                                                    </span>
-                                            </span>
-                                    <span class="privacy-discoverability-editor__toggle-control">
-                                                <input type="checkbox" class="privacy-discoverability-editor__checkbox"
-                                                       data-privacy-discoverability-toggle="phone"/>
-                                                <span class="privacy-discoverability-editor__checkbox-box"
-                                                      aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"
-                                                                              class="privacy-discoverability-editor__checkbox-icon"><g><path
-                                                        d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span>
-                                            </span>
-                                </label>
-                            </section>
-                            <section
-                                    class="privacy-discoverability-editor__section privacy-discoverability-editor__section--contacts">
-                                <h3 class="privacy-discoverability-editor__section-title">연락처</h3>
-                                <p class="privacy-discoverability-editor__section-copy">
-                                    모바일 디바이스에서 가져온 연락처를 관리합니다.
-                                </p>
-                                <button type="button" class="privacy-discoverability-editor__manage-row"
-                                        data-privacy-discoverability-manage="contacts">
-                                    <span class="privacy-discoverability-editor__manage-title">연락처 관리</span>
-                                    <span class="privacy-discoverability-editor__manage-arrow" aria-hidden="true"><svg
-                                            viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                            d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                                </button>
-                            </section>
-                        </section>
-                    </section>
-
                     <section class="detail-route detail-route--privacy-blocked-accounts"
                              data-detail-route-view="privacy-blocked-accounts-edit" data-route-title="차단한 계정" hidden
                              aria-hidden="true">
@@ -962,218 +770,57 @@
                             <p class="privacy-blocked-accounts-editor__summary">
                                 사용자를 차단하면 해당 사용자는 나를 팔로우하거나 내게 쪽지를 보낼 수 없고, 해당 사용자의 알림이 표시되지 않습니다.
                             </p>
-                            <section class="privacy-blocked-accounts-editor__empty">
-                                <h3 class="privacy-blocked-accounts-editor__empty-title">원치 않는 계정 차단하기</h3>
-                                <p class="privacy-blocked-accounts-editor__empty-copy">
-                                    차단된 사용자는 나를 팔로우하거나 내게 쪽지를 보낼 수 없으며, 해당 사용자에 대한 알림이 표시되지 않습니다.
-                                </p>
+                                <section class="privacy-blocked-accounts-editor__intro">
+                                    <span class="privacy-blocked-accounts-editor__intro-title">원치 않는 계정 차단하기</span>
+                                    <p class="privacy-blocked-accounts-editor__intro-copy">
+                                        차단된 사용자는 나를 팔로우하거나 내게 쪽지를 보낼 수 없으며, 해당 사용자에 대한 알림이 표시되지 않습니다.
+                                    </p>
+                                </section>
+                            <section class="privacy-blocked-accounts-editor__list" aria-label="차단한 계정 목록">
+
                             </section>
                         </section>
                     </section>
 
-                    <section class="detail-route detail-route--privacy-muted-accounts"
-                             data-detail-route-view="privacy-muted-accounts-edit" data-route-title="뮤트한 계정" hidden
-                             aria-hidden="true">
-                        <section class="privacy-muted-accounts-editor">
-                            <p class="privacy-muted-accounts-editor__summary">
-                                뮤트한 계정의 게시물은 홈 타임라인에 표시되지 않으며, 해당 계정에 대한 알림도 표시되지 않습니다.
+                    <section class="detail-route detail-route--subscription" data-detail-route-view="subscription"
+                             data-route-title="구독" hidden aria-hidden="true">
+                        <p class="detail-summary">현재 구독 상태와 결제 정보를 확인합니다.</p>
+                        <section class="subscription-panel" aria-label="구독 정보">
+                            <p class="subscription-panel__empty" data-subscription-empty hidden>
+                                현재 활성화된 구독이 없습니다.
                             </p>
-                            <section class="privacy-muted-accounts-editor__empty">
-                                <h3 class="privacy-muted-accounts-editor__empty-title">원치 않는 계정 뮤트하기</h3>
-                                <p class="privacy-muted-accounts-editor__empty-copy">
-                                    뮤트한 사용자의 게시물은 홈 타임라인에 표시되지 않으며, 해당 사용자에 대한 알림도 표시되지 않습니다.
-                                </p>
-                            </section>
-                        </section>
-                    </section>
-
-                    <section class="detail-route detail-route--privacy-muted-words"
-                             data-detail-route-view="privacy-muted-words-edit" data-route-title="뮤트한 단어" hidden
-                             aria-hidden="true">
-                        <section class="privacy-muted-words-editor">
-                            <section class="privacy-muted-words-editor__empty">
-                                <h3 class="privacy-muted-words-editor__empty-title">뮤트할 단어 추가</h3>
-                                <p class="privacy-muted-words-editor__empty-copy">
-                                    단어를 뮤트하면 해당 단어를 포함한 게시물이 홈 타임라인에서 보이지 않으며, 관련 알림도 받지 않게 됩니다.
-                                </p>
-                            </section>
-                            <section class="privacy-muted-words-editor__list" data-privacy-muted-words-list>
-                                <article class="privacy-muted-word-item" data-privacy-muted-word-item>
-                                    <div class="privacy-muted-word-item__copy">
-                                        <strong class="privacy-muted-word-item__term">방귀 뿡뿡</strong>
-                                        <span class="privacy-muted-word-item__meta">영원히</span>
-                                    </div>
-                                    <button type="button" class="privacy-muted-word-item__action"
-                                            aria-label="뮤트한 단어 편집">
-                                        <svg viewBox="0 0 24 24" aria-hidden="true"
-                                             class="privacy-muted-word-item__action-icon">
-                                            <g>
-                                                <path d="M18 6.59V1.2L8.71 7H5.5C4.12 7 3 8.12 3 9.5v5C3 15.88 4.12 17 5.5 17h2.09l-2.3 2.29 1.42 1.42 15.5-15.5-1.42-1.42L18 6.59zm-8 8V8.55l6-3.75v3.79l-6 6zM5 9.5c0-.28.22-.5.5-.5H8v6H5.5c-.28 0-.5-.22-.5-.5v-5zm6.5 9.24l1.45-1.45L16 19.2V14l2 .02v8.78l-6.5-4.06z"></path>
-                                            </g>
-                                        </svg>
+                            <div class="subscription-panel__card" data-subscription-card hidden>
+                                <div class="subscription-panel__row">
+                                    <span class="subscription-panel__label">현재 플랜</span>
+                                    <strong class="subscription-panel__value" data-subscription-plan>Premium</strong>
+                                </div>
+                                <div class="subscription-panel__row">
+                                    <span class="subscription-panel__label">결제 주기</span>
+                                    <span class="subscription-panel__value" data-subscription-billing-cycle>월간</span>
+                                </div>
+                                <div class="subscription-panel__row">
+                                    <span class="subscription-panel__label">다음 결제일</span>
+                                    <span class="subscription-panel__value" data-subscription-next-billing-date>2026-05-03</span>
+                                </div>
+                                <div class="subscription-panel__row">
+                                    <span class="subscription-panel__label">구독 상태</span>
+                                    <span class="subscription-panel__badge" data-subscription-status>활성</span>
+                                </div>
+                                <div class="subscription-panel__actions">
+                                    <a href="/subscribe" class="subscription-panel__change">
+                                        플랜 변경
+                                    </a>
+                                    <button type="button" class="subscription-panel__cancel" data-subscription-cancel>
+                                        구독 해지
                                     </button>
-                                </article>
-                            </section>
-                        </section>
-                    </section>
-
-                    <section class="detail-route detail-route--privacy-muted-words-add"
-                             data-detail-route-view="privacy-muted-words-add-edit" data-route-title="뮤트할 단어 추가하기" hidden
-                             aria-hidden="true">
-                        <form class="privacy-muted-word-form" data-privacy-muted-word-form novalidate>
-                            <div class="privacy-muted-word-form__field-shell" data-privacy-muted-word-field>
-                                <label class="privacy-muted-word-form__field">
-                                    <input type="text" class="privacy-muted-word-form__input"
-                                           placeholder="단어 또는 문구를 입력하세요" aria-label="단어 또는 문구를 입력하세요"
-                                           data-privacy-muted-word-input/>
-                                </label>
+                                    <p class="subscription-panel__help" data-subscription-help>
+                                        월간 구독은 현재 결제 주기가 끝나면 해지됩니다.
+                                    </p>
+                                </div>
                             </div>
-                            <p class="privacy-muted-word-form__help">
-                                한 번에 단어, 문구, @사용자 아이디, 해시태그 중 하나만 뮤트할 수 있습니다.
-                            </p>
-                            <section class="privacy-muted-word-form__section">
-                                <h3 class="privacy-muted-word-form__section-title">다음에서 뮤트</h3>
-                                <label class="privacy-muted-word-form__check-row">
-                                    <span class="privacy-muted-word-form__check-label">홈 타임라인</span>
-                                    <span class="privacy-muted-word-form__check-control">
-                                                <input type="checkbox" class="privacy-muted-word-form__checkbox"
-                                                       data-privacy-muted-word-timeline-toggle/>
-                                                <span class="privacy-muted-word-form__checkbox-box" aria-hidden="true"><svg
-                                                        viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                                        d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span>
-                                            </span>
-                                </label>
-                                <label class="privacy-muted-word-form__switch-row">
-                                    <span class="privacy-muted-word-form__switch-label">알림</span>
-                                    <span class="privacy-muted-word-form__switch-control">
-                                                <input type="checkbox" class="privacy-muted-word-form__switch-input"
-                                                       data-privacy-muted-word-notifications-toggle/>
-                                                <span class="privacy-muted-word-form__switch-track"
-                                                      aria-hidden="true"><span
-                                                        class="privacy-muted-word-form__switch-thumb"></span></span>
-                                            </span>
-                                </label>
-                                <div class="privacy-muted-word-form__divider"></div>
-                                <label class="privacy-muted-word-form__radio-row"><span
-                                        class="privacy-muted-word-form__radio-label">모든 사용자</span><span
-                                        class="privacy-muted-word-form__radio-control"><input type="radio"
-                                                                                              name="privacyMutedWordAudience"
-                                                                                              class="privacy-muted-word-form__radio"
-                                                                                              value="everyone"
-                                                                                              data-privacy-muted-word-audience/><span
-                                        class="privacy-muted-word-form__radio-box"
-                                        aria-hidden="true"></span></span></label>
-                                <label class="privacy-muted-word-form__radio-row"><span
-                                        class="privacy-muted-word-form__radio-label">팔로우하지 않는 사람</span><span
-                                        class="privacy-muted-word-form__radio-control"><input type="radio"
-                                                                                              name="privacyMutedWordAudience"
-                                                                                              class="privacy-muted-word-form__radio"
-                                                                                              value="non-following"
-                                                                                              data-privacy-muted-word-audience/><span
-                                        class="privacy-muted-word-form__radio-box"
-                                        aria-hidden="true"></span></span></label>
-                            </section>
-                            <section
-                                    class="privacy-muted-word-form__section privacy-muted-word-form__section--duration">
-                                <h3 class="privacy-muted-word-form__section-title">기간</h3>
-                                <label class="privacy-muted-word-form__radio-row"><span
-                                        class="privacy-muted-word-form__radio-label">뮤트 해제할 때까지</span><span
-                                        class="privacy-muted-word-form__radio-control"><input type="radio"
-                                                                                              name="privacyMutedWordDuration"
-                                                                                              class="privacy-muted-word-form__radio"
-                                                                                              value="until-unmuted"
-                                                                                              data-privacy-muted-word-duration/><span
-                                        class="privacy-muted-word-form__radio-box"
-                                        aria-hidden="true"></span></span></label>
-                                <label class="privacy-muted-word-form__radio-row"><span
-                                        class="privacy-muted-word-form__radio-label">24시간</span><span
-                                        class="privacy-muted-word-form__radio-control"><input type="radio"
-                                                                                              name="privacyMutedWordDuration"
-                                                                                              class="privacy-muted-word-form__radio"
-                                                                                              value="24h"
-                                                                                              data-privacy-muted-word-duration/><span
-                                        class="privacy-muted-word-form__radio-box"
-                                        aria-hidden="true"></span></span></label>
-                                <label class="privacy-muted-word-form__radio-row"><span
-                                        class="privacy-muted-word-form__radio-label">7일</span><span
-                                        class="privacy-muted-word-form__radio-control"><input type="radio"
-                                                                                              name="privacyMutedWordDuration"
-                                                                                              class="privacy-muted-word-form__radio"
-                                                                                              value="7d"
-                                                                                              data-privacy-muted-word-duration/><span
-                                        class="privacy-muted-word-form__radio-box"
-                                        aria-hidden="true"></span></span></label>
-                                <label class="privacy-muted-word-form__radio-row"><span
-                                        class="privacy-muted-word-form__radio-label">30일</span><span
-                                        class="privacy-muted-word-form__radio-control"><input type="radio"
-                                                                                              name="privacyMutedWordDuration"
-                                                                                              class="privacy-muted-word-form__radio"
-                                                                                              value="30d"
-                                                                                              data-privacy-muted-word-duration/><span
-                                        class="privacy-muted-word-form__radio-box"
-                                        aria-hidden="true"></span></span></label>
-                            </section>
-                            <div class="privacy-muted-word-form__footer">
-                                <button type="submit" class="privacy-muted-word-form__save" data-privacy-muted-word-save
-                                        disabled>저장
-                                </button>
-                            </div>
-                        </form>
-                    </section>
-
-                    <section class="detail-route detail-route--privacy-posts"
-                             data-detail-route-view="privacy-posts-edit" data-route-title="내 게시물" hidden
-                             aria-hidden="true">
-                        <section class="privacy-posts-editor">
-                            <p class="privacy-posts-editor__summary">게시물과 관련된 정보를 관리합니다.</p>
-                            <label class="privacy-posts-editor__sensitive">
-                                        <span class="privacy-posts-editor__sensitive-copy">
-                                            <span class="privacy-posts-editor__sensitive-title">게시하는 미디어를 민감한 내용이 포함될 수 있는 미디어로 표시하기</span>
-                                            <span class="privacy-posts-editor__sensitive-description">
-                                                활성화하면 게시하는 사진과 동영상이 민감한 콘텐츠가 표시되기를 원치 않는 사람들에게 민감한 콘텐츠로 표시됩니다.
-                                                                                            </span>
-                                        </span>
-                                <span class="privacy-posts-editor__sensitive-control">
-                                            <input type="checkbox" class="privacy-posts-editor__checkbox"
-                                                   data-privacy-posts-sensitive-toggle/>
-                                            <span class="privacy-posts-editor__checkbox-box" aria-hidden="true"><svg
-                                                    viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                                    d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span>
-                                        </span>
-                            </label>
-                            <button type="button" class="privacy-posts-editor__item"
-                                    data-privacy-posts-route="location">
-                                <span class="privacy-posts-editor__item-title">게시물에 위치 정보 넣기</span>
-                                <span class="privacy-posts-editor__item-arrow" aria-hidden="true"><svg
-                                        viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                        d="M14.586 12L7.543 4.96l1.414-1.42L17.414 12l-8.457 8.46-1.414-1.42L14.586 12z"></path></g></svg></span>
-                            </button>
                         </section>
                     </section>
 
-                    <section class="detail-route detail-route--privacy-posts-location"
-                             data-detail-route-view="privacy-posts-location-edit" data-route-title="게시물에 위치 정보 넣기"
-                             hidden aria-hidden="true">
-                        <section class="privacy-posts-location-editor">
-                            <p class="privacy-posts-location-editor__summary">
-                                활성화하면 게시물에 위치 정보를 첨부할 수 있습니다.
-                            </p>
-                            <label class="privacy-posts-location-editor__toggle-row">
-                                <span class="privacy-posts-location-editor__toggle-title">게시물에 위치 정보 넣기</span>
-                                <span class="privacy-posts-location-editor__toggle-control">
-                                            <input type="checkbox" class="privacy-posts-location-editor__checkbox"
-                                                   data-privacy-posts-location-toggle/>
-                                            <span class="privacy-posts-location-editor__checkbox-box"
-                                                  aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path
-                                                    d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span>
-                                        </span>
-                            </label>
-                            <button type="button" class="privacy-posts-location-editor__delete"
-                                    data-privacy-posts-location-delete>
-                                게시물에 추가된 모든 위치 정보를 삭제합니다
-                            </button>
-                        </section>
-                    </section>
                     <section class="detail-route detail-route--phone" data-detail-route-view="phone-edit"
                              data-route-title="휴대폰 변경" hidden aria-hidden="true">
                         <div class="phone-editor">
@@ -1218,7 +865,8 @@
                             <div class="country-editor__section">
                                 <label class="country-editor__field">
                                     <span class="country-editor__label">국가</span>
-                                    <select id="countrySelectionList" class="country-editor__select" aria-label="국가" data-country-select>
+                                    <select id="countrySelectionList" class="country-editor__select" aria-label="국가"
+                                            data-country-select>
                                         <option value="gh">가나</option>
                                         <option value="ga">가봉</option>
                                         <option value="gy">가이아나</option>
@@ -1764,74 +1412,267 @@
                         aria-label="언어 선택 목록"
                         aria-multiselectable="false"
                 >
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="en" aria-selected="false"><span class="setting-language-selection__item-label">영어 - English</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ko" aria-selected="false"><span class="setting-language-selection__item-label">한국어</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="gu" aria-selected="false"><span class="setting-language-selection__item-label">구자라트어 - ગુજરાતી</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="el" aria-selected="false"><span class="setting-language-selection__item-label">그리스어 - Ελληνικά</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="nl" aria-selected="false"><span class="setting-language-selection__item-label">네덜란드어 - Nederlands</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ne" aria-selected="false"><span class="setting-language-selection__item-label">네팔어 - नेपाली</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="no" aria-selected="false"><span class="setting-language-selection__item-label">노르웨이어 - norsk</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="da" aria-selected="false"><span class="setting-language-selection__item-label">덴마크어 - dansk</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="de" aria-selected="false"><span class="setting-language-selection__item-label">독일어 - Deutsch</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="dv" aria-selected="false"><span class="setting-language-selection__item-label">디베히어 - Divehi</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="lo" aria-selected="false"><span class="setting-language-selection__item-label">라오어 - ລາວ</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="lv" aria-selected="false"><span class="setting-language-selection__item-label">라트비아어 - latviešu</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ru" aria-selected="false"><span class="setting-language-selection__item-label">러시아어 - русский</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ro" aria-selected="false"><span class="setting-language-selection__item-label">루마니아어 - română</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="lt" aria-selected="false"><span class="setting-language-selection__item-label">리투아니아어 - lietuvių</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="mr" aria-selected="false"><span class="setting-language-selection__item-label">마라티어 - मराठी</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ml" aria-selected="false"><span class="setting-language-selection__item-label">말라얄람어 - മലയാളം</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ms" aria-selected="false"><span class="setting-language-selection__item-label">말레이어 - Melayu</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="eu" aria-selected="false"><span class="setting-language-selection__item-label">바스크어 - euskara</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="my" aria-selected="false"><span class="setting-language-selection__item-label">버마어 - မြန်မာ</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="vi" aria-selected="false"><span class="setting-language-selection__item-label">베트남어 - Tiếng Việt</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="bn" aria-selected="false"><span class="setting-language-selection__item-label">벵골어 - বাংলা</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="bg" aria-selected="false"><span class="setting-language-selection__item-label">불가리아어 - български</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="sr" aria-selected="false"><span class="setting-language-selection__item-label">세르비아어 - српски</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ckb" aria-selected="false"><span class="setting-language-selection__item-label">소라니 쿠르드어 - کوردیی ناوەندی</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="si" aria-selected="false"><span class="setting-language-selection__item-label">스리랑카어 - සිංහල</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="sv" aria-selected="false"><span class="setting-language-selection__item-label">스웨덴어 - svenska</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="es" aria-selected="false"><span class="setting-language-selection__item-label">스페인어 - español</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="sl" aria-selected="false"><span class="setting-language-selection__item-label">슬로베니아어 - slovenščina</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="sd" aria-selected="false"><span class="setting-language-selection__item-label">신디어 - سنڌي</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ar" aria-selected="false"><span class="setting-language-selection__item-label">아랍어 - العربية</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="hy" aria-selected="false"><span class="setting-language-selection__item-label">아르메니아어 - հայերեն</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="is" aria-selected="false"><span class="setting-language-selection__item-label">아이슬란드어 - íslenska</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ht" aria-selected="false"><span class="setting-language-selection__item-label">아이티어 - Haitian Creole</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="am" aria-selected="false"><span class="setting-language-selection__item-label">암하라어 - አማርኛ</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="et" aria-selected="false"><span class="setting-language-selection__item-label">에스토니아어 - eesti</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="eo" aria-selected="false"><span class="setting-language-selection__item-label">에스페란토어 - esperanto</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="or" aria-selected="false"><span class="setting-language-selection__item-label">오리야어 - ଓଡ଼ିଆ</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ur" aria-selected="false"><span class="setting-language-selection__item-label">우르두어 - اردو</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="uk" aria-selected="false"><span class="setting-language-selection__item-label">우크라이나어 - українська</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="cy" aria-selected="false"><span class="setting-language-selection__item-label">웨일스어 - Cymraeg</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ug" aria-selected="false"><span class="setting-language-selection__item-label">위구르어 - ئۇيغۇرچە</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="it" aria-selected="false"><span class="setting-language-selection__item-label">이탈리아어 - italiano</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="id" aria-selected="false"><span class="setting-language-selection__item-label">인도네시아어 - Indonesia</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ja" aria-selected="false"><span class="setting-language-selection__item-label">일본어 - 日本語</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ka" aria-selected="false"><span class="setting-language-selection__item-label">조지아어 - ქართული</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="zh" aria-selected="false"><span class="setting-language-selection__item-label">중국어 - 中文</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="cs" aria-selected="false"><span class="setting-language-selection__item-label">체코어 - čeština</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ca" aria-selected="false"><span class="setting-language-selection__item-label">카탈로니아어 - català</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="kn" aria-selected="false"><span class="setting-language-selection__item-label">칸나다어 - ಕನ್ನಡ</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="km" aria-selected="false"><span class="setting-language-selection__item-label">크메르어 - ខ្មែរ</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="tl" aria-selected="false"><span class="setting-language-selection__item-label">타갈로그어 - Tagalog</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ta" aria-selected="false"><span class="setting-language-selection__item-label">타밀어 - தமிழ்</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="th" aria-selected="false"><span class="setting-language-selection__item-label">태국어 - ไทย</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="tr" aria-selected="false"><span class="setting-language-selection__item-label">터키어 - Türkçe</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="te" aria-selected="false"><span class="setting-language-selection__item-label">텔루구어 - తెలుగు</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="bo" aria-selected="false"><span class="setting-language-selection__item-label">티베트어 - བོད་སྐད་</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ps" aria-selected="false"><span class="setting-language-selection__item-label">파슈토어 - پښتو</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="pa" aria-selected="false"><span class="setting-language-selection__item-label">펀잡어 - ਪੰਜਾਬੀ</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="fa" aria-selected="false"><span class="setting-language-selection__item-label">페르시아어 - فارسی</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="pt" aria-selected="false"><span class="setting-language-selection__item-label">포르투갈어 - português</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="pl" aria-selected="false"><span class="setting-language-selection__item-label">폴란드어 - polski</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="fr" aria-selected="false"><span class="setting-language-selection__item-label">프랑스어 - français</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="fi" aria-selected="false"><span class="setting-language-selection__item-label">핀란드어 - suomi</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="hu" aria-selected="false"><span class="setting-language-selection__item-label">헝가리어 - magyar</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="he" aria-selected="false"><span class="setting-language-selection__item-label">히브리어 - עברית</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="hi" aria-selected="false"><span class="setting-language-selection__item-label">힌디어 - हिन्दी</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
-                    <button type="button" class="setting-language-selection__item" data-setting-language-id="etc" aria-selected="false"><span class="setting-language-selection__item-label">기타</span><span class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="en"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">영어 - English</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ko"
+                            aria-selected="false"><span class="setting-language-selection__item-label">한국어</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="gu"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">구자라트어 - ગુજરાતી</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="el"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">그리스어 - Ελληνικά</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="nl"
+                            aria-selected="false"><span class="setting-language-selection__item-label">네덜란드어 - Nederlands</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ne"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">네팔어 - नेपाली</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="no"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">노르웨이어 - norsk</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="da"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">덴마크어 - dansk</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="de"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">독일어 - Deutsch</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="dv"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">디베히어 - Divehi</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="lo"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">라오어 - ລາວ</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="lv"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">라트비아어 - latviešu</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ru"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">러시아어 - русский</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ro"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">루마니아어 - română</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="lt"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">리투아니아어 - lietuvių</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="mr"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">마라티어 - मराठी</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ml"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">말라얄람어 - മലയാളം</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ms"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">말레이어 - Melayu</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="eu"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">바스크어 - euskara</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="my"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">버마어 - မြန်မာ</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="vi"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">베트남어 - Tiếng Việt</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="bn"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">벵골어 - বাংলা</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="bg"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">불가리아어 - български</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="sr"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">세르비아어 - српски</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ckb"
+                            aria-selected="false"><span class="setting-language-selection__item-label">소라니 쿠르드어 - کوردیی ناوەندی</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="si"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">스리랑카어 - සිංහල</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="sv"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">스웨덴어 - svenska</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="es"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">스페인어 - español</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="sl"
+                            aria-selected="false"><span class="setting-language-selection__item-label">슬로베니아어 - slovenščina</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="sd"
+                            aria-selected="false"><span class="setting-language-selection__item-label">신디어 - سنڌي</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ar"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">아랍어 - العربية</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="hy"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">아르메니아어 - հայերեն</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="is"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">아이슬란드어 - íslenska</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ht"
+                            aria-selected="false"><span class="setting-language-selection__item-label">아이티어 - Haitian Creole</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="am"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">암하라어 - አማርኛ</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="et"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">에스토니아어 - eesti</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="eo"
+                            aria-selected="false"><span class="setting-language-selection__item-label">에스페란토어 - esperanto</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="or"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">오리야어 - ଓଡ଼ିଆ</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ur"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">우르두어 - اردو</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="uk"
+                            aria-selected="false"><span class="setting-language-selection__item-label">우크라이나어 - українська</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="cy"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">웨일스어 - Cymraeg</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ug"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">위구르어 - ئۇيغۇرچە</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="it"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">이탈리아어 - italiano</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="id"
+                            aria-selected="false"><span class="setting-language-selection__item-label">인도네시아어 - Indonesia</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ja"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">일본어 - 日本語</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ka"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">조지아어 - ქართული</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="zh"
+                            aria-selected="false"><span class="setting-language-selection__item-label">중국어 - 中文</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="cs"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">체코어 - čeština</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ca"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">카탈로니아어 - català</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="kn"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">칸나다어 - ಕನ್ನಡ</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="km"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">크메르어 - ខ្មែរ</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="tl"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">타갈로그어 - Tagalog</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ta"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">타밀어 - தமிழ்</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="th"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">태국어 - ไทย</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="tr"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">터키어 - Türkçe</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="te"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">텔루구어 - తెలుగు</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="bo"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">티베트어 - བོད་སྐད་</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="ps"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">파슈토어 - پښتو</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="pa"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">펀잡어 - ਪੰਜਾਬੀ</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="fa"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">페르시아어 - فارسی</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="pt"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">포르투갈어 - português</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="pl"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">폴란드어 - polski</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="fr"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">프랑스어 - français</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="fi"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">핀란드어 - suomi</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="hu"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">헝가리어 - magyar</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="he"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">히브리어 - עברית</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="hi"
+                            aria-selected="false"><span
+                            class="setting-language-selection__item-label">힌디어 - हिन्दी</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
+                    <button type="button" class="setting-language-selection__item" data-setting-language-id="etc"
+                            aria-selected="false"><span class="setting-language-selection__item-label">기타</span><span
+                            class="setting-language-selection__item-check" aria-hidden="true"></span></button>
                 </div>
 
                 <div class="language-selection__footer">
@@ -2281,6 +2122,40 @@
             </button>
         </div>
     </section>
+
+    <section
+            class="modal-card modal-card--blocked-unblock"
+            id="blockedUnblockModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="blockedUnblockModalTitle"
+            hidden
+    >
+        <div class="blocked-unblock-modal">
+            <h2 class="blocked-unblock-modal__title" id="blockedUnblockModalTitle">
+                <span data-blocked-unblock-handle>handle</span>님을 차단 해제 하겠습니까?
+            </h2>
+
+            <div class="blocked-unblock-modal__footer">
+                <button
+                        type="button"
+                        class="blocked-unblock-modal__confirm"
+                        id="blockedUnblockConfirmButton"
+                >
+                    확인
+                </button>
+                <button
+                        type="button"
+                        class="blocked-unblock-modal__cancel"
+                        id="blockedUnblockCancelButton"
+                >
+                    취소
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section
 </div>
 
 <script th:inline="javascript">
@@ -2300,8 +2175,20 @@
         memberCountry: [[${member.memberCountry}]],
         pushEnabled: [[${member.pushEnabled}]],
         createdDatetime: [[${member.createdDatetime}]],
-        memberProvider:[[${member.provider}]]
-    };
+        memberBio: [[${member.memberBio}]],
+        // provider 계정은 setting에서 비밀번호 재확인/생성 흐름을 별도로 분기해야 하므로
+        // 최초 렌더 시 서버가 현재 계정의 OAuth 공급자와 passwordless 여부를 함께 내려준다.
+        memberProvider: [[${member.provider}]],
+        isPasswordlessAccount: [[${
+            member
+            .provider != null
+            and(member
+            .memberPassword == null
+            or #strings.isEmpty(member.memberPassword)
+    )
+    }]]
+    }
+    ;
 
     /*
      * 알림 상세 초기값도 같은 방식으로 서버가 직접 주입한다.
@@ -2318,8 +2205,11 @@
         pushSystem: [[${notificationPreference.pushSystem}]],
         pushMentions: [[${notificationPreference.pushMentions}]]
     };
+
+    window.block
 </script>
 <script src="/js/setting/service.js"></script>
+<script src="/js/setting/layout.js"></script>
 <script src="/js/setting/event.js"></script>
 </body>
 </html>

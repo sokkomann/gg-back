@@ -82,6 +82,27 @@ public class EstimationService {
     }
 
     @Transactional(readOnly = true)
+    public EstimationWithPagingDTO getRequestedList(int page, Long requesterId) {
+        Criteria criteria = new Criteria(page, requesterId == null ? 0 : estimationDAO.findRequestedTotal(requesterId));
+        List<EstimationDTO> estimations =
+                requesterId == null ? List.of() : estimationDAO.findRequestedAll(criteria, requesterId);
+
+        criteria.setHasMore(estimations.size() > criteria.getRowCount());
+        if (criteria.isHasMore()) {
+            estimations.remove(estimations.size() - 1);
+        }
+
+        estimations.forEach(estimationDTO ->
+                estimationDTO.setTags(estimationTagDAO.findAllByEstimationId(estimationDTO.getId()))
+        );
+
+        EstimationWithPagingDTO estimationWithPagingDTO = new EstimationWithPagingDTO();
+        estimationWithPagingDTO.setEstimations(estimations);
+        estimationWithPagingDTO.setCriteria(criteria);
+        return estimationWithPagingDTO;
+    }
+
+    @Transactional(readOnly = true)
     public Optional<EstimationDTO> getDetail(Long id) {
         Optional<EstimationDTO> estimation = estimationDAO.findById(id);
         estimation.ifPresent(estimationDTO ->

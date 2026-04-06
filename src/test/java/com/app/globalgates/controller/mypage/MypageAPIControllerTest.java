@@ -2,8 +2,10 @@ package com.app.globalgates.controller.mypage;
 
 import com.app.globalgates.auth.CustomUserDetails;
 import com.app.globalgates.dto.MemberDTO;
+import com.app.globalgates.dto.PostWithPagingDTO;
 import com.app.globalgates.dto.PostProductWithPagingDTO;
 import com.app.globalgates.service.PostProductService;
+import com.app.globalgates.service.PostService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +25,8 @@ class MypageAPIControllerTest {
 
     @Mock
     private PostProductService postProductService;
+    @Mock
+    private PostService postService;
 
     @InjectMocks
     private MypageAPIController mypageAPIController;
@@ -54,5 +58,29 @@ class MypageAPIControllerTest {
 
         assertEquals(Map.of("message", "상품 삭제 성공"), responseEntity.getBody());
         verify(postProductService).delete(31L, 7L);
+    }
+
+    @Test
+    void getProfileProducts_returnsPagingDataForViewedMember() {
+        PostProductWithPagingDTO pagingDTO = new PostProductWithPagingDTO();
+
+        when(postProductService.getMyProducts(2, 15L)).thenReturn(pagingDTO);
+
+        PostProductWithPagingDTO result = mypageAPIController.getProfileProducts(2, 15L);
+
+        assertSame(pagingDTO, result);
+        verify(postProductService).getMyProducts(2, 15L);
+    }
+
+    @Test
+    void getProfilePosts_returnsPagingDataForViewedMember() {
+        PostWithPagingDTO pagingDTO = new PostWithPagingDTO();
+
+        when(postService.getMyPosts(3, 21L)).thenReturn(pagingDTO);
+
+        PostWithPagingDTO result = mypageAPIController.getProfilePosts(3, 21L);
+
+        assertSame(pagingDTO, result);
+        verify(postService).getMyPosts(3, 21L);
     }
 }
