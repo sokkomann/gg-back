@@ -6,6 +6,7 @@
     <title>홈 / G</title>
     <link rel="stylesheet" href="/css/main/main.css">
     <link rel="stylesheet" href="/css/bookmark/bookmark.css">
+    <link rel="stylesheet" href="/css/mention/mention.css">
     <script th:inline="javascript">
         const loginMember = {
             id: [[${member.id}]],
@@ -178,6 +179,15 @@
                         <img th:src="${member.fileName != null ? member.fileName : '/images/profile/default_image.png'}" alt="" />
                     </div>
                     <div class="tweet-modal__input-wrap">
+                        <!-- 커뮤니티 선택 영역 (게시판 선택은 제거, 커뮤니티 태그만 유지) -->
+                        <div class="composerAudience">
+                            <div class="composerAudienceRow">
+                                <button class="audienceButton" id="audienceButton" type="button">일반</button>
+                                <div class="composerAudienceTagDock" id="composerAudienceTagDock">
+                                    <div class="tag-input off"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="tweet-modal__editor" contenteditable="true" aria-multiline="true" data-placeholder="게시물 등록하기" ></div>
@@ -735,7 +745,15 @@
     <div class="account-menu-popup off" id="accountMenuPopup">
         <button class="account-menu-logout" id="accountLogoutButton">계정에서 로그아웃</button>
     </div>
-    <!-- 게시판 선택 레이어 제거됨 -->
+    <!-- 커뮤니티 선택 레이어 (게시판 선택 제거) -->
+    <div class="boardMenu off" id="boardMenu">
+        <div class="boardMenuSection">
+            <h4 class="boardMenuSectionTitle">내 커뮤니티</h4>
+            <div class="communityMenuList" id="communityMenuList">
+                <p class="communityMenuEmpty">가입된 커뮤니티가 없습니다</p>
+            </div>
+        </div>
+    </div>
     <!-- 좌측 더보기 팝오버: JS는 버튼 좌표만 다시 계산하고, 레이어는 이 고정 노드의 hidden만 토글한다. -->
     <div class="nav-more-layer off" id="navMoreLayer">
         <div class="nav-more-overlay"></div>

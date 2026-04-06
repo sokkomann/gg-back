@@ -930,6 +930,7 @@ window.onload = () => {
         composeSubmit.disabled = true;
         editPostId = null;
         composeSubmit.textContent = "게시";
+        composeMention.closeMentionDropdown();
         if (resetCompose) { resetCompose(); }
     }
 
@@ -976,6 +977,12 @@ window.onload = () => {
         if (location) {
             formData.append("location", location);
         }
+
+        // 멘션 handle 전송
+        const mentionHandles = collectMentionHandles(composeEditor);
+        mentionHandles.forEach((h, i) => {
+            formData.append(`mentionedHandles[${i}]`, h);
+        });
 
         if (editPostId) {
             await service.updatePost(editPostId, formData);
@@ -1041,6 +1048,7 @@ window.onload = () => {
         replyGaugeText.style.color = "";
         replySubmit.disabled = true;
         replyTargetPostId = null;
+        replyMention.closeMentionDropdown();
         if (resetReply) { resetReply(); }
     }
 
@@ -1072,10 +1080,158 @@ window.onload = () => {
             const replyFormData = new FormData();
             replyFormData.append("memberId", memberId);
             replyFormData.append("postContent", replyEditor.textContent);
+            // 멘션 handle 전송
+            const replyMentionHandles = collectMentionHandles(replyEditor);
+            replyMentionHandles.forEach((h, i) => {
+                replyFormData.append(`mentionedHandles[${i}]`, h);
+            });
             await service.writeReply(replyTargetPostId, replyFormData);
         }
         closeReplyModal();
     });
+
+    // ── 멘션 공통 ──
+    function setupMention(editor, dropdownContainer) {
+        console.log("멘션셋업 들어옴1");
+        let mentionMode = false;
+        let mentionQuery = '';
+        let mentionActiveIndex = 0;
+        let mentionResults = [];
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'mention-dropdown off';
+        document.body.appendChild(dropdown);
+
+        editor.addEventListener('input', async () => {
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+            const range = sel.getRangeAt(0);
+            const textNode = range.startContainer;
+            if (textNode.nodeType !== Node.TEXT_NODE) { closeMentionDropdown(); return; }
+
+            const text = textNode.textContent;
+            const cursorPos = range.startOffset;
+            const beforeCursor = text.substring(0, cursorPos);
+            const atIndex = beforeCursor.lastIndexOf('@');
+
+            if (atIndex === -1 || (atIndex > 0 && beforeCursor[atIndex - 1] !== ' ' && beforeCursor[atIndex - 1] !== '\n')) {
+                closeMentionDropdown(); return;
+            }
+
+            const query = beforeCursor.substring(atIndex + 1);
+            if (query.includes(' ')) { closeMentionDropdown(); return; }
+
+            mentionMode = true;
+            mentionQuery = query;
+            console.log("멘션모드 들어옴1 query:", query);
+
+            if (query.length === 0) { closeMentionDropdown(); return; }
+
+            const members = await service.searchMentionMembers(query, memberId);
+            mentionResults = members;
+            mentionActiveIndex = 0;
+
+            if (members.length === 0) { closeMentionDropdown(); return; }
+
+            dropdown.innerHTML = layout.buildMentionDropdown(members);
+            // 입력중인 줄 기준으로 드롭다운 표시 (x는 에디터 왼쪽, y는 커서 줄 아래)
+            const cursorRect = range.getBoundingClientRect();
+            const editorRect = editor.getBoundingClientRect();
+            dropdown.style.left = editorRect.left + 'px';
+            dropdown.style.top = (cursorRect.bottom + 4) + 'px';
+            dropdown.style.bottom = 'auto';
+            dropdown.classList.remove('off');
+            console.log("멘션드롭다운 들어옴2 열림");
+
+            dropdown.querySelectorAll('.mention-item').forEach((item, idx) => {
+                item.addEventListener('mousedown', (e) => { e.preventDefault(); selectMention(idx); });
+            });
+        });
+
+        editor.addEventListener('keydown', (e) => {
+            if (!mentionMode || dropdown.classList.contains('off')) return;
+            if (e.key === 'ArrowDown') { e.preventDefault(); mentionActiveIndex = Math.min(mentionActiveIndex + 1, mentionResults.length - 1); updateActiveItem(); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); mentionActiveIndex = Math.max(mentionActiveIndex - 1, 0); updateActiveItem(); }
+            else if (e.key === 'Enter') { e.preventDefault(); selectMention(mentionActiveIndex); }
+            else if (e.key === 'Escape') { closeMentionDropdown(); }
+        });
+
+        function updateActiveItem() {
+            dropdown.querySelectorAll('.mention-item').forEach((item, idx) => {
+                item.classList.toggle('active', idx === mentionActiveIndex);
+                if (idx === mentionActiveIndex) item.scrollIntoView({ block: 'nearest' });
+            });
+        }
+
+        function selectMention(index) {
+            console.log("멘션선택 들어옴1 index:", index);
+            const member = mentionResults[index];
+            if (!member) return;
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+            const range = sel.getRangeAt(0);
+            const textNode = range.startContainer;
+            if (textNode.nodeType !== Node.TEXT_NODE) return;
+
+            const text = textNode.textContent;
+            const cursorPos = range.startOffset;
+            const beforeCursor = text.substring(0, cursorPos);
+            const atIndex = beforeCursor.lastIndexOf('@');
+            const before = text.substring(0, atIndex);
+            const after = text.substring(cursorPos);
+
+            textNode.textContent = before;
+
+            const mentionSpan = document.createElement('span');
+            mentionSpan.className = 'mention-tag';
+            mentionSpan.contentEditable = 'false';
+            mentionSpan.dataset.handle = member.memberHandle;
+            mentionSpan.dataset.memberId = member.id;
+            mentionSpan.textContent = member.memberHandle;
+
+            const afterNode = document.createTextNode('\u00A0' + after);
+            const parent = textNode.parentNode;
+            const nextSibling = textNode.nextSibling;
+            parent.insertBefore(mentionSpan, nextSibling);
+            parent.insertBefore(afterNode, mentionSpan.nextSibling);
+
+            const newRange = document.createRange();
+            newRange.setStart(afterNode, 1);
+            newRange.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(newRange);
+
+            closeMentionDropdown();
+            console.log("멘션선택 들어옴2 완료:", member.memberHandle);
+            editor.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function closeMentionDropdown() {
+            mentionMode = false;
+            mentionQuery = '';
+            mentionResults = [];
+            dropdown.classList.add('off');
+            dropdown.innerHTML = '';
+        }
+
+        return { closeMentionDropdown };
+    }
+
+    function collectMentionHandles(editor) {
+        const mentions = editor.querySelectorAll('.mention-tag');
+        const handles = [];
+        mentions.forEach((m) => {
+            const handle = m.dataset.handle;
+            if (handle && !handles.includes(handle)) handles.push(handle);
+        });
+        console.log("멘션수집 들어옴1 handles:", handles);
+        return handles;
+    }
+
+    // 게시물 작성 모달에 멘션 셋업
+    const composeMention = setupMention(composeEditor, composeEditor.parentElement);
+    // 답글 모달에 멘션 셋업
+    const replyMention = setupMention(replyEditor, replyEditor.parentElement);
 
     // ── 9. 서브뷰 토글 (게시물 + 답글 공통) ──
     // main.js의 setupSubViews 그대로 가져옴 (태그, 카테고리, 임시저장, 위치, 판매글, 볼드/이탤릭, 이모지, 파일첨부)

@@ -13,6 +13,8 @@ delete from tbl_report where reporter_id = 87;
 delete from tbl_report where reporter_id = 88;
 delete from tbl_report where reporter_id = 41;
 
+select * from tbl_mention;
+
 select * from tbl_report;
 
 select * from tbl_post_product;

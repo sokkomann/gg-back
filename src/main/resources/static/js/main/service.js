@@ -192,6 +192,14 @@ const service = (() => {
         });
     };
 
+    const searchMentionMembers = async (keyword, memberId) => {
+        console.log("멘션검색 들어옴1 keyword:", keyword);
+        const response = await fetch(`/api/main/mentions/search?keyword=${encodeURIComponent(keyword)}&memberId=${memberId}`);
+        const data = await response.json();
+        console.log("멘션검색 들어옴2 결과:", data.length);
+        return data;
+    };
+
     return {
         getPostList: getPostList, getExpertList: getExpertList, getPost: getPost, writePost: writePost, updatePost: updatePost, deletePost: deletePost,
         addLike: addLike, deleteLike: deleteLike,
@@ -204,6 +212,7 @@ const service = (() => {
         getMyProducts: getMyProducts,
         getSuggestions: getSuggestions,
         getAds: getAds,
-        savePostTemp: savePostTemp, getPostTemps: getPostTemps, loadPostTemp: loadPostTemp, deletePostTemp: deletePostTemp, deletePostTemps: deletePostTemps
+        savePostTemp: savePostTemp, getPostTemps: getPostTemps, loadPostTemp: loadPostTemp, deletePostTemp: deletePostTemp, deletePostTemps: deletePostTemps,
+        searchMentionMembers: searchMentionMembers
     };
 })();
