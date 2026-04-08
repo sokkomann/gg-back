@@ -11,6 +11,7 @@ import com.app.globalgates.repository.MemberDAO;
 import com.app.globalgates.repository.SubscriptionDAO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +28,55 @@ public class SubscriptionService {
     private final BadgeDAO badgeDAO;
 
     //    검사
+    @CacheEvict(value = {"post:list", "post", "community:post:list", "member", "community:member:list"}, allEntries = true)
     public void managingSchedule() {
         List<SubscriptionDTO> checkSubList = subscriptionDAO.findExpiredMembers();
         checkSubList.forEach((each) -> {
-            if(each.isQuartz() && each.getBillingCycle().equals("monthly")){
+            //    다음 플랜이 예약되어 있으면 -> 현재 구독 만료후에 새 구독 생성
+            if(each.getNextTier() != null && !each.getNextTier().isEmpty()){
+                log.info("플랜변경 예약 들어옴 nextTier {}", each.getNextTier());
+                //    현재 구독 만료 처리
+                subscriptionDAO.setStatus(each.getId(), SubscriptionStatus.EXPIRED);
+                log.info("현재 구독 만료");
+
+                //    새 구독 생성
+                SubscriptionDTO newSub = new SubscriptionDTO();
+                newSub.setMemberId(each.getMemberId());
+                newSub.setTier(SubscriptionTier.getSubscriptionTier(each.getNextTier()));
+                newSub.setBillingCycle(each.getNextBillingCycle());
+                newSub.setStatus(SubscriptionStatus.ACTIVE);
+                subscriptionDAO.save(newSub);
+                log.info("새 구독 생성 완료 tier {}", each.getNextTier());
+
+                //    뱃지/role 업데이트
+                SubscriptionTier newTier = SubscriptionTier.getSubscriptionTier(each.getNextTier());
+                if (newTier == SubscriptionTier.EXPERT) {
+                    memberDAO.setMemberRole(each.getMemberId(), MemberRole.EXPERT);
+                } else {
+                    memberDAO.setMemberRole(each.getMemberId(), MemberRole.BUSINESS);
+                }
+
+                if (newTier != SubscriptionTier.FREE) {
+                    BadgeType badgeType = BadgeType.getBadgeType(newTier.getValue());
+                    Optional<BadgeVO> existingBadge = badgeDAO.findByMemberId(each.getMemberId());
+                    if (existingBadge.isPresent()) {
+                        badgeDAO.setBadgeType(existingBadge.get().getId(), badgeType);
+                    } else {
+                        badgeDAO.save(BadgeVO.builder()
+                                .memberId(each.getMemberId())
+                                .badgeType(badgeType)
+                                .build());
+                    }
+                }
+                log.info("플랜변경 '완'");
+            }
+            //    월간갱신 (quartz=true) -> 만료일 갱신
+            else if(each.isQuartz() && each.getBillingCycle().equals("monthly")){
                 log.info("월갱신 들어옴");
                 subscriptionDAO.setExpiresAt(each.getId());
                 log.info("30일 갱신됨");
             }
-
+            //    그 외 -> 만료 처리
             else {
                 log.info("만료들어옴");
                 subscriptionDAO.setStatus(each.getId(), SubscriptionStatus.EXPIRED);
@@ -56,10 +97,13 @@ public class SubscriptionService {
             }
             log.info("구독해지 들어옴");
             subscriptionDAO.setQuartz(id, false);
-            log.info("구독해지 완료. 쿼츠 false로 세팅.");
+            //    플랜변경 예약이 있었다면 초기화
+            subscriptionDAO.setNextPlan(id, null, null);
+            log.info("구독해지 '완'. 쿼츠 false로 세팅. next_plan 초기화.");
     }
 
     //    구독 + badge + member_role (ID 반환)
+    @CacheEvict(value = {"post:list", "post", "community:post:list", "member", "community:member:list"}, allEntries = true)
     public Long subscribe(SubscriptionDTO subscriptionDTO) {
         log.info("들어옴1");
         subscriptionDTO.setStatus(SubscriptionStatus.ACTIVE);
@@ -98,65 +142,24 @@ public class SubscriptionService {
         return subscriptionDAO.findByMemberId(memberId);
     }
 
-    //    구독 플랜변경 경우의수 7개임. 필요에따라 tier, billingCycle, member_role, badge 변경
-    public void changePlan(Long id, Long memberId, SubscriptionTier tier, String billingCycle, String expiresAt) {
-        log.info("구독변경 들어옴1");
-        //    하위 플랜으로 변경 차단
+    //    플랜 변경 예약 (만료 후 새 플랜으로 전환)
+    public void changePlan(Long id, Long memberId, String nextTier, String nextBillingCycle) {
+        log.info("플랜변경예약 들어옴1");
         SubscriptionDTO current = subscriptionDAO.findByMemberId(memberId)
                 .orElseThrow(() -> new RuntimeException("구독 정보 없음"));
-        log.info("구독변경 들어옴2");
-        boolean isUpgrade = false;
-        switch (current.getTier()) {
-            case FREE:
-                isUpgrade = (tier == SubscriptionTier.PRO || tier == SubscriptionTier.PRO_PLUS || tier == SubscriptionTier.EXPERT);
-                break;
-            case PRO:
-                isUpgrade = (tier == SubscriptionTier.PRO || tier == SubscriptionTier.PRO_PLUS || tier == SubscriptionTier.EXPERT);
-                break;
-            case PRO_PLUS:
-                isUpgrade = (tier == SubscriptionTier.PRO_PLUS || tier == SubscriptionTier.EXPERT);
-                break;
-            case EXPERT:
-                isUpgrade = false;
-                break;
-        }
-        if (!isUpgrade) {
-            throw new RuntimeException("하위 플랜으로 변경할 수 없습니다");
-        }
-        // 연간 구독자는 월간으로 변경 불가
-        if ("annual".equals(current.getBillingCycle()) && "monthly".equals(billingCycle)) {
-            throw new RuntimeException("연간에서 월간 이동은 불가합니다.");
-        }
-        log.info("구독변경 들어옴3");
-        // 월간→연간 업글시 만료일은 started_at 기준 1년
-        if ("monthly".equals(current.getBillingCycle()) && "annual".equals(billingCycle)) {
-            log.info("구독변경 들어옴4 월간->연간으로 이동함");
-            subscriptionDAO.setTierToAnnual(id, tier, billingCycle);
-        } else {
-            log.info("구독변경 들어옴4-2 월간->월간 아니면 연간->연간으로 이동함");
-            subscriptionDAO.setTierOnly(id, tier, billingCycle);
-        }
+        log.info("플랜변경예약 들어옴2 현재구독={}", current);
 
-        if (tier == SubscriptionTier.EXPERT) {
-            log.info("구독변경5 전문가 등급을 고름");
-            memberDAO.setMemberRole(memberId, MemberRole.EXPERT);
-        } else {
-            log.info("구독변경5-2 프로/프로+ 등급을 고름");
-            memberDAO.setMemberRole(memberId, MemberRole.BUSINESS);
+        //    월간→연간 변경 차단
+        if ("monthly".equals(current.getBillingCycle()) && "annual".equals(nextBillingCycle)) {
+            throw new RuntimeException("월간에서 연간으로 변경할 수 없습니다. 현재 구독 만료 후 연간을 이용해주세요.");
         }
+        log.info("플랜변경예약 들어옴3");
 
-        if (tier != SubscriptionTier.FREE) {
-            BadgeType badgeType = BadgeType.getBadgeType(tier.getValue());
-            Optional<BadgeVO> existingBadge = badgeDAO.findByMemberId(memberId);
-            if (existingBadge.isPresent()) {
-                badgeDAO.setBadgeType(existingBadge.get().getId(), badgeType);
-            } else {
-                badgeDAO.save(BadgeVO.builder()
-                        .memberId(memberId)
-                        .badgeType(badgeType)
-                        .build());
-            }
-        }
+        //    next_tier, next_billing_cycle 저장 (만료 시 쿼츠가 처리)
+        subscriptionDAO.setNextPlan(id, nextTier, nextBillingCycle);
+        //    자동갱신 중지 (현재 플랜 만료 후 새 플랜으로 전환되도록)
+        subscriptionDAO.setQuartz(id, false);
+        log.info("플랜변경예약 완료 nextTier={}, nextBillingCycle={}", nextTier, nextBillingCycle);
     }
 
 }

@@ -33,13 +33,15 @@ const subscribeService = (() => {
         return await response.json();
     };
 
-    // 구독 플랜 변경
-    const changePlan = async (id, tier, billingCycle, expiresAt) => {
+    // 플랜 변경 예약 (만료 후 새 플랜으로 전환)
+    const changePlan = async (id, nextTier, nextBillingCycle) => {
+        console.log("플랜변경예약 들어옴1");
         await fetch("/api/subscriptions/change", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, tier, billingCycle, expiresAt }),
+            body: JSON.stringify({ id, nextTier, nextBillingCycle }),
         });
+        console.log("플랜변경예약 들어옴2");
     };
 
     // 구독 해지

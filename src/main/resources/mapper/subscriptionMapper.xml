@@ -3,20 +3,20 @@
 <mapper namespace="com.app.globalgates.mapper.SubscriptionMapper">
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into tbl_subscription (member_id, tier, billing_cycle, status, expires_at)
-        values (#{memberId}, #{tier}, #{billingCycle}, #{status}, #{expiresAt}::timestamp)
+        values (#{memberId}, #{tier}, #{billingCycle}, #{status}, COALESCE(#{expiresAt}::timestamp, now() + interval '1 minute'))
     </insert>
 
     <select id="selectByMemberId">
-        select id, member_id, tier, billing_cycle, status, started_at, expires_at, created_datetime, updated_datetime, quartz
+        select id, member_id, tier, billing_cycle, status, started_at, expires_at, created_datetime, updated_datetime, quartz, next_tier, next_billing_cycle
         from tbl_subscription
         where member_id = #{memberId} and status = 'active'
         order by id desc
         limit 1
     </select>
-    
+
     <select id="selectExpiredMembers">
         <![CDATA[
-        select id, member_id, tier, billing_cycle, status, started_at, expires_at, created_datetime, updated_datetime, quartz
+        select id, member_id, tier, billing_cycle, status, started_at, expires_at, created_datetime, updated_datetime, quartz, next_tier, next_billing_cycle
         from tbl_subscription
         where status = 'active' and expires_at < now()
         ]]>
@@ -36,18 +36,11 @@
         where id = #{id}
     </update>
 
-    <update id="updateTierToAnnual">
+    <update id="updateNextPlan">
         update tbl_subscription
-        set tier = #{tier},
-            billing_cycle = #{billingCycle},
-            expires_at = started_at + interval '1 year'
-        where id = #{id}
-    </update>
-
-    <update id="updateTierOnly">
-        update tbl_subscription
-        set tier = #{tier},
-            billing_cycle = #{billingCycle}
+        set next_tier = #{nextTier},
+            next_billing_cycle = #{nextBillingCycle},
+            updated_datetime = now()
         where id = #{id}
     </update>
 

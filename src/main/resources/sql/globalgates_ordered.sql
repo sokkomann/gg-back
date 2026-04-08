@@ -344,6 +344,8 @@ create table tbl_subscription (
     created_datetime timestamp           not null default now(),
     updated_datetime timestamp           not null default now(),
     quartz boolean default true,
+    next_tier varchar(255) default null,
+    next_billing_cycle varchar(255) default null,
     constraint fk_subscription_member foreign key(member_id)
     references tbl_member(id)
 );

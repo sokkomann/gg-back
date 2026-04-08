@@ -222,8 +222,7 @@ const service = (() => {
         getMyProducts: getMyProducts,
         getSuggestions: getSuggestions,
         getAds: getAds,
-        savePostTemp: savePostTemp, getPostTemps: getPostTemps, loadPostTemp: loadPostTemp, deletePostTemp: deletePostTemp, deletePostTemps: deletePostTemps,
-        logout: logout
+        logout: logout,
         savePostTemp: savePostTemp, getPostTemps: getPostTemps, loadPostTemp: loadPostTemp, deletePostTemp: deletePostTemp, deletePostTemps: deletePostTemps,
         searchMentionMembers: searchMentionMembers
     };

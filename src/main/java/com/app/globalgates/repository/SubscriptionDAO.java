@@ -1,7 +1,6 @@
 package com.app.globalgates.repository;
 
 import com.app.globalgates.common.enumeration.SubscriptionStatus;
-import com.app.globalgates.common.enumeration.SubscriptionTier;
 import com.app.globalgates.dto.SubscriptionDTO;
 import com.app.globalgates.mapper.SubscriptionMapper;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +24,9 @@ public class SubscriptionDAO {
         return subscriptionMapper.selectByMemberId(memberId);
     }
 
-    //    구독티어 변경
-    public void setTierToAnnual(Long id, SubscriptionTier tier, String billingCycle) {
-        subscriptionMapper.updateTierToAnnual(id, tier, billingCycle);
-    }
-    //    구독업글시 티어만변경
-    public void setTierOnly(Long id, SubscriptionTier tier, String billingCycle) {
-        subscriptionMapper.updateTierOnly(id, tier, billingCycle);
+    //    다음 플랜 예약 (만료 후 변경될 플랜)
+    public void setNextPlan(Long id, String nextTier, String nextBillingCycle) {
+        subscriptionMapper.updateNextPlan(id, nextTier, nextBillingCycle);
     }
 
     //    구독 상태 변경

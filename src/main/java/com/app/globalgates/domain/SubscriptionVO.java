@@ -20,4 +20,6 @@ public class SubscriptionVO extends Period {
     private String startedAt;
     private String expiresAt;
     private boolean quartz;
+    private String nextTier;
+    private String nextBillingCycle;
 }

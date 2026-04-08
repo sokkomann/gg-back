@@ -583,7 +583,7 @@ body {
     align-items: flex-start;
     justify-content: flex-start;
     gap: 3px;
-    min-height: 52px;
+    min-height: 62px;
     padding-top: 2px;
 }
 
@@ -612,6 +612,11 @@ body {
 
 .sub-footer__billing {
     width: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 280px;
+    min-height: 18px;
 }
 
 .sub-footer__actions {
@@ -887,15 +892,7 @@ body {
 }
 
 .sub-footer__cancel-wrap {
-    position: absolute;
-    left: 24px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: fit-content;
-    z-index: 1;
+    display: none;
 }
 
 .sub-footer__cancel-btn {

@@ -1,7 +1,6 @@
 package com.app.globalgates.mapper;
 
 import com.app.globalgates.common.enumeration.SubscriptionStatus;
-import com.app.globalgates.common.enumeration.SubscriptionTier;
 import com.app.globalgates.dto.SubscriptionDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -17,11 +16,8 @@ public interface SubscriptionMapper {
     //    회원 id로 활성 구독 조회
     public Optional<SubscriptionDTO> selectByMemberId(Long memberId);
 
-    //    구독 월간->연간으로 변경시 (만료일은 started_at 기준)
-    void updateTierToAnnual(@Param("id") Long id, @Param("tier") SubscriptionTier tier, @Param("billingCycle") String billingCycle);
-
-    //    구독 변경시(업글시) 티어만 변경 혹은 유지
-    void updateTierOnly(@Param("id") Long id, @Param("tier") SubscriptionTier tier, @Param("billingCycle") String billingCycle);
+    //    다음 플랜 예약 (만료 후 변경될 플랜)
+    void updateNextPlan(@Param("id") Long id, @Param("nextTier") String nextTier, @Param("nextBillingCycle") String nextBillingCycle);
 
     //    구독 상태 변경
     public void updateStatus(@Param("id") Long id, @Param("status") SubscriptionStatus status);

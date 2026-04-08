@@ -1,5 +1,7 @@
 package com.app.globalgates.controller.main;
 
+import com.app.globalgates.aop.annotation.LogStatus;
+import com.app.globalgates.aop.annotation.LogStatusWithReturn;
 import com.app.globalgates.dto.*;
 import com.app.globalgates.service.*;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RequestMapping("/api/main")
 @Slf4j
-public class MainAPIController {
+public class MainAPIController implements MainAPIControllerDocs {
     private final PostService postService;
     private final ExpertService expertService;
     private final PostLikeService postLikeService;
@@ -35,6 +37,7 @@ public class MainAPIController {
 
 //    피드에 광고
     @GetMapping("/ads")
+    @LogStatusWithReturn
     public List<AdvertisementDTO> getAds() {
         log.info("광고 조회");
         List<AdvertisementDTO> ads = advertisementService.getAdsInMain();
@@ -44,6 +47,7 @@ public class MainAPIController {
 
 //    게시글 목록 조회
     @GetMapping("/posts/list/{page}")
+    @LogStatusWithReturn
     public PostWithPagingDTO getPostList(@PathVariable int page, @RequestParam Long memberId) {
         log.info("게시글 목록 조회 — page: {}, memberId: {}", page, memberId);
         PostWithPagingDTO result = postService.getList(page, memberId);
@@ -62,6 +66,7 @@ public class MainAPIController {
 
 //    게시글 단건 조회 (수정용)
     @GetMapping("/posts/{id}")
+    @LogStatusWithReturn
     public PostDTO getPost(@PathVariable Long id, @RequestParam Long memberId) {
         log.info("게시글 단건 조회 — postId: {}, memberId: {}", id, memberId);
         PostDTO post = postService.getDetail(id, memberId);
@@ -77,6 +82,7 @@ public class MainAPIController {
 
 //    게시글 작성
     @PostMapping("/posts/write")
+    @LogStatus
     public void writePost(PostDTO postDTO,
                           @RequestParam(value = "files", required = false) List<MultipartFile> files) throws IOException {
         log.info("게시글 작성됐나요?");
@@ -106,6 +112,7 @@ public class MainAPIController {
 
 //    게시글 수정
     @PostMapping("/posts/update/{id}")
+    @LogStatus
     public void updatePost(@PathVariable Long id, PostDTO postDTO,
                            @RequestParam(value = "files", required = false) List<MultipartFile> files) throws IOException {
         log.info("게시글 수정 — postId: {}, memberId: {}", id, postDTO.getMemberId());
@@ -130,6 +137,7 @@ public class MainAPIController {
 
 //    게시글 삭제
     @PostMapping("/posts/delete/{id}")
+    @LogStatus
     public void deletePost(@PathVariable Long id) {
         log.info("게시글 삭제 — postId: {}", id);
         postService.delete(id);
@@ -137,6 +145,7 @@ public class MainAPIController {
 
 //    댓글 작성
     @PostMapping("/posts/{postId}/replies")
+    @LogStatus
     public void writeReply(@PathVariable Long postId,
                            PostDTO postDTO,
                            @RequestParam(value = "files", required = false) List<MultipartFile> files) throws IOException {
@@ -157,6 +166,7 @@ public class MainAPIController {
 
 //    댓글 목록
     @GetMapping("/posts/{postId}/replies")
+    @LogStatusWithReturn
     public List<PostDTO> getReplies(@PathVariable Long postId, @RequestParam Long memberId) {
         log.info("댓글목록조회함 — postId: {}, memberId: {}", postId, memberId);
         List<PostDTO> replies = postService.getReplies(postId, memberId);
@@ -170,6 +180,7 @@ public class MainAPIController {
 
 //    전문가 목록 조회
     @GetMapping("/experts/list/{page}")
+    @LogStatusWithReturn
     public ExpertWithPagingDTO getExpertList(@PathVariable int page, @RequestParam Long memberId) {
         log.info("전문가 목록 조회하기 page: {}, memberId: {}", page, memberId);
         return expertService.getList(page, memberId);
@@ -178,6 +189,7 @@ public class MainAPIController {
 
 //    좋아요 추가
     @PostMapping("/likes")
+    @LogStatus
     public void addLike(@RequestBody PostLikeDTO postLikeDTO) {
         log.info("좋아요 누름~ memberId: {}, postId: {}", postLikeDTO.getMemberId(), postLikeDTO.getPostId());
         postLikeService.addLike(postLikeDTO);
@@ -185,6 +197,7 @@ public class MainAPIController {
 
 //    좋아요 떼기
     @PostMapping("/likes/members/{memberId}/posts/{postId}/delete")
+    @LogStatus
     public void deleteLike(@PathVariable Long memberId, @PathVariable Long postId) {
         log.info("좋아요 뗌~ memberId: {}, postId: {}", memberId, postId);
         postLikeService.deleteLike(memberId, postId);
@@ -193,6 +206,7 @@ public class MainAPIController {
 
 //    검색
     @GetMapping("/search/members")
+    @LogStatusWithReturn
     public List<MemberDTO> searchMembers(@RequestParam String keyword) {
         log.info("회원 검색하기 keyword: {}", keyword);
         return searchService.searchMembers(keyword);
@@ -200,6 +214,7 @@ public class MainAPIController {
 
 //    검색 기록 저장
     @PostMapping("/search/histories")
+    @LogStatus
     public void saveSearchHistory(@RequestBody SearchHistoryDTO searchHistoryDTO) {
         log.info("검색기록 저장 memberId: {}, keyword: {}", searchHistoryDTO.getMemberId(), searchHistoryDTO.getSearchKeyword());
         searchService.saveSearchHistory(searchHistoryDTO);
@@ -207,6 +222,7 @@ public class MainAPIController {
 
 //    최근 검색 목록 조회
     @GetMapping("/search/histories/{memberId}")
+    @LogStatusWithReturn
     public List<SearchHistoryDTO> getSearchHistories(@PathVariable Long memberId) {
         log.info("최근검색 조회하기. memberId: {}", memberId);
         return searchService.getSearchHistories(memberId);
@@ -214,6 +230,7 @@ public class MainAPIController {
 
 //    검색 기록 개별 삭제
     @PostMapping("/search/histories/{id}/delete")
+    @LogStatus
     public void deleteSearchHistory(@PathVariable Long id) {
         log.info("최근검색 개별삭제 — id: {}", id);
         searchService.deleteSearchHistory(id);
@@ -221,6 +238,7 @@ public class MainAPIController {
 
 //    검색 기록 전체 삭제
     @PostMapping("/search/histories/members/{memberId}/delete-all")
+    @LogStatus
     public void deleteAllSearchHistories(@PathVariable Long memberId) {
         log.info("최근검색 전체삭제 — memberId: {}", memberId);
         searchService.deleteAllSearchHistories(memberId);
@@ -229,6 +247,7 @@ public class MainAPIController {
 
 //    사이드바 뉴스탭에 2개
     @GetMapping("/news/latest")
+    @LogStatusWithReturn
     public List<NewsDTO> getLatestNews() {
         log.info("뉴스 조회하기");
         return newsService.getLatestNewsInMain();
@@ -237,6 +256,7 @@ public class MainAPIController {
 
 //    작성할때 내 판매품목 목록 조회
     @GetMapping("/products/members/{memberId}")
+    @LogStatusWithReturn
     public List<PostProductDTO> getMyProducts(@PathVariable Long memberId) {
         log.info("내 판매품목 조회해요 내아이디(memberId): {}", memberId);
         return postProductService.getMyProducts(memberId);
@@ -245,6 +265,7 @@ public class MainAPIController {
 
 //    북마크 추가
     @PostMapping("/bookmarks")
+    @LogStatus
     public void addBookmark(@RequestBody BookmarkDTO bookmarkDTO) {
         log.info("북마크 추가댐 작성자아이디: {}, 게시물아이디: {}", bookmarkDTO.getMemberId(), bookmarkDTO.getPostId());
         bookmarkService.addBookmark(bookmarkDTO);
@@ -252,6 +273,7 @@ public class MainAPIController {
 
 //    북마크 떼기
     @PostMapping("/bookmarks/members/{memberId}/posts/{postId}/delete")
+    @LogStatus
     public void deleteBookmark(@PathVariable Long memberId, @PathVariable Long postId) {
         log.info("북마크 뗌 — memberId: {}, postId: {}", memberId, postId);
         bookmarkService.deleteBookmark(memberId, postId);
@@ -259,6 +281,7 @@ public class MainAPIController {
 
 //    팔로우 추가
     @PostMapping("/follows")
+    @LogStatus
     public void follow(@RequestBody FollowDTO followDTO) {
         log.info("팔로우 추가 — followerId: {}, followingId: {}", followDTO.getFollowerId(), followDTO.getFollowingId());
         followService.follow(followDTO);
@@ -266,6 +289,7 @@ public class MainAPIController {
 
 //    팔로우 해제
     @PostMapping("/follows/{followerId}/{followingId}/delete")
+    @LogStatus
     public void unfollow(@PathVariable Long followerId, @PathVariable Long followingId) {
         log.info("팔로우 해제 — followerId: {}, followingId: {}", followerId, followingId);
         followService.unfollow(followerId, followingId);
@@ -273,6 +297,7 @@ public class MainAPIController {
 
 //    팔로잉 목록 조회(공유모달에서)
     @GetMapping("/follows/{memberId}/followings")
+    @LogStatusWithReturn
     public List<FollowDTO> getFollowings(@PathVariable Long memberId) {
         log.info("팔로잉 목록 조회 들어옴1 — memberId: {}", memberId);
         List<FollowDTO> result = followService.getFollowings(memberId);
@@ -284,6 +309,7 @@ public class MainAPIController {
 
 //    팔로우 추천탭 - 우선은 2개 조회 (나중에 AI)
     @GetMapping("/follows/{memberId}/suggestions")
+    @LogStatusWithReturn
     public List<MemberDTO> getSuggestions(@PathVariable Long memberId) {
         log.info("팔로우 추천 조회하기");
         List<MemberDTO> members = followService.getUnfollowedMembers(memberId);
@@ -301,6 +327,7 @@ public class MainAPIController {
 
 //    차단 추가
     @PostMapping("/blocks")
+    @LogStatus
     public void block(@RequestBody BlockDTO blockDTO) {
         log.info("차단합니다~ 내아이디: {}, 차단당한사람: {}", blockDTO.getBlockerId(), blockDTO.getBlockedId());
         blockService.block(blockDTO);
@@ -310,6 +337,7 @@ public class MainAPIController {
 
 //    신고
     @PostMapping("/reports")
+    @LogStatus
     public void report(@RequestBody ReportDTO reportDTO) {
         log.info("신고합니다~ 내아이디: {}, 신고당한거아이디: {}, 신고한게 글인지 회원인지: {}, 사유는? {}", reportDTO.getReporterId(), reportDTO.getTargetId(), reportDTO.getTargetType(), reportDTO.getReason());
         reportService.report(reportDTO);
@@ -317,6 +345,7 @@ public class MainAPIController {
 
 //    멘션 검색 (handle로 검색, 양방향 차단 제외, 최대 10개)
     @GetMapping("/mentions/search")
+    @LogStatusWithReturn
     public List<com.app.globalgates.dto.MentionDTO> searchMentionMembers(@RequestParam String keyword, @RequestParam Long memberId) {
         log.info("멘션검색 들어옴1 keyword: {}, memberId: {}", keyword, memberId);
         List<com.app.globalgates.dto.MentionDTO> result = mentionDAO.searchForMention(keyword, memberId);
@@ -336,6 +365,7 @@ public class MainAPIController {
 
 //    임시저장하기
     @PostMapping("/post-temps")
+    @LogStatus
     public void savePostTemp(@RequestBody PostTempDTO postTempDTO) {
         log.info("임시저장 memberId: {}, content: {}", postTempDTO.getMemberId(), postTempDTO.getPostTempContent());
         postTempService.savePostTemp(postTempDTO);
@@ -343,6 +373,7 @@ public class MainAPIController {
 
 //    임시저장 조회=모달에서목록
     @GetMapping("/post-temps/{memberId}")
+    @LogStatusWithReturn
     public List<PostTempDTO> getPostTemps(@PathVariable Long memberId) {
         log.info("임시저장 목록 조회 memberId: {}", memberId);
         return postTempService.getPostTemps(memberId);
@@ -350,6 +381,7 @@ public class MainAPIController {
 
 //    임시저장한것 로드 = 삭제
     @PostMapping("/post-temps/{id}/load")
+    @LogStatusWithReturn
     public PostTempDTO loadPostTemp(@PathVariable Long id) {
         log.info("임시저장 불러오기 id: {}", id);
         return postTempService.loadPostTemp(id);
@@ -357,6 +389,7 @@ public class MainAPIController {
 
 //    임시저장 개별 삭제
     @PostMapping("/post-temps/{id}/delete")
+    @LogStatus
     public void deletePostTemp(@PathVariable Long id) {
         log.info("임시저장 개별 삭제 id: {}", id);
         postTempService.deletePostTemp(id);
@@ -364,6 +397,7 @@ public class MainAPIController {
 
 //    임시저장 선택 삭제
     @PostMapping("/post-temps/delete")
+    @LogStatus
     public void deletePostTemps(@RequestBody List<Long> ids) {
         log.info("임시저장 선택 삭제 ids: {}", ids);
         postTempService.deletePostTemps(ids);
