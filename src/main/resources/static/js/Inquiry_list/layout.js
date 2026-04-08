@@ -28,9 +28,10 @@ const inquiryListLayout = (() => {
 
             // ── 아바타 ────────────────────────────────────────
             const avatarHtml = avatar
-                ? `<img src="${avatar}" alt="${name}" 
-                       style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
-                : initial;
+                ? `<img src="${avatar}" alt="${name}" class="postAvatarImage"
+                   style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
+                : `<img src="/images/profile/default_image.png" alt="${name}" class="postAvatarImage"
+                   style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
 
             // ── 연계 전문가 / 관심 품목 표시 ─────────────────
             const metaItems = [];

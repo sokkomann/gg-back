@@ -215,9 +215,11 @@ const exploreLayout = (() => {
             const initial = (post.memberNickname ?? "?")[0].toUpperCase();
             const avatarHtml = post.memberProfileFileName
                 ? `<div class="postAvatar postAvatar--image">
-                   <img src="${post.memberProfileFileName}" alt="프로필 이미지" class="postAvatarImage" />
-               </div>`
-                : `<div class="postAvatar">${initial}</div>`;
+                       <img src="${post.memberProfileFileName}" alt="프로필 이미지" class="postAvatarImage" />
+                   </div>`
+                                : `<div class="postAvatar postAvatar--image">
+                       <img src="/images/profile/default_image.png" alt="프로필 이미지" class="postAvatarImage" />
+                   </div>`;
 
             // ── postCard 생성 ─────────────────────────────────
             const card = document.createElement("div");
@@ -319,8 +321,10 @@ const exploreLayout = (() => {
 
             // ── 아바타 ────────────────────────────────────────
             const avatarHtml = avatar
-                ? `<img src="${avatar}" alt="${name}" class="postAvatarImage" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
-                : initial;
+                ? `<img src="${avatar}" alt="${name}" class="postAvatarImage"
+                   style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
+                : `<img src="/images/profile/default_image.png" alt="${name}" class="postAvatarImage"
+                   style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
 
             // 팔로우 여부
             const isFollowed = member.followed ?? false;
