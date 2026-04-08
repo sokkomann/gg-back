@@ -829,8 +829,8 @@ a.menu-item:visited {
 
 .accountMenuWrap {
     position: relative;
-    margin-top: auto;
     overflow: visible;
+    margin-top: auto;
 }
 
 .accountCard,
@@ -920,7 +920,7 @@ a.menu-item:visited {
 .account-menu-popup {
     position: fixed;
     z-index: 1200;
-    bottom: 80px;
+    bottom: 150px;
     left: 260px;
     width: min(216px, calc(100vw - 32px));
     padding: 6px;
@@ -4851,6 +4851,7 @@ img.postMediaImage {
     .sidebar-inner {
         width: 275px;
         padding: 8px 16px;
+        padding-bottom: 32px;
     }
 
     .nav-logo {
