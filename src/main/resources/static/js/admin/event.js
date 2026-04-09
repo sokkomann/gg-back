@@ -579,6 +579,13 @@
         });
     });
 
+    const resetNewsSelection = () => {
+        document.querySelector("#newsCheckAll").checked = false;
+        newsTbody.querySelectorAll("input[type='checkbox']").forEach((cb) => {
+            cb.checked = false;
+        });
+    };
+
     newsHideBtn.addEventListener("click", (e) => {
         const checked = getCheckedRows(newsTbody);
         if (!checked.length) {
@@ -587,6 +594,7 @@
         }
         if (!confirm(`선택한 ${checked.length}개의 뉴스를 숨기시겠습니까?`)) return;
         checked.forEach(tr => tr.classList.add("row-hidden"));
+        resetNewsSelection();
     });
 
     newsShowBtn.addEventListener("click", (e) => {
@@ -597,6 +605,7 @@
         }
         if (!confirm(`선택한 ${checked.length}개의 뉴스를 다시 표시하시겠습니까?`)) return;
         checked.forEach(tr => tr.classList.remove("row-hidden"));
+        resetNewsSelection();
     });
 
     newsDeleteBtn.addEventListener("click", (e) => {
@@ -607,6 +616,7 @@
         }
         if (!confirm(`선택한 ${checked.length}개의 뉴스를 삭제하시겠습니까?`)) return;
         checked.forEach(tr => tr.remove());
+        resetNewsSelection();
     });
 
     const applyNewsFilter = () => {

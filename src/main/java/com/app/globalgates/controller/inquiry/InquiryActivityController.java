@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/inquiry/activity/**")
+@RequestMapping("/inquiry/activity")
 @RequiredArgsConstructor
 @Slf4j
 public class InquiryActivityController {
 
-    @GetMapping("list")
+    @GetMapping("/list")
     public String goToInquiryActivityList() {
         return "Inquiry/inquiry_active_list";
     }
