@@ -329,7 +329,7 @@
 
     const renderNews = (newsList) => {
         if (!newsList.length) {
-            renderEmptyRow(newsTbody, 6);
+            renderEmptyRow(newsTbody, 7);
             return;
         }
 
@@ -345,6 +345,7 @@
                     <div class="news-title">${escapeHtml(news.newsTitle)}</div>
                 </div>
                 <div class="div-td">${escapeHtml(newsCategoryLabelMap[news.newsCategory] || news.newsCategory || "-")}</div>
+                <div class="div-td">-</div>
                 <div class="div-td">${escapeHtml(news.createdDatetime || "-")}</div>
             </div>
         `).join("");
