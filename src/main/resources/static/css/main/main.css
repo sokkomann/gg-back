@@ -4895,10 +4895,7 @@ img.postMediaImage {
     }
 }
 
-/* ══════════════════════════════════════════════════
-   북마크 폴더 모달 (bookmark.css에서 복사)
-   share-menu-item--bookmark 클릭 시 나오는 모달용
-   ══════════════════════════════════════════════════ */
+/* share-menu-item--bookmark 클릭 시 나오는 북마크 폴더 모달 */
 
 .bookmark-share-sheet {
     position: fixed;

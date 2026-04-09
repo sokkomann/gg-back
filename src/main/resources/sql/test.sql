@@ -22,6 +22,7 @@ select * from tbl_post_product;
 select * from tbl_news;
 
 select * from tbl_member;
+select * from tbl_member where member_role='admin';
 
 select * from tbl_member_category_rel;
 
