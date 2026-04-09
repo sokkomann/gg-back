@@ -46,10 +46,13 @@ public class ChatController {
         try {
             MemberProfileFileDTO profileFile = memberService.getProfileFile(memberId);
             if (profileFile != null && profileFile.getFileName() != null) {
-                profileImageUrl = s3Service.getPresignedUrl(profileFile.getFileName(), Duration.ofMinutes(10));
+                String presignedUrl = s3Service.getPresignedUrl(profileFile.getFileName(), Duration.ofMinutes(10));
+                currentMember.setFileName(presignedUrl);
+                profileImageUrl = presignedUrl;
             }
         } catch (Exception ignored) {}
         model.addAttribute("profileImageUrl", profileImageUrl);
+        model.addAttribute("member", currentMember);
 
         if (partnerId != null) {
             MemberDTO partnerMember = memberDAO.findByMemberId(partnerId).orElse(null);

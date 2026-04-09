@@ -18,7 +18,7 @@ body {
 .Chat-Main {
     display: flex;
     position: relative;
-    flex-direction: column;
+    justify-content: center;
     list-style: none;
     text-decoration: none;
     margin: 0;
@@ -42,7 +42,6 @@ body {
 }
 
 .Chat-Wrapper {
-    padding-right: 70px;
     backface-visibility: hidden;
 }
 

@@ -4,95 +4,53 @@
       layout:fragment="footer">
 <body>
 <aside th:fragment="footer" class="trendSidebar" id="trendSidebar">
-    <div class="trendPanel">
-        <form class="searchForm" id="searchForm">
-            <label class="searchField">
-                <span class="hiddenText">검색</span>
-                <span class="searchIcon">
+    <!-- 우측 보조 패널: 검색, 트렌드, 추천 계정처럼 피드 밖의 탐색 보조 정보를 보여준다. -->
+        <div class="trendPanel">
+            <form class="searchForm" id="searchForm">
+                <label class="searchField">
+                    <span class="hiddenText">검색</span>
+                    <span class="searchIcon">
                                 <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10.25 3.75c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5c1.795 0 3.419-.726 4.596-1.904 1.178-1.177 1.904-2.801 1.904-4.596 0-3.59-2.91-6.5-6.5-6.5zm-8.5 6.5c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.986-.682 3.815-1.824 5.262l4.781 4.781-1.414 1.414-4.781-4.781c-1.447 1.142-3.276 1.824-5.262 1.824-4.694 0-8.5-3.806-8.5-8.5z"></path></g></svg>
                             </span>
-                <input class="searchInput" id="searchInput" placeholder="검색" type="search" autocomplete="off" autocorrect="off">
-            </label>
-            <div class="searchPanel off" id="searchPanel">
-                <div class="searchPanelEmpty" id="searchPanelEmpty">
-                    <p class="searchPanelText" id="searchPanelText">인물이나 키워드를 검색해 보세요.</p>
-                </div>
-                <div class="searchResults off" id="searchResults">
-                    <button class="searchResultTopic" id="searchResultTopic">
-                        <svg viewBox="0 0 21 21" aria-hidden="true" class="searchRecentIcon"><g><path d="M9.094 3.095c-3.314 0-6 2.686-6 6s2.686 6 6 6c1.657 0 3.155-.67 4.243-1.757 1.087-1.088 1.757-2.586 1.757-4.243 0-3.314-2.686-6-6-6zm-9 6c0-4.971 4.029-9 9-9s9 4.029 9 9c0 1.943-.617 3.744-1.664 5.215l4.475 4.474-2.122 2.122-4.474-4.475c-1.471 1.047-3.272 1.664-5.215 1.664-4.97-.001-8.999-4.03-9-9z"></path></g></svg>
-                        <span class="searchResultLabel" id="searchResultLabel">#검색 결과</span>
-                    </button>
-                    <div class="searchResultList" id="searchResultList">
-                        <div class="searchResultItem">
-                            <div class="searchResultAvatar">T</div>
-                            <div class="searchResultProfile">
-                                <span class="searchResultName">TradeHub Official</span>
-                                <span class="searchResultHandle">@TradeHub_KR</span>
-                            </div>
+                    <input class="searchInput" id="searchInput" placeholder="검색" type="search" autocomplete="off" autocorrect="off">
+                </label>
+                <div class="searchPanel off" id="searchPanel">
+                    <div class="searchPanelEmpty" id="searchPanelEmpty">
+                        <p class="searchPanelText" id="searchPanelText">인물이나 키워드를 검색해 보세요.</p>
+                    </div>
+                    <div class="searchResults off" id="searchResults">
+                        <button class="searchResultTopic" id="searchResultTopic">
+                            <svg viewBox="0 0 21 21" aria-hidden="true" class="searchRecentIcon"><g><path d="M9.094 3.095c-3.314 0-6 2.686-6 6s2.686 6 6 6c1.657 0 3.155-.67 4.243-1.757 1.087-1.088 1.757-2.586 1.757-4.243 0-3.314-2.686-6-6-6zm-9 6c0-4.971 4.029-9 9-9s9 4.029 9 9c0 1.943-.617 3.744-1.664 5.215l4.475 4.474-2.122 2.122-4.474-4.475c-1.471 1.047-3.272 1.664-5.215 1.664-4.97-.001-8.999-4.03-9-9z"></path></g></svg>
+                            <span class="searchResultLabel" id="searchResultLabel">#검색 결과</span>
+                        </button>
+                        <div class="searchResultList" id="searchResultList">
                         </div>
                     </div>
                 </div>
-            </div>
-        </form>
-        <section class="suggestionCard sidebarCard">
-            <h2 class="suggestionTitle" id="suggestionTitle">팔로우 추천</h2>
-            <div class="suggestionItem trend-item">
-                <div class="suggestionAvatar">T</div>
-                <div class="suggestionProfile">
-                    <span class="suggestionName">TradeHub Official</span>
-                    <span class="sidebar-user-handle">@TradeHub_KR</span>
+            </form>
+            <section class="suggestionCard sidebarCard">
+                <h2 class="suggestionTitle" id="suggestionTitle">팔로우 추천</h2>
+                <a class="suggestionLink sidebarMoreLink" href="/friends">더 보기</a>
+            </section>
+            <section class="exchangeRateFeedCard sidebarCard" id="exchangeRateFeedCard">
+                <div class="exchangeRateFeedHeader">
+                    <h2 class="exchangeRateFeedTitle" id="exchangeRateFeedTitle">환율</h2>
+                    <p class="exchangeRateFeedSubtitle" id="exchangeRateFeedSubtitle">USD 기준 주요 통화</p>
                 </div>
-                <button class="connect-btn-sm default">Connect</button>
-            </div>
-            <div class="suggestionItem trend-item">
-                <div class="suggestionAvatar">무</div>
-                <div class="suggestionProfile">
-                    <span class="suggestionName">무역 뉴스</span>
-                    <span class="sidebar-user-handle">@TradeNewsKR</span>
+                <div class="exchangeRateFeedContent" id="exchangeRateFeedContent">
+                    <p class="exchangeRateFeedState">환율 정보를 불러오는 중입니다.</p>
                 </div>
-                <button class="connect-btn-sm default">Connect</button>
-            </div>
-            <div class="suggestionItem trend-item">
-                <div class="suggestionAvatar">수</div>
-                <div class="suggestionProfile">
-                    <span class="suggestionName">수출입 마켓</span>
-                    <span class="sidebar-user-handle">@ExportMarket</span>
+            </section>
+            <section class="newsFeedCard sidebarCard">
+                <h2 class="newsFeedTitle" id="newsFeedTitle">주요 뉴스</h2>
+                <div class="newsFeedList" id="newsFeedList">
                 </div>
-                <button class="connect-btn-sm default">Connect</button>
-            </div>
-            <a class="suggestionLink sidebarMoreLink">더 보기</a>
-        </section>
-        <section class="exchangeRateFeedCard sidebarCard" id="exchangeRateFeedCard">
-            <div class="exchangeRateFeedHeader">
-                <h2 class="exchangeRateFeedTitle" id="exchangeRateFeedTitle">환율</h2>
-                <p class="exchangeRateFeedSubtitle" id="exchangeRateFeedSubtitle">USD 기준 주요 통화</p>
-            </div>
-            <div class="exchangeRateFeedContent" id="exchangeRateFeedContent">
-                <p class="exchangeRateFeedState">환율 정보를 불러오는 중입니다.</p>
-            </div>
-        </section>
-        <section class="newsFeedCard sidebarCard">
-            <h2 class="newsFeedTitle" id="newsFeedTitle">주요 뉴스</h2>
-            <div class="newsFeedList" id="newsFeedList">
-                <div class="newsFeedItem">
-                    <div class="newsFeedContent">
-                        <h3 class="newsFeedHeadline">AI가 요약한 무역 헤드라인이 여기에 들어갑니다</h3>
-                        <p class="newsFeedSummary">크롤링한 기사 본문을 바탕으로 생성한 짧은 요약 문장이 이 영역에 표시됩니다.</p>
-                    </div>
-                </div>
-                <div class="newsFeedItem">
-                    <div class="newsFeedContent">
-                        <h3 class="newsFeedHeadline">산업 동향 또는 실시간 이슈 제목이 여기에 표시됩니다</h3>
-                        <p class="newsFeedSummary">스프링에서 바인딩한 뉴스 요약 데이터가 2~3줄 내에서 자연스럽게 노출되는 영역입니다.</p>
-                    </div>
-                </div>
-            </div>
-            <a class="newsFeedLink sidebarMoreLink" href="/explore?tab=news">더 보기</a>
-        </section>
-        <footer class="footerSection" id="footerSection">
-            <p class="footerText">이용약관 · 개인정보 처리방침 · 쿠키 정책 · 접근성 · 광고 정보 · 더 보기 ··· © 2026 Trade Market Corp.</p>
-        </footer>
-    </div>
+                <a class="newsFeedLink sidebarMoreLink" href="/explore?tab=news">더 보기</a>
+            </section>
+            <footer class="footerSection" id="footerSection">
+                <p class="footerText">이용약관 · 개인정보 처리방침 · 쿠키 정책 · 접근성 · 광고 정보 · 더 보기 ··· © 2026 Trade Market Corp.</p>
+            </footer>
+        </div>
 </aside>
 </body>
 </html>

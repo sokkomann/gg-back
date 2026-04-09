@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,8 +66,8 @@ public class MypageController {
                 .orElse("free");
 
         // 프로필/배너 파일이 없을 때도 화면이 깨지지 않도록 기본 이미지를 먼저 둔다.
-        String profileImageUrl = "/images/main/global-gates-logo.png";
-        String bannerImageUrl = "/images/main/lown1.jpg";
+        String profileImageUrl = "/images/profile/default_image.png";
+        String bannerImageUrl = "/images/profile/basic-banner.jpg";
 
         MemberProfileFileDTO profileFile = memberProfileFileDAO.findByMemberId(member.getId());
         MemberProfileFileDTO bannerFile = memberProfileFileDAO.findBannerByMemberId(member.getId());
@@ -74,16 +75,16 @@ public class MypageController {
         try {
             // DB에는 S3 key가 저장되어 있으므로 화면에서는 presigned url로 바꿔서 내려준다.
             if (profileFile != null && profileFile.getFileName() != null && !profileFile.getFileName().isEmpty()) {
-                profileImageUrl = s3Service.getPresignedUrl(profileFile.getFileName(), java.time.Duration.ofMinutes(10));
+                profileImageUrl = s3Service.getPresignedUrl(profileFile.getFileName(), Duration.ofMinutes(10));
             }
 
             if (bannerFile != null && bannerFile.getFileName() != null && !bannerFile.getFileName().isEmpty()) {
-                bannerImageUrl = s3Service.getPresignedUrl(bannerFile.getFileName(), java.time.Duration.ofMinutes(10));
+                bannerImageUrl = s3Service.getPresignedUrl(bannerFile.getFileName(), Duration.ofMinutes(10));
             }
         } catch (java.io.IOException e) {
             // presigned url 생성 실패 시에는 기본 이미지를 그대로 사용한다.
-            profileImageUrl = "/images/main/global-gates-logo.png";
-            bannerImageUrl = "/images/main/lown1.jpg";
+            member.setFileName(null);
+
         }
 
         // 마이페이지 상단의 커넥팅/커넥터 수는 현재 보고 있는 페이지 주인 기준으로 렌더링해야 한다.
@@ -110,18 +111,18 @@ public class MypageController {
             String profileFileName = following.getMemberProfileFileName();
 
             if (profileFileName == null || profileFileName.isBlank()) {
-                following.setMemberProfileFileName("/images/main/global-gates-logo.png");
+                following.setMemberProfileFileName("/images/profile/default_image.png");
                 return;
             }
 
             try {
                 following.setMemberProfileFileName(
-                        s3Service.getPresignedUrl(profileFileName, java.time.Duration.ofMinutes(10))
+                        s3Service.getPresignedUrl(profileFileName, Duration.ofMinutes(10))
                 );
             } catch (java.io.IOException e) {
                 // presigned URL 생성 실패가 mypage 전체 진입 실패로 이어지지 않도록
                 // 해당 사용자 이미지에만 기본 이미지를 적용한다.
-                following.setMemberProfileFileName("/images/main/global-gates-logo.png");
+                following.setMemberProfileFileName("/images/profile/default_image.png");
             }
         });
 
