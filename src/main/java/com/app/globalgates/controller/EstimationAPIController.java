@@ -38,6 +38,17 @@ public class EstimationAPIController {
         return estimationService.getDetail(id).orElse(null);
     }
 
+    @PatchMapping("{id}/status")
+    public boolean updateStatus(@PathVariable Long id,
+                                @RequestBody EstimationDTO estimationDTO,
+                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return estimationService.updateStatus(
+                id,
+                userDetails != null ? userDetails.getId() : null,
+                estimationDTO.getStatus()
+        );
+    }
+
     @GetMapping("experts")
     public List<EstimationExpertDTO> getExperts(@RequestParam(required = false) String keyword,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {

@@ -1,13 +1,6 @@
-﻿// inquiry_active_list 페이지 전체 상호작용 스크립트
-// 탭 전환, 기간 필터, 게시물 카드 액션, 댓글/공유/신고/차단,
-// 위치, 태그, 미디어, 이모지, 임시저장, 상품선택 패널을 함께 다룹니다.
-// 위치, 태그, 미디어, 이모지, 임시저장, 상품선택 패널을 함께 다룹니다.
-window.onload = () => {
+﻿window.onload = () => {
 
-    // DOM 참조 모음
 
-    // 탭, 패널, 기간 필터처럼 상단 고정 UI 참조
-    // 탭, 패널, 기간 필터처럼 상단 고정 UI 참조
     const tabButtons = Array.from(
         document.querySelectorAll("[data-inquiry-tab]"),
     );
@@ -26,9 +19,6 @@ window.onload = () => {
         document.querySelectorAll("[data-activity-filter-item]"),
     );
 
-    // 댓글 모달과 그 안의 주요 요소 참조
-    // 댓글 모달과 그 안의 주요 요소 참조
-    // 모달은 HTML에 이미 존재하며 hidden 상태를 열고 닫는 방식으로 제어합니다.
     const replyModalOverlay = document.querySelector("[data-reply-modal]");
     const replyModal = replyModalOverlay?.querySelector(".tweet-modal");
     const replyCloseButton = replyModalOverlay?.querySelector(
@@ -55,27 +45,19 @@ window.onload = () => {
         "[data-reply-source-text]",
     );
 
-    // 댓글 모달 글자 수 게이지
     const replyGauge = replyModalOverlay?.querySelector("[data-reply-gauge]");
     const replyGaugeText = replyModalOverlay?.querySelector("[data-reply-gauge-text]");
-    // 댓글 모달 첨부 버튼
     const replyMediaUploadButton = replyModalOverlay?.querySelector("[data-testid='mediaUploadButton']");
     const replyFileInput = replyModalOverlay?.querySelector("[data-testid='fileInput']");
-    // 서식 버튼 목록
     const replyFormatButtons = replyModalOverlay?.querySelectorAll("[data-format]") ?? [];
-    // 이모지 피커 관련 요소
     const replyEmojiButton = replyModalOverlay?.querySelector("[data-testid='emojiButton']");
     const replyEmojiPicker = replyModalOverlay?.querySelector(".tweet-modal__emoji-picker");
     const replyEmojiSearchInput = replyModalOverlay?.querySelector("[data-testid='emojiSearchInput']");
     const replyEmojiTabs = replyModalOverlay?.querySelectorAll(".tweet-modal__emoji-tab") ?? [];
     const replyEmojiContent = replyModalOverlay?.querySelector("[data-testid='emojiPickerContent']");
-    // 첨부파일 미리보기 영역
     const replyAttachmentPreview = replyModalOverlay?.querySelector("[data-attachment-preview]");
     const replyAttachmentMedia = replyModalOverlay?.querySelector("[data-attachment-media]");
-    // 댓글 모달 내부 보조 뷰 참조
-    // 작성 뷰 래퍼
     const composeView = replyModalOverlay?.querySelector(".tweet-modal__compose-view");
-    // 위치 선택 뷰
     const replyGeoButton = replyModalOverlay?.querySelector("[data-testid='geoButton']");
     const replyGeoButtonPath = replyGeoButton?.querySelector("path");
     const replyLocationView = replyModalOverlay?.querySelector(".tweet-modal__location-view");
@@ -87,19 +69,15 @@ window.onload = () => {
     const replyLocationDisplayButton = replyModalOverlay?.querySelector("[data-location-display]");
     const replyLocationName = replyModalOverlay?.querySelector("[data-location-name]");
     const replyFooterMeta = replyModalOverlay?.querySelector(".tweet-modal__footer-meta");
-    // 상품 선택 버튼
     const replyProductButton = replyModalOverlay?.querySelector("[data-testid='productSelectButton']");
-    // 상품 선택 뷰
     const replyProductView = replyModalOverlay?.querySelector("[data-product-select-modal]");
     const productSelectClose = replyProductView?.querySelector("[data-product-select-close]");
     const productSelectList = replyProductView?.querySelector("[data-product-select-list]");
     const productSelectComplete = replyProductView?.querySelector("[data-product-select-complete]");
     const productSelectEmpty = replyProductView?.querySelector("[data-product-empty]");
 
-    // 댓글 대상 게시물 컨텍스트 버튼
     const replyContextButton = replyModalOverlay?.querySelector(".tweet-modal__context-button");
 
-    // 사용자 태그 뷰
     const replyUserTagTrigger = replyModalOverlay?.querySelector("[data-user-tag-trigger]");
     const replyUserTagLabel = replyModalOverlay?.querySelector("[data-user-tag-label]");
     const replyTagView = replyModalOverlay?.querySelector(".tweet-modal__tag-view");
@@ -109,7 +87,6 @@ window.onload = () => {
     const replyTagSearchInput = replyModalOverlay?.querySelector("[data-tag-search]");
     const replyTagChipList = replyModalOverlay?.querySelector("[data-tag-chip-list]");
     const replyTagResults = replyModalOverlay?.querySelector("[data-tag-results]");
-    // 미디어 설명(ALT) 편집 뷰
     const replyMediaAltTrigger = replyModalOverlay?.querySelector("[data-media-alt-trigger]");
     const replyMediaAltLabel = replyModalOverlay?.querySelector("[data-media-alt-label]");
     const replyMediaView = replyModalOverlay?.querySelector(".tweet-modal__media-view");
@@ -122,90 +99,60 @@ window.onload = () => {
     const replyMediaAltInput = replyModalOverlay?.querySelector("[data-media-alt-input]");
     const replyMediaAltCount = replyModalOverlay?.querySelector("[data-media-alt-count]");
 
-    // --- ?듦? 紐⑤떖 ?꾩떆???Draft) ?쒕툕酉??붿냼 李몄“ ---
-    // ?듦? 紐⑤떖 ?대? 珥덉븞 ?쒕툕酉?(.tweet-modal__draft-view)
     const draftView = replyModalOverlay?.querySelector(".tweet-modal__draft-view");
-    // ?꾩떆????⑤꼸 ?닿린 踰꾪듉
     const draftButton = replyModalOverlay?.querySelector(".tweet-modal__draft");
-    // ?꾩떆????⑤꼸 ?ㅻ줈媛湲?踰꾪듉
     const draftBackButton = draftView?.querySelector(".draft-panel__back");
-    // ?꾩떆????⑤꼸 ?섏젙/?꾨즺 ?좉? 踰꾪듉
     const draftActionButton = draftView?.querySelector(".draft-panel__action");
-    // ?꾩떆???紐⑸줉 而⑦뀒?대꼫
     const draftList = draftView?.querySelector(".draft-panel__list");
-    // ?꾩떆???鍮꾩뼱?덉쓬 ?덈궡 ?곸뿭
     const draftEmpty = draftView?.querySelector(".draft-panel__empty");
-    // ?꾩떆???鍮꾩뼱?덉쓬 ?쒕ぉ
     const draftEmptyTitle = draftView?.querySelector(
         ".draft-panel__empty-title",
     );
-    // ?꾩떆???鍮꾩뼱?덉쓬 ?ㅻ챸
     const draftEmptyBody = draftView?.querySelector(".draft-panel__empty-body");
-    // ?꾩떆????몄쭛 紐⑤뱶 ?섎떒 ?곸뿭
     const draftFooter = draftView?.querySelector(".draft-panel__footer");
-    // ?꾩떆????꾩껜 ?좏깮/?댁젣 踰꾪듉
     const draftSelectAllButton = draftView?.querySelector(
         ".draft-panel__select-all",
     );
-    // ?꾩떆????좏깮 ??ぉ ??젣 踰꾪듉
     const draftDeleteButton = draftView?.querySelector(
         ".draft-panel__footer-delete",
     );
-    // ?꾩떆?????젣 ?뺤씤 ?ㅻ쾭?덉씠
     const draftConfirmOverlay = draftView?.querySelector(
         ".draft-panel__confirm-overlay",
     );
-    // ?꾩떆?????젣 ?뺤씤 諛곌꼍
     const draftConfirmBackdrop = draftView?.querySelector(
         ".draft-panel__confirm-backdrop",
     );
-    // ?꾩떆?????젣 ?뺤씤 ?쒕ぉ
     const draftConfirmTitle = draftView?.querySelector(
         ".draft-panel__confirm-title",
     );
-    // ?꾩떆?????젣 ?뺤씤 ?ㅻ챸
     const draftConfirmDesc = draftView?.querySelector(
         ".draft-panel__confirm-desc",
     );
-    // ?꾩떆?????젣 ?뺤씤????젣 踰꾪듉
     const draftConfirmDeleteButton = draftView?.querySelector(
         ".draft-panel__confirm-primary",
     );
-    // ?꾩떆?????젣 ?뺤씤??痍⑥냼 踰꾪듉
     const draftConfirmCancelButton = draftView?.querySelector(
         ".draft-panel__confirm-secondary",
     );
 
-    // --- ?숈쟻 ?덉씠??留덉슫??吏??---
-    // 怨듭쑀 ?쒕∼?ㅼ슫怨??붾낫湲??쒕∼?ㅼ슫? HTML??#layers 猷⑦듃???숈쟻?쇰줈 異붽??쒕떎.
-    // appendChild濡?異붽??섍퀬, ?レ쓣 ??remove()濡?DOM?먯꽌 ?쒓굅?쒕떎.
     const layersRoot = document.getElementById("layers");
 
-    // ===== ?곹깭 蹂???뱀뀡 =====
 
-    // --- ?곸닔 ---
-    // ??誘몃━蹂닿린 ?좊땲硫붿씠???쒓컙怨?寃뚯떆臾?蹂몃Ц 異뺤빟 湲곗? 湲몄씠??
     const PREVIEW_DURATION_MS = 280;
     const MAX_POST_TEXT_LENGTH = 140;
-    // ?듦? 理쒕? 湲?먯닔 (main 寃뚯떆?섍린? ?숈씪)
     const REPLY_MAX_LENGTH = 500;
 
-    // --- ?쒖꽦 UI 異붿쟻 ?곹깭 ---
-    // ?꾩옱 ?대젮 ?덈뒗 UI? 留덉?留됱쑝濡??뚮┛ ?몃━嫄곕? 異붿쟻?댁꽌 以묐났 ?ㅽ뵂怨?蹂듦? ?ъ빱?ㅻ? 愿由ы븳??
     let activeReplyTrigger = null;
     let activeShareDropdown = null;
     let activeShareButton = null;
     let activeShareModal = null;
     let activePostMoreMenu = null;
     let activePostMoreButton = null;
-    // ?붾낫湲??쒕∼?ㅼ슫(?숈쟻 #layers) 諛?李⑤떒/?좉퀬 紐⑤떖 ?곹깭
     let activeMoreDropdown = null;
     let activeMoreButton = null;
     let activeNotificationModal = null;
     let activeNotificationToast = null;
-    // ?ъ슜?먮퀎 ?붾줈???곹깭瑜???ν븯??Map
     const followState = new Map();
-    // --- ?듦? ?먮뵒???쒖떇/?좏깮/?대え吏/泥⑤? ?곹깭 ---
     let pendingReplyFormats = new Set();
     let savedReplySelection = null;
     let savedReplySelectionOffsets = null;
@@ -222,29 +169,24 @@ window.onload = () => {
     const maxReplyImages = 4;
     const maxReplyMediaAltLength = 1000;
     let activeEmojiCategory = "recent";
-    // 태그 / 미디어 ALT 편집 상태
     let selectedTaggedUsers = [];
     let pendingTaggedUsers = [];
     let replyMediaEdits = [];
     let pendingReplyMediaEdits = [];
     let activeReplyMediaIndex = 0;
     let currentTagResults = [];
-    // --- ?좉퀬 ?ъ쑀 紐⑸줉 (李⑤떒/?좉퀬 紐⑤떖?먯꽌 ?ъ슜) ---
     const reportReasons = [
-        "?ㅻⅨ ?뚯궗 ?쒗뭹 ?꾩슜 ?좉퀬",
-        "?ㅼ젣 議댁옱?섏? ?딅뒗 ?쒗뭹 ?깅줉 ?좉퀬",
-        "?ㅽ럺쨌?먯궛吏 ?덉쐞 ?쒓린 ?좉퀬",
-        "?뱁뿀 ?쒗뭹 臾대떒 ?먮ℓ ?좉퀬",
+        "다른 회사 제품 도용 신고",
+        "실제 존재하지 않는 제품 등록 신고",
+        "원산지 허위 표기 신고",
+        "상표 제품 무단 판매 신고",
         "?섏텧???쒗븳 ?덈ぉ ?좉퀬",
-        "諛섎났?곸씤 ?숈씪 寃뚯떆臾??좉퀬",
+        "반복적인 동일 게시물 신고",
     ];
 
-    // ===== 怨듯넻 ?좏떥由ы떚 ?⑥닔 ?뱀뀡 =====
-    // DOM ?띿뒪?몃? ?뺣━?댁꽌 鍮꾧탳/?쒖떆???덉쟾??臾몄옄?대줈 留뚮뱺??
     const getTextContent = (element) =>
         element?.textContent?.replace(/\s+/g, " ").trim() ?? "";
 
-    // ?숈쟻?쇰줈 innerHTML??留뚮뱾 ???ъ슜?섎뒗 理쒖냼 HTML ?댁뒪耳?댄봽 ?좏떥?대떎.
     const escapeHtml = (value) =>
         String(value ?? "")
             .replaceAll("&", "&amp;")
@@ -253,17 +195,14 @@ window.onload = () => {
             .replaceAll('"', "&quot;")
             .replaceAll("'", "&#39;");
 
-    // 기본 프로필 이미지가 없을 때 사용할 원형 아바타 SVG를 data URL로 만듭니다.
     const buildAvatarDataUrl = (label) => {
         const safeLabel = escapeHtml(String(label || "나").slice(0, 2));
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72"><rect width="72" height="72" rx="36" fill="#1d9bf0"></rect><text x="36" y="43" text-anchor="middle" font-size="28" font-family="Arial, sans-serif" fill="#ffffff">${safeLabel}</text></svg>`;
         return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
     };
 
-    // ?대깽?멸? 諛쒖깮??踰꾪듉 湲곗??쇰줈 媛??媛源뚯슫 寃뚯떆臾?移대뱶瑜?李얜뒗??
     const getPostCard = (element) => element?.closest(".postCard") ?? null;
 
-    // 寃뚯떆臾?移대뱶?먯꽌 ?꾨줈???대?吏瑜??쎄퀬, ?놁쑝硫??앹꽦???꾨컮?瑜?諛섑솚?쒕떎.
     const getPostAvatarSrc = (postCard) => {
         const avatarImage = postCard?.querySelector(".postAvatarImage");
         return (
@@ -274,15 +213,12 @@ window.onload = () => {
         );
     };
 
-    // ===== ???쒖떆 ?쒖뼱 =====
-    // inquiry_active_list??activity ?⑤꼸留??ㅼ젣 肄섑뀗痢좊? 蹂댁뿬 二쇰룄濡?怨좎젙?쒕떎.
     const ensureActivityPanelVisible = () => {
         panels.forEach((panel) => {
             panel.hidden = panel.dataset.inquiryPanel !== "activity";
         });
     };
 
-    // ?좏깮????뿉留??쒖꽦 ?대옒?ㅼ? aria-selected瑜?諛섏쁺?쒕떎.
     const setActiveTabVisual = (tabName) => {
         tabButtons.forEach((tab) => {
             const isActive = tab.dataset.inquiryTab === tabName;
@@ -291,7 +227,6 @@ window.onload = () => {
         });
     };
 
-    // ?ㅼ젣 ?⑤꼸 ?대룞 ?놁씠 ??踰꾪듉?먮쭔 吏㏃? ?뚮┝ ?꾨━酉??좊땲硫붿씠?섏쓣 以??
     const togglePreviewState = (tab) => {
         tab.classList.remove("inquiry-tab--preview");
         void tab.offsetWidth;
@@ -301,8 +236,6 @@ window.onload = () => {
         }, PREVIEW_DURATION_MS);
     };
 
-    // ===== ?대┛ UI ?リ린 ?ы띁 ?뱀뀡 =====
-    // ?꾪꽣 ?쒕∼?ㅼ슫???リ퀬 ?몃━嫄곗쓽 aria ?곹깭瑜??먮났?쒕떎.
     const closeFilterMenu = () => {
         if (!filterTrigger || !filterMenu) {
             return;
@@ -312,7 +245,6 @@ window.onload = () => {
         filterTrigger.setAttribute("aria-expanded", "false");
     };
 
-    // (湲곗〈 ?뺤쟻 硫붾돱 ?リ린 ???섏쐞 ?명솚)
     const closePostMoreMenu = () => {
         if (!activePostMoreMenu) return;
         activePostMoreMenu.hidden = true;
@@ -321,8 +253,6 @@ window.onload = () => {
         activePostMoreButton = null;
     };
 
-    // ?붾낫湲??숈쟻 ?쒕∼?ㅼ슫(#layers)???ル뒗??
-    // ?쒕∼?ㅼ슫? #layers???숈쟻?쇰줈 異붽???寃껋씠誘濡?remove()濡?DOM?먯꽌 ?꾩쟾???쒓굅?쒕떎.
     const closeMoreDropdown = () => {
         if (!activeMoreDropdown) return;
         activeMoreDropdown.remove();
@@ -333,8 +263,6 @@ window.onload = () => {
         }
     };
 
-    // 李⑤떒/?좉퀬 紐⑤떖???ル뒗??
-    // ??紐⑤떖? document.body???숈쟻?쇰줈 異붽???寃껋씠誘濡?remove()濡?DOM?먯꽌 ?꾩쟾???쒓굅?쒕떎.
     const closeNotificationModal = () => {
         if (!activeNotificationModal) return;
         activeNotificationModal.remove();
@@ -342,8 +270,6 @@ window.onload = () => {
         document.body.classList.remove("modal-open");
     };
 
-    // ===== ?좎뒪???쒖떆 ?⑥닔 ?뱀뀡 =====
-    // ?좎뒪??div瑜?document.body???숈쟻?쇰줈 異붽??섍퀬 3珥????먮룞?쇰줈 remove()?쒕떎.
     const showNotificationToast = (message) => {
         activeNotificationToast?.remove();
         const toast = document.createElement("div");
@@ -359,9 +285,6 @@ window.onload = () => {
         }, 3000);
     };
 
-    // ===== ?붾낫湲??쒕∼?ㅼ슫 ?⑥닔 ?뱀뀡 =====
-    // ?붾낫湲??쒕∼?ㅼ슫? #layers ?붿냼???숈쟻?쇰줈 ?앹꽦(appendChild)?섍퀬, ?レ쓣 ??remove()濡??쒓굅?쒕떎.
-    // ?붾줈??李⑤떒/?좉퀬 硫붾돱 ??ぉ???ы븿?쒕떎.
     const getMoreDropdownItems = (button) => {
         const postCard = getPostCard(button);
         const handle = getTextContent(postCard?.querySelector(".postHandle")) || "@user";
@@ -387,9 +310,6 @@ window.onload = () => {
         ];
     };
 
-    // ===== 李⑤떒/?좉퀬 紐⑤떖 ?⑥닔 ?뱀뀡 =====
-    // 李⑤떒/?좉퀬 紐⑤떖(.notification-dialog)? document.body???숈쟻?쇰줈 ?앹꽦(appendChild)?섍퀬,
-    // ?レ쓣 ??closeNotificationModal()?먯꽌 remove()濡?DOM?먯꽌 ?꾩쟾???쒓굅?쒕떎.
     const openBlockModal = (button) => {
         const postCard = getPostCard(button);
         const handle = getTextContent(postCard?.querySelector(".postHandle")) || "@user";
@@ -397,7 +317,7 @@ window.onload = () => {
         closeNotificationModal();
         const modal = document.createElement("div");
         modal.className = "notification-dialog notification-dialog--block";
-        modal.innerHTML = `<div class="notification-dialog__backdrop"></div><div class="notification-dialog__card notification-dialog__card--small" role="alertdialog" aria-modal="true"><h2 class="notification-dialog__title">${escapeHtml(handle)} ?섏쓣 李⑤떒?좉퉴??</h2><p class="notification-dialog__description">??怨듦컻 寃뚯떆臾쇱쓣 蹂????덉?留????댁긽 寃뚯떆臾쇱뿉 李몄뿬?????놁뒿?덈떎. ?먰븳 ${escapeHtml(handle)} ?섏? ?섎? ?붾줈?고븯嫄곕굹 履쎌?瑜?蹂대궪 ???놁쑝硫? ??怨꾩젙怨?愿?⑤맂 ?뚮┝???닿쾶 ?쒖떆?섏? ?딆뒿?덈떎.</p><div class="notification-dialog__actions"><button type="button" class="notification-dialog__danger notification-dialog__confirm-block">李⑤떒</button><button type="button" class="notification-dialog__secondary notification-dialog__close">痍⑥냼</button></div></div>`;
+        modal.innerHTML = `<div class="notification-dialog__backdrop"></div><div class="notification-dialog__card notification-dialog__card--small" role="alertdialog" aria-modal="true"><h2 class="notification-dialog__title">${escapeHtml(handle)} ?섏쓣 차단?좉퉴??</h2><p class="notification-dialog__description">더 공개 게시물을 볼 수 있지만 더 이상 게시물에 참여할 수 없습니다. 또한 ${escapeHtml(handle)} 님을 팔로우하거나 쪽지를 보낼 수 없으며, 이 계정과 관련된 알림도 받지 않습니다.</p><div class="notification-dialog__actions"><button type="button" class="notification-dialog__danger notification-dialog__confirm-block">차단</button><button type="button" class="notification-dialog__secondary notification-dialog__close">취소</button></div></div>`;
         modal.addEventListener("click", (e) => {
             if (e.target.classList.contains("notification-dialog__backdrop") || e.target.closest(".notification-dialog__close")) {
                 e.preventDefault();
@@ -406,7 +326,7 @@ window.onload = () => {
             }
             if (e.target.closest(".notification-dialog__confirm-block")) {
                 e.preventDefault();
-                showNotificationToast(`${handle} ?섏쓣 李⑤떒?덉뒿?덈떎`);
+                showNotificationToast(`${handle} ?섏쓣 차단?덉뒿?덈떎`);
                 closeNotificationModal();
             }
         });
@@ -415,7 +335,6 @@ window.onload = () => {
         activeNotificationModal = modal;
     };
 
-    // ?좉퀬 紐⑤떖???닿린 (Notification怨??숈씪 ???좉퀬 ?ъ쑀 紐⑸줉 ?ы븿)
     const openReportModal = (button) => {
         closeMoreDropdown();
         closeNotificationModal();
@@ -439,7 +358,6 @@ window.onload = () => {
         activeNotificationModal = modal;
     };
 
-    // 더보기 드롭다운 메뉴 클릭 시 해당 액션을 처리합니다
     const handleMoreDropdownAction = (button, actionClass) => {
         const postCard = getPostCard(button);
         const handle = getTextContent(postCard?.querySelector(".postHandle")) || "@user";
@@ -457,7 +375,6 @@ window.onload = () => {
         if (actionClass === "menu-item--report") openReportModal(button);
     };
 
-    // 더보기 드롭다운을 #layers 영역에 동적으로 생성합니다
     const openMoreDropdown = (button) => {
         if (!layersRoot) return;
         closeShareDropdown();
@@ -488,8 +405,6 @@ window.onload = () => {
         activeMoreButton.setAttribute("aria-expanded", "true");
     };
 
-    // ===== 怨듭쑀 ?쒕∼?ㅼ슫 ?⑥닔 ?뱀뀡 =====
-    // 怨듭쑀 ?쒕∼?ㅼ슫? #layers ?붿냼???숈쟻?쇰줈 ?앹꽦(appendChild)?섍퀬, ?レ쓣 ??remove()濡??쒓굅?쒕떎.
     const closeShareDropdown = () => {
         if (!activeShareDropdown) {
             return;
@@ -501,7 +416,6 @@ window.onload = () => {
         activeShareButton = null;
     };
 
-    // 怨듭쑀 諛뷀??쒗듃(.share-sheet)??document.body???숈쟻?쇰줈 異붽??섎?濡?remove()濡??쒓굅?쒕떎.
     const closeShareModal = () => {
         if (!activeShareModal) {
             return;
@@ -512,17 +426,13 @@ window.onload = () => {
         document.body.classList.remove("modal-open");
     };
 
-    // ?듦? 紐⑤떖???レ쓣 ???덈뒗吏 ?뺤씤?쒕떎 (?묒꽦 以묒씠硫??뺤씤 ??붿긽???쒖떆)
     const canCloseReplyModal = () => {
         const hasAttachment = attachedReplyFiles.length > 0;
-        if (!replyEditor) return !hasAttachment || window.confirm("寃뚯떆臾쇱쓣 ??젣?섏떆寃좎뼱??");
+        if (!replyEditor) return !hasAttachment || window.confirm("게시물을 삭제하시겠어요?");
         const hasDraft = replyEditor.textContent.replace(/\u00a0/g, " ").trim().length > 0;
-        return (!hasDraft && !hasAttachment) || window.confirm("寃뚯떆臾쇱쓣 ??젣?섏떆寃좎뼱??");
+        return (!hasDraft && !hasAttachment) || window.confirm("게시물을 삭제하시겠어요?");
     };
 
-    // ===== ?듦? 紐⑤떖 ?⑥닔 ?뱀뀡 =====
-    // ?듦? 紐⑤떖? HTML???대? 議댁옱?섎뒗 [data-reply-modal] 怨④꺽??hidden ?띿꽦?쇰줈 ?좉??댁꽌 ?ъ궗?⑺븳??
-    // ?숈쟻 ?앹꽦/??젣媛 ?꾨땲???쒖떆/?④? ?꾪솚 諛⑹떇?대떎.
     const closeReplyModal = (options = {}) => {
         const {skipConfirm = false, restoreFocus = true} = options;
         if (!replyModalOverlay || replyModalOverlay.hidden) {
@@ -564,8 +474,6 @@ window.onload = () => {
         activeReplyTrigger = null;
     };
 
-    // ===== 踰꾪듉 ?곹깭 / 移댁슫??/ 怨듭쑀 ?좎뒪???뱀뀡 =====
-    // 遺곷쭏??踰꾪듉???꾩씠肄?寃쎈줈? ?쇰꺼???꾩옱 ?곹깭??留욊쾶 諛붽씔??
     const setBookmarkButtonState = (button, isActive) => {
         const path = button?.querySelector("path");
         if (!button || !path) {
@@ -589,7 +497,6 @@ window.onload = () => {
         );
     };
 
-    // ?≪뀡 踰꾪듉 ?レ옄瑜?利앷컧?쒖폒 ?붾㈃??諛붾줈 諛섏쁺?쒕떎.
     const updateCount = (button, delta) => {
         const countElement = button?.querySelector(".tweet-action-count");
         if (!countElement) {
@@ -603,7 +510,6 @@ window.onload = () => {
         return nextCount;
     };
 
-    // 怨듭쑀 ?좎뒪??.share-toast)??HTML??誘몃━ ?녾퀬, document.body ?앹뿉 ?좉퉸 異붽??덈떎媛 3珥????먮룞 remove()?쒕떎.
     const showShareToast = (message) => {
         document.querySelector(".share-toast")?.remove();
         const toast = document.createElement("div");
@@ -617,7 +523,6 @@ window.onload = () => {
         }, 3000);
     };
 
-    // 怨듭쑀 ????ъ슜??紐⑸줉? ?섎떒 異붿쿇 移대뱶(.user-card)?먯꽌 ?쎌뼱? ?ъ궗?⑺븳??
     const getShareUsers = () =>
         Array.from(document.querySelectorAll(".user-card")).map((card) => ({
             id:
@@ -633,7 +538,6 @@ window.onload = () => {
             ),
         }));
 
-    // 怨듭쑀 愿???≪뀡?먯꽌 怨듯넻?쇰줈 ?곕뒗 寃뚯떆臾?硫뷀??곗씠?곕? 臾띠뼱 諛섑솚?쒕떎.
     const getSharePostMeta = (button) => {
         const postCard = getPostCard(button);
         const bookmarkButton =
@@ -644,7 +548,6 @@ window.onload = () => {
         return {bookmarkButton, permalink: url.toString()};
     };
 
-    // 留곹겕 蹂듭궗???쒕∼?ㅼ슫???レ? ???꾩옱 寃뚯떆臾쇱쓽 ?댁떆 URL???대┰蹂대뱶??湲곕줉?쒕떎.
     const copyShareLink = (button) => {
         const {permalink} = getSharePostMeta(button);
         closeShareDropdown();
@@ -664,11 +567,7 @@ window.onload = () => {
             });
     };
 
-    // ===== 怨듭쑀 諛뷀??쒗듃 ?숈쟻 ?앹꽦 ?뱀뀡 =====
-    // 怨듭쑀??諛뷀??쒗듃(.share-sheet)??HTML???뺤쟻 留덊겕?낆씠 ?놁뼱??
-    // document.body???덈줈 留뚮뱾??appendChild?섍퀬, closeShareModal()?먯꽌 remove()濡??쒓굅?쒕떎.
 
-    // --- Chat ?꾩넚 諛뷀??쒗듃 ---
     const openShareChatModal = () => {
         const users = getShareUsers();
         closeShareDropdown();
@@ -676,7 +575,7 @@ window.onload = () => {
 
         const modal = document.createElement("div");
         modal.className = "share-sheet";
-        modal.innerHTML = `<div class="share-sheet__backdrop" data-share-close="true"></div><div class="share-sheet__card" role="dialog" aria-modal="true" aria-labelledby="share-chat-title"><div class="share-sheet__header"><button type="button" class="share-sheet__icon-btn" data-share-close="true" aria-label="?뚯븘媛湲?><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path></g></svg></button><h2 id="share-chat-title" class="share-sheet__title">怨듭쑀?섍린</h2><span class="share-sheet__header-spacer"></span></div><div class="share-sheet__search"><input type="text" class="share-sheet__search-input" placeholder="寃?? aria-label="寃?? /></div><div class="share-sheet__list">${users.length === 0 ? '<div class="share-sheet__empty"><p>?꾩넚?????덈뒗 ?ъ슜?먭? ?놁뒿?덈떎.</p></div>' : users.map((user) => `<button type="button" class="share-sheet__user" data-share-user-name="${escapeHtml(user.name)}"><span class="share-sheet__user-avatar"><img src="${escapeHtml(user.avatar)}" alt="${escapeHtml(user.name)}" /></span><span class="share-sheet__user-body"><span class="share-sheet__user-name">${escapeHtml(user.name)}</span><span class="share-sheet__user-handle">${escapeHtml(user.handle)}</span></span></button>`).join("")}</div></div>`;
+        modal.innerHTML = `<div class="share-sheet__backdrop" data-share-close="true"></div><div class="share-sheet__card" role="dialog" aria-modal="true" aria-labelledby="share-chat-title"><div class="share-sheet__header"><button type="button" class="share-sheet__icon-btn" data-share-close="true" aria-label="돌아가기"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path></g></svg></button><h2 id="share-chat-title" class="share-sheet__title">공유하기</h2><span class="share-sheet__header-spacer"></span></div><div class="share-sheet__search"><input type="text" class="share-sheet__search-input" placeholder="검색" aria-label="검색" /></div><div class="share-sheet__list">${users.length === 0 ? '<div class="share-sheet__empty"><p>전송할 수 있는 사용자가 없습니다.</p></div>' : users.map((user) => `<button type="button" class="share-sheet__user" data-share-user-name="${escapeHtml(user.name)}"><span class="share-sheet__user-avatar"><img src="${escapeHtml(user.avatar)}" alt="${escapeHtml(user.name)}" /></span><span class="share-sheet__user-body"><span class="share-sheet__user-name">${escapeHtml(user.name)}</span><span class="share-sheet__user-handle">${escapeHtml(user.handle)}</span></span></button>`).join("")}</div></div>`;
         modal.addEventListener("click", (event) => {
             const userButton = event.target.closest(".share-sheet__user");
             if (
@@ -696,13 +595,11 @@ window.onload = () => {
                 closeShareModal();
             }
         });
-        // body에 직접 붙여 전체 화면 시트처럼 사용합니다.
         document.body.appendChild(modal);
         document.body.classList.add("modal-open");
         activeShareModal = modal;
     };
 
-    // --- 遺곷쭏???대뜑 諛뷀??쒗듃 (document.body???숈쟻 異붽?) ---
     const openShareBookmarkModal = (button) => {
         const {bookmarkButton} = getSharePostMeta(button);
         const isBookmarked =
@@ -712,7 +609,7 @@ window.onload = () => {
 
         const modal = document.createElement("div");
         modal.className = "share-sheet";
-        modal.innerHTML = `<div class="share-sheet__backdrop" data-share-close="true"></div><div class="share-sheet__card share-sheet__card--bookmark" role="dialog" aria-modal="true" aria-labelledby="share-bookmark-title"><div class="share-sheet__header"><button type="button" class="share-sheet__icon-btn" data-share-close="true" aria-label="?リ린"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10.59 12 4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g></svg></button><h2 id="share-bookmark-title" class="share-sheet__title">?대뜑??異붽?</h2><span class="share-sheet__header-spacer"></span></div><button type="button" class="share-sheet__create-folder">??遺곷쭏???대뜑 留뚮뱾湲?/button><button type="button" class="share-sheet__folder" data-share-folder="all-bookmarks"><span class="share-sheet__folder-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M2.998 8.5c0-1.38 1.119-2.5 2.5-2.5h9c1.381 0 2.5 1.12 2.5 2.5v14.12l-7-3.5-7 3.5V8.5zM18.5 2H8.998v2H18.5c.275 0 .5.224.5.5V15l2 1.4V4.5c0-1.38-1.119-2.5-2.5-2.5z"></path></g></svg></span><span class="share-sheet__folder-name">紐⑤뱺 遺곷쭏??/span><span class="share-sheet__folder-check${isBookmarked ? " share-sheet__folder-check--active" : ""}"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span></button></div>`;
+        modal.innerHTML = `<div class="share-sheet__backdrop" data-share-close="true"></div><div class="share-sheet__card share-sheet__card--bookmark" role="dialog" aria-modal="true" aria-labelledby="share-bookmark-title"><div class="share-sheet__header"><button type="button" class="share-sheet__icon-btn" data-share-close="true" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10.59 12 4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g></svg></button><h2 id="share-bookmark-title" class="share-sheet__title">북마크에 추가</h2><span class="share-sheet__header-spacer"></span></div><button type="button" class="share-sheet__create-folder">새 북마크 폴더 만들기/button><button type="button" class="share-sheet__folder" data-share-folder="all-bookmarks"><span class="share-sheet__folder-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M2.998 8.5c0-1.38 1.119-2.5 2.5-2.5h9c1.381 0 2.5 1.12 2.5 2.5v14.12l-7-3.5-7 3.5V8.5zM18.5 2H8.998v2H18.5c.275 0 .5.224.5.5V15l2 1.4V4.5c0-1.38-1.119-2.5-2.5-2.5z"></path></g></svg></span><span class="share-sheet__folder-name">모든 북마크/span><span class="share-sheet__folder-check${isBookmarked ? " share-sheet__folder-check--active" : ""}"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></g></svg></span></button></div>`;
         modal.addEventListener("click", (event) => {
             if (
                 event.target.closest("[data-share-close='true']") ||
@@ -725,7 +622,7 @@ window.onload = () => {
 
             if (event.target.closest(".share-sheet__create-folder")) {
                 event.preventDefault();
-                showShareToast("???대뜑 留뚮뱾湲곕뒗 以鍮?以묒엯?덈떎");
+                showShareToast("새 북마크 폴더 만들기는 준비 중입니다");
                 closeShareModal();
                 return;
             }
@@ -737,14 +634,11 @@ window.onload = () => {
                 closeShareModal();
             }
         });
-        // HTML에 미리 선언된 모달이 없어서 body에 직접 붙입니다.
         document.body.appendChild(modal);
         document.body.classList.add("modal-open");
         activeShareModal = modal;
     };
 
-    // --- 怨듭쑀 ?쒕∼?ㅼ슫 (#layers???숈쟻 異붽?) ---
-    // 寃뚯떆臾?踰꾪듉 ?꾩튂瑜?湲곗??쇰줈 怨꾩궛?댁꽌 #layers ?덉뿉 appendChild?섍퀬, ?レ쓣 ??remove()濡??쒓굅?쒕떎.
     const openShareDropdown = (button) => {
         if (!layersRoot) {
             return;
@@ -757,7 +651,7 @@ window.onload = () => {
         const right = Math.max(16, window.innerWidth - rect.right);
         const dropdown = document.createElement("div");
         dropdown.className = "layers-dropdown-container";
-        dropdown.innerHTML = `<div class="layers-overlay"></div><div class="layers-dropdown-inner"><div role="menu" class="dropdown-menu" style="top: ${top}px; right: ${right}px;"><div><div class="dropdown-inner"><button type="button" role="menuitem" class="menu-item share-menu-item share-menu-item--copy"><span class="menu-item__icon share-menu-item__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M18.36 5.64c-1.95-1.96-5.11-1.96-7.07 0L9.88 7.05 8.46 5.64l1.42-1.42c2.73-2.73 7.16-2.73 9.9 0 2.73 2.74 2.73 7.17 0 9.9l-1.42 1.42-1.41-1.42 1.41-1.41c1.96-1.96 1.96-5.12 0-7.07zm-2.12 3.53l-7.07 7.07-1.41-1.41 7.07-7.07 1.41 1.41zm-12.02.71l1.42-1.42 1.41 1.42-1.41 1.41c-1.96 1.96-1.96 5.12 0 7.07 1.95 1.96 5.11 1.96 7.07 0l1.41-1.41 1.42 1.41-1.42 1.42c-2.73 2.73-7.16 2.73-9.9 0-2.73-2.74-2.73-7.17 0-9.9z"></path></g></svg></span><span class="menu-item__label">留곹겕 蹂듭궗?섍린</span></button><button type="button" role="menuitem" class="menu-item share-menu-item share-menu-item--chat"><span class="menu-item__icon share-menu-item__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v13c0 1.381-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.119-2.5-2.5v-13zm2.5-.5c-.276 0-.5.224-.5.5v2.764l8 3.638 8-3.636V5.5c0-.276-.224-.5-.5-.5h-15zm15.5 5.463l-8 3.636-8-3.638V18.5c0 .276.224.5.5.5h15c.276 0 .5-.224.5-.5v-8.037z"></path></g></svg></span><span class="menu-item__label">Chat?쇰줈 ?꾩넚?섍린</span></button><button type="button" role="menuitem" class="menu-item share-menu-item share-menu-item--bookmark"><span class="menu-item__icon share-menu-item__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M18 3V0h2v3h3v2h-3v3h-2V5h-3V3zm-7.5 1a.5.5 0 00-.5.5V7h3.5A2.5 2.5 0 0116 9.5v3.48l3 2.1V11h2v7.92l-5-3.5v7.26l-6.5-3.54L3 22.68V9.5A2.5 2.5 0 015.5 7H8V4.5A2.5 2.5 0 0110.5 2H12v2zm-5 5a.5.5 0 00-.5.5v9.82l4.5-2.46 4.5 2.46V9.5a.5.5 0 00-.5-.5z"></path></g></svg></span><span class="menu-item__label">?대뜑??遺곷쭏??異붽??섍린</span></button></div></div></div></div>`;
+        dropdown.innerHTML = `<div class="layers-overlay"></div><div class="layers-dropdown-inner"><div role="menu" class="dropdown-menu" style="top: ${top}px; right: ${right}px;"><div><div class="dropdown-inner"><button type="button" role="menuitem" class="menu-item share-menu-item share-menu-item--copy"><span class="menu-item__icon share-menu-item__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M18.36 5.64c-1.95-1.96-5.11-1.96-7.07 0L9.88 7.05 8.46 5.64l1.42-1.42c2.73-2.73 7.16-2.73 9.9 0 2.73 2.74 2.73 7.17 0 9.9l-1.42 1.42-1.41-1.42 1.41-1.41c1.96-1.96 1.96-5.12 0-7.07zm-2.12 3.53l-7.07 7.07-1.41-1.41 7.07-7.07 1.41 1.41zm-12.02.71l1.42-1.42 1.41 1.42-1.41 1.41c-1.96 1.96-1.96 5.12 0 7.07 1.95 1.96 5.11 1.96 7.07 0l1.41-1.41 1.42 1.41-1.42 1.42c-2.73 2.73-7.16 2.73-9.9 0-2.73-2.74-2.73-7.17 0-9.9z"></path></g></svg></span><span class="menu-item__label">링크 복사하기</span></button><button type="button" role="menuitem" class="menu-item share-menu-item share-menu-item--chat"><span class="menu-item__icon share-menu-item__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v13c0 1.381-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.119-2.5-2.5v-13zm2.5-.5c-.276 0-.5.224-.5.5v2.764l8 3.638 8-3.636V5.5c0-.276-.224-.5-.5-.5h-15zm15.5 5.463l-8 3.636-8-3.638V18.5c0 .276.224.5.5.5h15c.276 0 .5-.224.5-.5v-8.037z"></path></g></svg></span><span class="menu-item__label">Chat으로 전송하기</span></button><button type="button" role="menuitem" class="menu-item share-menu-item share-menu-item--bookmark"><span class="menu-item__icon share-menu-item__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M18 3V0h2v3h3v2h-3v3h-2V5h-3V3zm-7.5 1a.5.5 0 00-.5.5V7h3.5A2.5 2.5 0 0116 9.5v3.48l3 2.1V11h2v7.92l-5-3.5v7.26l-6.5-3.54L3 22.68V9.5A2.5 2.5 0 015.5 7H8V4.5A2.5 2.5 0 0110.5 2H12v2zm-5 5a.5.5 0 00-.5.5v9.82l4.5-2.46 4.5 2.46V9.5a.5.5 0 00-.5-.5z"></path></g></svg></span><span class="menu-item__label">북마크에 추가하기</span></button></div></div></div></div>`;
         dropdown.addEventListener("click", (event) => {
             const actionButton = event.target.closest(".share-menu-item");
             if (!actionButton || !activeShareButton) {
@@ -781,15 +675,12 @@ window.onload = () => {
                 openShareBookmarkModal(activeShareButton);
             }
         });
-        // inquiry_active_list.html??#layers媛 ???쒕∼?ㅼ슫???ㅼ젣 留덉슫??吏?먯씠??
         layersRoot.appendChild(dropdown);
         activeShareDropdown = dropdown;
         activeShareButton = button;
         activeShareButton.setAttribute("aria-expanded", "true");
     };
 
-    // ===== 珥덇린 ?대깽??諛붿씤???뱀뀡 =====
-    // ???대┃? ?쒓컖???쒖꽦?붿? 吏㏃? ?꾨━酉곕쭔 泥섎━?섍퀬, ?ㅼ젣 肄섑뀗痢좊뒗 activity ?⑤꼸???좎??쒕떎.
     const initializeTabs = () => {
         ensureActivityPanelVisible();
         tabButtons.forEach((tab) => {
@@ -801,7 +692,6 @@ window.onload = () => {
         });
     };
 
-    // 鍮좊Ⅸ 湲곌컙 移⑹? ?⑥씪 ?좏깮 ?곹깭留??좎??쒕떎.
     const initializePeriodChips = () => {
         periodChips.forEach((chip) => {
             chip.addEventListener("click", () => {
@@ -812,7 +702,6 @@ window.onload = () => {
         });
     };
 
-    // ?꾪꽣 踰꾪듉/硫붾돱???대┝ ?곹깭? ?좏깮 ?쇰꺼???숆린?뷀븳??
     const initializeFilterDropdown = () => {
         if (!filterTrigger || !filterMenu || !filterLabel) {
             return;
@@ -844,7 +733,6 @@ window.onload = () => {
         });
     };
 
-    // 湲?寃뚯떆臾?蹂몃Ц? 140??湲곗??쇰줈 ?묎퀬, ?붾낫湲??묎린 ?좉????숈쟻?쇰줈 ?ｋ뒗??
     const initializePostTextToggles = () => {
         document.querySelectorAll(".postText").forEach((textElement) => {
             const originalText = getTextContent(textElement);
@@ -862,7 +750,7 @@ window.onload = () => {
             const collapsedText = `${originalText.slice(0, MAX_POST_TEXT_LENGTH).trimEnd()}...`;
             textElement.dataset.collapsedText = collapsedText;
             textElement.dataset.expanded = "false";
-            textElement.innerHTML = `<span class="postTextContent">${escapeHtml(collapsedText)}</span><button type="button" class="postTextToggle">?붾낫湲?/button>`;
+            textElement.innerHTML = `<span class="postTextContent">${escapeHtml(collapsedText)}</span><button type="button" class="postTextToggle">더보기/button>`;
         });
 
         document.querySelectorAll(".postTextToggle").forEach((button) => {
@@ -885,13 +773,11 @@ window.onload = () => {
         });
     };
 
-    // 移대뱶 ?ㅻ뜑??????媛?踰꾪듉? ?숈쟻 ?쒕∼?ㅼ슫(#layers)???닿굅???ル뒗??(Notification怨??숈씪).
     const initializePostMoreMenus = () => {
         document.querySelectorAll(".postMoreButton").forEach((button) => {
             button.addEventListener("click", (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                // 媛숈? 踰꾪듉???ㅼ떆 ?꾨Ⅴ硫??リ린
                 if (activeMoreButton === button) {
                     closeMoreDropdown();
                     return;
@@ -901,7 +787,6 @@ window.onload = () => {
         });
     };
 
-    // 醫뗭븘?붾뒗 ?꾩씠肄?path, ?쒖꽦 ?대옒?? ?レ옄, aria-label???④퍡 媛깆떊?쒕떎.
     const initializeLikeButtons = () => {
         document
             .querySelectorAll(".tweet-action-btn--like")
@@ -926,13 +811,12 @@ window.onload = () => {
 
                     button.setAttribute(
                         "aria-label",
-                        `留덉쓬???ㅼ뼱??${nextCount}`,
+                        `마음에 들어요 ${nextCount}`,
                     );
                 });
             });
     };
 
-    // 遺곷쭏?щ뒗 怨듯넻 ?곹깭 諛섏쁺 ?⑥닔留??몄텧?쒕떎.
     const initializeBookmarkButtons = () => {
         document
             .querySelectorAll(".tweet-action-btn--bookmark")
@@ -948,7 +832,6 @@ window.onload = () => {
             });
     };
 
-    // 怨듭쑀 踰꾪듉? 媛숈? 踰꾪듉???ㅼ떆 ?꾨Ⅴ硫??リ퀬, ?꾨땲硫?#layers ?쒕∼?ㅼ슫???곕떎.
     const initializeShareButtons = () => {
         document
             .querySelectorAll(".tweet-action-btn--share")
@@ -967,7 +850,6 @@ window.onload = () => {
             });
     };
 
-    // 이모지 데이터와 서식 버튼 라벨
     const emojiRecentsKey = "inquiry_reply_recent_emojis";
     const maxRecentEmojis = 18;
     const emojiCategoryMeta = {
@@ -1032,7 +914,6 @@ window.onload = () => {
         italic: { inactive: "기울임 (Ctrl+I)", active: "기울임 활성 상태 (Ctrl+I)" },
     };
 
-    // ===== ?대え吏 ?좏떥 ?⑥닔 =====
     function getRecentEmojis() {
         try {
             const s = window.localStorage.getItem(emojiRecentsKey);
@@ -1126,7 +1007,6 @@ window.onload = () => {
         renderEmojiPickerContent();
     }
 
-    // ===== ?듦? ?먮뵒???ы띁 ?⑥닔 ?뱀뀡 (?쒖떇/?좏깮 ?곸뿭) =====
     function hasReplyEditorText() {
         return replyEditor ? replyEditor.textContent.replace(/\u00a0/g, " ").trim().length > 0 : false;
     }
@@ -1151,8 +1031,6 @@ window.onload = () => {
         }
         span.style.fontWeight = pendingReplyFormats.has("bold") ? "bold" : "";
         span.style.fontStyle = pendingReplyFormats.has("italic") ? "italic" : "";
-        // DOM???쒖떇??諛섏쁺????pending ?곹깭瑜?鍮꾩슫??
-        // ?댄썑 ?쒖떇 ?곹깭??queryCommandState濡??먮떒?섎?濡?以묐났 ?곸슜??諛⑹??쒕떎.
         pendingReplyFormats = new Set();
         const range = document.createRange();
         range.selectNodeContents(span);
@@ -1230,8 +1108,6 @@ window.onload = () => {
 
     function syncReplyFormatButtons() {
         if (!replyEditor) return;
-        // selection???먮뵒??諛뽰뿉 ?덉쑝硫?queryCommandState媛 ?섎せ??寃곌낵瑜?諛섑솚?섎?濡?
-        // ?먮뵒???덉뿉 ?덉쓣 ?뚮쭔 ?ㅼ젣 DOM ?곹깭瑜??쎄퀬, 諛뽰씠硫?pending ?곹깭留?諛섏쁺?쒕떎
         const selInEditor = isSelectionInsideEditor();
         replyFormatButtons.forEach((btn) => {
             const fmt = btn.getAttribute("data-format");
@@ -1242,7 +1118,7 @@ window.onload = () => {
             } else if (selInEditor) {
                 active = document.queryCommandState(fmt);
             } else {
-                return; // ?먮뵒??諛???踰꾪듉 ?곹깭瑜?蹂寃쏀븯吏 ?딆쓬
+                return;
             }
             const labels = formatButtonLabels[fmt];
             btn.classList.toggle("tweet-modal__tool-btn--active", active);
@@ -1272,7 +1148,6 @@ window.onload = () => {
         syncReplyFormatButtons();
     }
 
-    // ===== ?ъ슜???쒓렇 ?쒕툕酉??⑥닔 ?뱀뀡 =====
     function cloneTaggedUsers(users) {
         return users.map((u) => ({...u}));
     }
@@ -1286,7 +1161,7 @@ window.onload = () => {
     }
 
     function getTaggedUserSummary(users) {
-        return users.length === 0 ? "?ъ슜???쒓렇?섍린" : users.map((u) => u.name).join(", ");
+        return users.length === 0 ? "사용자 태그하기" : users.map((u) => u.name).join(", ");
     }
 
     function syncUserTagTrigger() {
@@ -1400,7 +1275,6 @@ window.onload = () => {
         syncUserTagTrigger();
     }
 
-    // ===== 誘몃뵒??ALT ?몄쭛 ?쒕툕酉??⑥닔 ?뱀뀡 =====
     function createDefaultReplyMediaEdit() {
         return {alt: ""};
     }
@@ -1500,7 +1374,6 @@ window.onload = () => {
         closeMediaEditor({discardChanges: false});
     }
 
-    // ===== ?대え吏 ?쇱빱 ?⑥닔 ?뱀뀡 =====
     function hasEmojiButtonLibrary() {
         return typeof window.EmojiButton === "function";
     }
@@ -1656,7 +1529,6 @@ window.onload = () => {
         if (replyEmojiPicker && !replyEmojiPicker.hidden) renderEmojiPicker();
     }
 
-    // ===== 泥⑤??뚯씪 泥섎━ ?⑥닔 ?뱀뀡 =====
     function getReplyMediaImageAlt(index) {
         return replyMediaEdits[index]?.alt ?? "";
     }
@@ -1814,7 +1686,6 @@ window.onload = () => {
         syncReplySubmitState();
     }
 
-    // ===== ?듦? 紐⑤떖 ?숆린???⑥닔 ?뱀뀡 =====
     function syncReplySubmitState() {
         if (!replyEditor) return;
         let content = replyEditor.textContent?.replace(/\u00a0/g, " ") ?? "";
@@ -1836,7 +1707,6 @@ window.onload = () => {
         if (replyGaugeText) replyGaugeText.textContent = String(remaining);
     }
 
-    // 紐⑤떖 ?댁뿉??Tab ???ъ빱?ㅻ? 媛?먯뼱 ?묎렐?깆쓣 蹂댁옣?쒕떎
     function trapFocus(e) {
         if (!replyModal || e.key !== "Tab") return;
         const focusable = Array.from(
@@ -1853,15 +1723,12 @@ window.onload = () => {
         }
     }
 
-    // ===== ?꾩튂 ?좏깮 ?쒕툕酉??⑥닔 ?뱀뀡 =====
-    // ?꾩튂 寃???꾪꽣
     function getFilteredLocations() {
         const q = replyLocationSearchInput?.value?.trim().toLowerCase() ?? "";
         if (!q) return cachedLocationNames;
         return cachedLocationNames.filter((l) => l.toLowerCase().includes(q));
     }
 
-    // ?꾩튂 UI ?숆린??
     function syncLocationUI() {
         const has = Boolean(selectedLocation);
         if (replyFooterMeta) replyFooterMeta.hidden = !has;
@@ -1877,12 +1744,11 @@ window.onload = () => {
         if (replyLocationCompleteButton) replyLocationCompleteButton.disabled = !pendingLocation;
     }
 
-    // ?꾩튂 紐⑸줉 ?뚮뜑留?
     function renderLocationList() {
         if (!replyLocationList) return;
         const locs = getFilteredLocations();
         if (locs.length === 0) {
-            replyLocationList.innerHTML = '<p class="tweet-modal__location-empty">?쇱튂?섎뒗 ?꾩튂瑜?李얠? 紐삵뻽?듬땲??</p>';
+            replyLocationList.innerHTML = '<p class="tweet-modal__location-empty">일치하는 위치를 찾지 못했습니다.</p>';
             return;
         }
         replyLocationList.innerHTML = locs.map((loc) => {
@@ -1891,7 +1757,6 @@ window.onload = () => {
         }).join("");
     }
 
-    // ?꾩튂 ?⑤꼸 ?닿린
     function openLocationPanel() {
         if (!composeView || !replyLocationView) return;
         closeEmojiPicker();
@@ -1906,7 +1771,6 @@ window.onload = () => {
         });
     }
 
-    // ?꾩튂 ?⑤꼸 ?リ린
     function closeLocationPanel({restoreFocus = true} = {}) {
         if (!composeView || !replyLocationView || replyLocationView.hidden) return;
         replyLocationView.hidden = true;
@@ -1934,46 +1798,38 @@ window.onload = () => {
         syncLocationUI();
     }
 
-    // ===== ?꾩떆???Draft) ?쒕툕酉??⑥닔 ?뱀뀡 =====
-    // ?꾩떆????⑤꼸???몄쭛 紐⑤뱶, ?뺤씤 ??붿긽?? ?좏깮 ??ぉ ?곹깭
     const draftPanelState = {
         isEditMode: false,
         confirmOpen: false,
         selectedItems: new Set(),
     };
 
-    // ?꾩떆?????ぉ DOM ?붿냼 諛곗뿴??諛섑솚?쒕떎
     function getDraftItems() {
         return draftList
             ? Array.from(draftList.querySelectorAll(".draft-panel__item"))
             : [];
     }
 
-    // ?꾩떆????좏깮 ?곹깭瑜?珥덇린?뷀븳??
     function clearDraftSelection() {
         draftPanelState.selectedItems.clear();
         draftPanelState.confirmOpen = false;
     }
 
-    // ?꾩떆????몄쭛 紐⑤뱶瑜?醫낅즺?쒕떎
     function exitDraftEditMode() {
         draftPanelState.isEditMode = false;
         clearDraftSelection();
     }
 
-    // ?꾩떆????몄쭛 紐⑤뱶瑜??쒖옉?쒕떎
     function enterDraftEditMode() {
         if (getDraftItems().length === 0) return;
         draftPanelState.isEditMode = true;
         draftPanelState.confirmOpen = false;
     }
 
-    // ?대떦 ?붿냼媛 ?좏슚???꾩떆?????ぉ?몄? ?뺤씤?쒕떎
     function hasDraftItem(item) {
         return item instanceof HTMLElement && getDraftItems().includes(item);
     }
 
-    // ?꾩떆?????ぉ???좏깮 ?곹깭瑜??좉??쒕떎
     function toggleDraftSelection(item) {
         if (!draftPanelState.isEditMode || !hasDraftItem(item)) return;
         draftPanelState.selectedItems.has(item)
@@ -1982,7 +1838,6 @@ window.onload = () => {
         draftPanelState.confirmOpen = false;
     }
 
-    // 紐⑤뱺 ?꾩떆?????ぉ???좏깮?섏뼱 ?덈뒗吏 ?뺤씤?쒕떎
     function areAllDraftItemsSelected() {
         const items = getDraftItems();
         return (
@@ -1991,7 +1846,6 @@ window.onload = () => {
         );
     }
 
-    // ?꾩떆????꾩껜 ?좏깮/?댁젣瑜??좉??쒕떎
     function toggleDraftSelectAll() {
         if (!draftPanelState.isEditMode) return;
         const items = getDraftItems();
@@ -2002,23 +1856,19 @@ window.onload = () => {
         draftPanelState.confirmOpen = false;
     }
 
-    // ?좏깮???꾩떆?????ぉ???덈뒗吏 ?뺤씤?쒕떎
     function hasDraftSelection() {
         return draftPanelState.selectedItems.size > 0;
     }
 
-    // ?꾩떆?????젣 ?뺤씤 ??붿긽?먮? ?곕떎
     function openDraftConfirm() {
         if (draftPanelState.isEditMode && hasDraftSelection())
             draftPanelState.confirmOpen = true;
     }
 
-    // ?꾩떆?????젣 ?뺤씤 ??붿긽?먮? ?ル뒗??
     function closeDraftConfirm() {
         draftPanelState.confirmOpen = false;
     }
 
-    // ?좏깮???꾩떆?????ぉ??DOM?먯꽌 ??젣?쒕떎
     function deleteSelectedDrafts() {
         if (!hasDraftSelection()) return;
         getDraftItems().forEach((i) => {
@@ -2027,23 +1877,19 @@ window.onload = () => {
         exitDraftEditMode();
     }
 
-    // ?꾩떆????⑤꼸 ?곹깭瑜?珥덇린?뷀븳??
     function resetDraftPanel() {
         exitDraftEditMode();
         closeDraftConfirm();
     }
 
-    // ?꾩떆????⑤꼸???대젮 ?덈뒗吏 ?뺤씤?쒕떎
     function isDraftPanelOpen() {
         return Boolean(draftView && !draftView.hidden);
     }
 
-    // ?꾩떆?????젣 ?뺤씤 ??붿긽?먭? ?대젮 ?덈뒗吏 ?뺤씤?쒕떎
     function isDraftConfirmOpen() {
         return draftPanelState.confirmOpen;
     }
 
-    // ?꾩떆???鍮꾩뼱?덉쓬 ?덈궡 臾멸뎄瑜?諛섑솚?쒕떎
     function getDraftEmptyCopy() {
         return {
             title: "임시 저장된 게시물이 없습니다.",
@@ -2051,7 +1897,6 @@ window.onload = () => {
         };
     }
 
-    // ?꾩떆?????젣 ?뺤씤 臾멸뎄瑜?諛섑솚?쒕떎
     function getDraftConfirmCopy() {
         return {
             title: "전송하지 않은 게시물 삭제하기",
@@ -2059,7 +1904,6 @@ window.onload = () => {
         };
     }
 
-    // ?꾩떆?????ぉ??泥댄겕諛뺤뒪 ?붿냼瑜??앹꽦?쒕떎
     function buildDraftCheckbox(sel) {
         const cb = document.createElement("span");
         cb.className = `draft-panel__checkbox${sel ? " draft-panel__checkbox--checked" : ""}`;
@@ -2069,7 +1913,6 @@ window.onload = () => {
         return cb;
     }
 
-    // ?꾩떆?????ぉ?ㅼ쓽 ?좏깮 ?곹깭? 泥댄겕諛뺤뒪瑜??뚮뜑留곹븳??
     function renderDraftItems() {
         if (!draftList) return;
         getDraftItems().forEach((item) => {
@@ -2094,7 +1937,6 @@ window.onload = () => {
         });
     }
 
-    // HTML??.draft-panel__list / .draft-panel__empty / .draft-panel__confirm-overlay 瑜??곹깭??留욊쾶 媛깆떊?쒕떎.
     function renderDraftPanel() {
         if (!draftView) return;
         const hasItems = getDraftItems().length > 0;
@@ -2127,7 +1969,6 @@ window.onload = () => {
         if (draftConfirmDesc) draftConfirmDesc.textContent = cc.body;
     }
 
-    // 湲곗〈 HTML ?쒕툕酉??꾪솚: .tweet-modal__compose-view 瑜??④린怨?.tweet-modal__draft-view 瑜?蹂댁뿬以??
     function openDraftPanel() {
         if (!composeView || !draftView) return;
         renderDraftPanel();
@@ -2135,7 +1976,6 @@ window.onload = () => {
         draftView.hidden = false;
     }
 
-    // 湲곗〈 HTML ?쒕툕酉??꾪솚: .tweet-modal__draft-view 瑜??④린怨?.tweet-modal__compose-view 濡?蹂듦??쒕떎.
     function closeDraftPanel({restoreFocus = true} = {}) {
         if (!composeView || !draftView) return;
         resetDraftPanel();
@@ -2145,12 +1985,10 @@ window.onload = () => {
         if (restoreFocus) draftButton?.focus();
     }
 
-    // ?대┃ ??곸뿉??媛??媛源뚯슫 ?꾩떆?????ぉ ?붿냼瑜?李얜뒗??
     function getDraftItemByElement(target) {
         return target.closest(".draft-panel__item");
     }
 
-    // ?꾩떆?????ぉ???띿뒪?몃? ?먮뵒?곗뿉 遺덈윭?⑤떎
     function loadDraftIntoComposer(item) {
         if (!item || !replyEditor) return;
         replyEditor.textContent = getTextContent(
@@ -2164,9 +2002,6 @@ window.onload = () => {
         });
     }
 
-    // ===== ?듦? 紐⑤떖 ?대깽??諛붿씤???뱀뀡 =====
-    // ?듦? 踰꾪듉, ?먮뵒???낅젰, ?쒖떇 踰꾪듉, ?대え吏 ?쇱빱, 誘몃뵒???낅줈??
-    // ?꾩튂/?쒓렇/誘몃뵒?퀮LT/?꾩떆????먮ℓ湲 ?쒕툕酉? 紐⑤떖 ?リ린 ??紐⑤뱺 ?대깽?몃? 諛붿씤?⑺븳??
     const initializeReplyModal = () => {
         if (
             !replyModalOverlay ||
@@ -2177,7 +2012,6 @@ window.onload = () => {
             return;
         }
 
-        // ?뚮┛ 寃뚯떆臾?移대뱶???묒꽦??蹂몃Ц??紐⑤떖 ?곷떒 ?붿빟 ?곸뿭??蹂듭궗?쒕떎.
         const openReplyModal = (button) => {
             const postCard = getPostCard(button);
             const avatarSrc = getPostAvatarSrc(postCard);
@@ -2256,7 +2090,6 @@ window.onload = () => {
             });
         };
 
-        // 移대뱶 ?섎떒???듦? ?≪뀡 踰꾪듉? 癒쇱? ?ㅻⅨ 怨듭쑀 UI瑜??リ퀬 ?듦? 紐⑤떖???곕떎.
         document.querySelectorAll("[data-testid='reply']").forEach((button) => {
             button.addEventListener("click", (event) => {
                 event.preventDefault();
@@ -2267,15 +2100,11 @@ window.onload = () => {
             });
         });
 
-        // ?먮뵒???낅젰 ???쒖떇 ?곸슜, ?곹깭 ?숆린??
         replyEditor.addEventListener("input", () => {
             applyPendingReplyFormatsToContent();
             if (!hasReplyEditorText()) {
                 pendingReplyFormats = new Set();
-                // ?띿뒪?몃? 紐⑤몢 吏?좎쓣 ???⑥븘 ?덈뒗 ?쒖떇 span???쒓굅?댁꽌
-                // ?ㅼ쓬 ?낅젰???댁쟾 ?쒖떇???곸슜?섏? ?딅룄濡??쒕떎
                 replyEditor.innerHTML = "";
-                // 釉뚮씪?곗????대? ?쒖떇 ?곹깭(?ㅼ쓬 ?낅젰???곸슜??bold/italic)??珥덇린?뷀븳??
                 replyEditor.focus();
                 if (document.queryCommandState("bold")) document.execCommand("bold", false);
                 if (document.queryCommandState("italic")) document.execCommand("italic", false);
@@ -2283,7 +2112,6 @@ window.onload = () => {
             syncReplySubmitState();
             syncReplyFormatButtons();
         });
-        // ?먮뵒?곗뿉????留덉슦???ъ빱???대깽?????좏깮 ?곸뿭 ???諛??쒖떇 ?숆린??
         replyEditor.addEventListener("keyup", saveReplySelection);
         replyEditor.addEventListener("keyup", syncReplyFormatButtons);
         replyEditor.addEventListener("mouseup", saveReplySelection);
@@ -2292,7 +2120,6 @@ window.onload = () => {
         replyEditor.addEventListener("focus", syncReplyFormatButtons);
         replyEditor.addEventListener("click", syncReplyFormatButtons);
 
-        // Ctrl+B/I ?⑥텞?ㅻ줈 援듦쾶/湲곗슱???쒖떇???곸슜?쒕떎
         replyEditor.addEventListener("keydown", (e) => {
             if (!e.ctrlKey) return;
             const key = e.key.toLowerCase();
@@ -2301,7 +2128,6 @@ window.onload = () => {
             applyReplyFormat(key === "b" ? "bold" : "italic");
         });
 
-        // ?쒖떇 踰꾪듉 ?대┃ ???대떦 ?쒖떇???곸슜?쒕떎
         replyFormatButtons.forEach((btn) => {
             btn.addEventListener("mousedown", (e) => e.preventDefault());
             btn.addEventListener("click", (e) => {
@@ -2314,7 +2140,6 @@ window.onload = () => {
             });
         });
 
-        // ?대え吏 踰꾪듉 ?대┃ ???대え吏 ?쇱빱瑜??좉??쒕떎
         replyEmojiButton?.addEventListener("mousedown", (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -2326,7 +2151,6 @@ window.onload = () => {
             toggleEmojiPicker();
         });
 
-        // 誘몃뵒???낅줈??踰꾪듉 ?대┃ ???뚯씪 ?좏깮 ??붿긽?먮? ?곕떎
         replyMediaUploadButton?.addEventListener("click", (e) => {
             e.preventDefault();
             pendingAttachmentEditIndex = null;
@@ -2334,10 +2158,8 @@ window.onload = () => {
             replyFileInput?.click();
         });
 
-        // ?뚯씪 ?좏깮 ??泥⑤??뚯씪??泥섎━?쒕떎
         replyFileInput?.addEventListener("change", handleReplyFileChange);
 
-        // 泥⑤? 誘몃뵒???곸뿭?먯꽌 ??젣/?섏젙 踰꾪듉 ?대┃??泥섎━?쒕떎
         replyAttachmentMedia?.addEventListener("click", (e) => {
             const rm = e.target.closest("[data-attachment-remove-index]");
             if (rm) {
@@ -2354,7 +2176,6 @@ window.onload = () => {
             }
         });
 
-        // ?띿뒪???좏깮 蹂寃????좏깮 ?곸뿭????ν븯怨??쒖떇 踰꾪듉???숆린?뷀븳??
         document.addEventListener("selectionchange", () => {
             if (replyModalOverlay?.hidden || !replyEditor) return;
             if (!isSelectionInsideEditor()) return;
@@ -2362,11 +2183,8 @@ window.onload = () => {
             syncReplyFormatButtons();
         });
 
-        // ?대え吏 ?쇱빱 ?대? ?대┃ ???대깽???꾪뙆瑜?留됰뒗??
         replyEmojiPicker?.addEventListener("click", (e) => e.stopPropagation());
-        // ?대え吏 寃???낅젰 ???쇱빱 肄섑뀗痢좊? 媛깆떊?쒕떎
         replyEmojiSearchInput?.addEventListener("input", () => renderEmojiPickerContent());
-        // ?대え吏 移댄뀒怨좊━ ???대┃ ???대떦 移댄뀒怨좊━瑜??쒖꽦?뷀븳??
         replyEmojiTabs.forEach((tab) => {
             tab.addEventListener("click", () => {
                 const cat = tab.getAttribute("data-emoji-category");
@@ -2376,11 +2194,9 @@ window.onload = () => {
                 }
             });
         });
-        // ?대え吏 ?듭뀡/吏?곌린 踰꾪듉 mousedown ???ъ빱???대룞??諛⑹??쒕떎
         replyEmojiContent?.addEventListener("mousedown", (e) => {
             if (e.target.closest(".tweet-modal__emoji-option, .tweet-modal__emoji-clear")) e.preventDefault();
         });
-        // ?대え吏 ?대┃ ???먮뵒?곗뿉 ?쎌엯?섍퀬, 吏?곌린 ?대┃ ??理쒓렐 紐⑸줉??珥덇린?뷀븳??
         replyEmojiContent?.addEventListener("click", (e) => {
             if (e.target.closest("[data-action='clear-recent']")) {
                 clearRecentEmojis();
@@ -2397,28 +2213,22 @@ window.onload = () => {
             }
         });
 
-        // ?꾩튂 ?쒓렇 踰꾪듉 ?대┃ ???꾩튂 ?좏깮 ?⑤꼸???곕떎
         replyGeoButton?.addEventListener("click", (e) => {
             e.preventDefault();
             openLocationPanel();
         });
-        // ?꾩튂 ?⑤꼸 ?リ린 踰꾪듉
         replyLocationCloseButton?.addEventListener("click", () => closeLocationPanel());
-        // ?꾩튂 ??젣 踰꾪듉
         replyLocationDeleteButton?.addEventListener("click", () => {
             resetLocationState();
             closeLocationPanel();
         });
-        // ?꾩튂 ?꾨즺 踰꾪듉
         replyLocationCompleteButton?.addEventListener("click", () => {
             if (pendingLocation) {
                 applyLocation(pendingLocation);
                 closeLocationPanel();
             }
         });
-        // ?꾩튂 寃???낅젰
         replyLocationSearchInput?.addEventListener("input", () => renderLocationList());
-        // ?꾩튂 ??ぉ ?대┃
         replyLocationList?.addEventListener("click", (e) => {
             const item = e.target.closest(".tweet-modal__location-item");
             if (!item) return;
@@ -2429,13 +2239,11 @@ window.onload = () => {
                 if (replyLocationCompleteButton) replyLocationCompleteButton.disabled = !pendingLocation;
             }
         });
-        // ?꾩튂 ?쒖떆 踰꾪듉 ?대┃ ???꾩튂 ?⑤꼸 ?닿린
         replyLocationDisplayButton?.addEventListener("click", (e) => {
             e.preventDefault();
             openLocationPanel();
         });
 
-        // ===== ?먮ℓ湲 ?좏깮 ?쒕툕酉?=====
         replyProductButton?.addEventListener("click", (e) => {
             e.preventDefault();
             openProductSelectPanel();
@@ -2460,7 +2268,6 @@ window.onload = () => {
             closeProductSelectPanel();
         });
 
-        // ?먮ℓ湲 ?좏깮 ?쒕툕酉??닿린 (compose view瑜??④린怨?product view瑜??쒖떆)
         function openProductSelectPanel() {
             if (!replyProductView) return;
             renderProductList();
@@ -2468,17 +2275,14 @@ window.onload = () => {
             replyProductView.hidden = false;
         }
 
-        // ?먮ℓ湲 ?좏깮 ?쒕툕酉??リ린 (product view瑜??④린怨?compose view瑜?蹂듭썝)
         function closeProductSelectPanel() {
             if (!replyProductView) return;
             replyProductView.hidden = true;
             if (composeView) composeView.hidden = false;
         }
 
-        // 상품 목록을 draft-panel 스타일에 맞춰 렌더링합니다.
         function renderProductList() {
             if (!productSelectList) return;
-            // TODO: REST API - GET /api/products/my 로 실제 데이터를 가져옵니다.
             const sampleProducts = [
                 {
                     id: "1",
@@ -2528,7 +2332,6 @@ window.onload = () => {
             `).join("");
         }
 
-        // 상품 클릭 시 단일 선택 상태를 반영합니다.
         productSelectList?.addEventListener("click", (e) => {
             const item = e.target.closest(".draft-panel__item");
             if (!item) return;
@@ -2550,7 +2353,6 @@ window.onload = () => {
             }
         });
 
-        // ?좏깮???먮ℓ湲???먮뵒???꾨옒???쒖떆
         function renderSelectedProduct() {
             const existing = replyModalOverlay?.querySelector("[data-selected-product]");
             if (existing) existing.remove();
@@ -2566,7 +2368,7 @@ window.onload = () => {
                         <strong class="selected-product__name">${escapeHtml(selectedProduct.name)}</strong>
                         <span class="selected-product__price">${escapeHtml(selectedProduct.price)}</span>
                     </div>
-                    <button type="button" class="selected-product__remove" aria-label="?먮ℓ湲 ?쒓굅">
+                    <button type="button" class="selected-product__remove" aria-label="판매글 제거">
                         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                             <g><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g>
                         </svg>
@@ -2581,7 +2383,6 @@ window.onload = () => {
             replyEditor.parentElement?.appendChild(card);
         }
 
-        // ===== ?ъ슜???쒓렇 ?쒕툕酉?=====
         replyUserTagTrigger?.addEventListener("click", (e) => {
             e.preventDefault();
             openTagPanel();
@@ -2619,7 +2420,6 @@ window.onload = () => {
             runTagSearch();
         });
 
-        // ===== 誘몃뵒??ALT ?몄쭛 ?쒕툕酉?=====
         replyMediaAltTrigger?.addEventListener("click", (e) => {
             e.preventDefault();
             openMediaEditor();
@@ -2652,55 +2452,45 @@ window.onload = () => {
             if (replyMediaAltCount) replyMediaAltCount.textContent = `${edit.alt.length} / ${maxReplyMediaAltLength.toLocaleString()}`;
         });
 
-        // ===== Draft Panel ?대깽??諛붿씤??=====
-        // ?꾩떆???踰꾪듉 ?대┃ ???꾩떆????⑤꼸???곕떎
         draftButton?.addEventListener("click", (e) => {
             e.preventDefault();
             openDraftPanel();
         });
-        // ?꾩떆????ㅻ줈媛湲??대┃ ???⑤꼸???ル뒗??
         draftBackButton?.addEventListener("click", (e) => {
             e.preventDefault();
             closeDraftPanel();
         });
-        // ?섏젙/?꾨즺 踰꾪듉 ?대┃ ???몄쭛 紐⑤뱶瑜??좉??쒕떎
         draftActionButton?.addEventListener("click", (e) => {
             e.preventDefault();
             draftPanelState.isEditMode ? exitDraftEditMode() : enterDraftEditMode();
             renderDraftPanel();
         });
-        // ?꾩껜 ?좏깮 踰꾪듉 ?대┃ ??紐⑤뱺 ??ぉ ?좏깮/?댁젣瑜??좉??쒕떎
         draftSelectAllButton?.addEventListener("click", (e) => {
             e.preventDefault();
             toggleDraftSelectAll();
             renderDraftPanel();
         });
-        // ??젣 踰꾪듉 ?대┃ ????젣 ?뺤씤 ??붿긽?먮? ?곕떎
         draftDeleteButton?.addEventListener("click", (e) => {
             e.preventDefault();
             openDraftConfirm();
             renderDraftPanel();
         });
-        // ??젣 ?뺤씤 踰꾪듉 ?대┃ ???좏깮????ぉ????젣?쒕떎
         draftConfirmDeleteButton?.addEventListener("click", (e) => {
             e.preventDefault();
             deleteSelectedDrafts();
             renderDraftPanel();
         });
-        // ??젣 痍⑥냼 踰꾪듉 ?대┃ ???뺤씤 ??붿긽?먮? ?ル뒗??
         draftConfirmCancelButton?.addEventListener("click", (e) => {
             e.preventDefault();
             closeDraftConfirm();
             renderDraftPanel();
         });
-        // ??젣 ?뺤씤 諛곌꼍 ?대┃ ???뺤씤 ??붿긽?먮? ?ル뒗??
         draftConfirmBackdrop?.addEventListener("click", (e) => {
             e.preventDefault();
             closeDraftConfirm();
             renderDraftPanel();
         });
 
-        // ?꾩떆?????ぉ ?대┃ ???몄쭛 紐⑤뱶硫??좏깮?섍퀬, ?꾨땲硫??먮뵒?곗뿉 遺덈윭?⑤떎
         draftList?.addEventListener("click", (e) => {
             const item = getDraftItemByElement(e.target);
             if (!item) return;
@@ -2712,16 +2502,13 @@ window.onload = () => {
             loadDraftIntoComposer(item);
         });
 
-        // ?듦? 紐⑤떖 ?リ린 踰꾪듉 ?대┃ ??紐⑤떖???ル뒗??
         replyCloseButton?.addEventListener("click", () => closeReplyModal());
-        // ?듦? 紐⑤떖 ?ㅻ쾭?덉씠 ?대┃ ??紐⑤떖???ル뒗??
         replyModalOverlay.addEventListener("click", (event) => {
             if (event.target === replyModalOverlay) {
                 closeReplyModal();
             }
         });
 
-        // Escape ?ㅻ줈 ?대┛ ?⑤꼸/紐⑤떖???쒖꽌?濡??リ퀬 Tab?쇰줈 ?ъ빱?ㅻ? 媛?붾떎
         replyModalOverlay.addEventListener("keydown", (e) => {
             if (e.key === "Escape") {
                 e.preventDefault();
@@ -2756,18 +2543,16 @@ window.onload = () => {
             trapFocus(e);
         });
 
-        // ?듦? ?쒖텧 踰꾪듉 ?대┃ ???듦? ?섎? 利앷??쒗궎怨?紐⑤떖???ル뒗??
         replySubmitButton.addEventListener("click", () => {
             if (!activeReplyTrigger || replySubmitButton.disabled) {
                 return;
             }
 
             const nextCount = updateCount(activeReplyTrigger, 1);
-            activeReplyTrigger.setAttribute("aria-label", `?듦? ${nextCount}`);
+            activeReplyTrigger.setAttribute("aria-label", `답글 ${nextCount}`);
             closeReplyModal({skipConfirm: true});
         });
 
-        // ?몃? ?대┃?쇰줈 ?대え吏 ?쇱빱瑜??ル뒗??
         document.addEventListener("click", (e) => {
             if (
                 replyEmojiPicker &&
@@ -2779,8 +2564,6 @@ window.onload = () => {
         });
     };
 
-    // ===== 珥덇린???ㅽ뻾 ?뱀뀡 =====
-    // ?붾㈃???꾩슂??紐⑤뱺 ?곹샇?묒슜????踰덉뿉 ?곌껐?쒕떎.
     initializeTabs();
     initializePeriodChips();
     initializeFilterDropdown();
@@ -2791,15 +2574,12 @@ window.onload = () => {
     initializeShareButtons();
     initializeReplyModal();
 
-    // 珥덇린 UI ?곹깭 ?ㅼ젙
     renderLocationList();
     syncLocationUI();
     syncUserTagTrigger();
 
-    // ?몃? ?쇱씠釉뚮윭由ш? ?덉쑝硫?湲곗〈 ?대え吏 踰꾪듉怨??곌껐?쒕떎
     ensureReplyEmojiLibraryPicker();
 
-    // 李??ш린 蹂寃????대え吏 ?쇱빱 ?꾩튂瑜??ш퀎?고븳??
     window.addEventListener(
         "resize",
         () => {
@@ -2808,7 +2588,6 @@ window.onload = () => {
         },
         {passive: true},
     );
-    // ?ㅽ겕濡????대え吏 ?쇱빱 ?꾩튂瑜??ш퀎?고븳??
     window.addEventListener(
         "scroll",
         () => {
@@ -2818,9 +2597,6 @@ window.onload = () => {
         {passive: true},
     );
 
-    // ===== ?꾩뿭 ?リ린 ?몃뱾???뱀뀡 =====
-    // 諛붽묑 ?곸뿭 ?대┃ ???대젮 ?덈뒗 ?쒕∼?ㅼ슫/硫붾돱留??ル뒗??
-    // Escape ?ㅻ줈 ?꾩옱 ?대젮 ?덈뒗 蹂댁“ UI瑜?紐⑤몢 ?ル뒗??
     document.addEventListener("click", (event) => {
         if (
             filterMenu &&
@@ -2839,7 +2615,6 @@ window.onload = () => {
             closePostMoreMenu();
         }
 
-        // ?숈쟻 ?붾낫湲??쒕∼?ㅼ슫 諛붽묑 ?대┃ ???リ린
         if (
             activeMoreDropdown &&
             !activeMoreDropdown.contains(event.target) &&
@@ -2857,7 +2632,6 @@ window.onload = () => {
         }
     });
 
-    // Escape???꾩옱 ?대젮 ?덈뒗 蹂댁“ UI瑜?紐⑤몢 ?ル뒗 怨듯넻 ?⑥텞?ㅻ떎.
     document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") {
             return;
@@ -2872,8 +2646,6 @@ window.onload = () => {
     });
 };
 
-// ===== ?꾩뿭 ?좏떥由ы떚 ?⑥닔 =====
-// contenteditable??怨듯넻?쇰줈 ?곕뒗 而ㅼ꽌 ?대룞 ?좏떥?대떎.
 function placeCaretAtEnd(element) {
     const selection = window.getSelection();
     if (!selection) return;
@@ -2925,8 +2697,8 @@ window.addEventListener("load", () => {
         emptyElement.hidden = true;
         emptyElement.setAttribute("data-activity-empty", "");
         emptyElement.innerHTML = `
-            <strong class="draft-panel__empty-title">嫄곕옒泥??쒕룞???꾩쭅 ?놁뒿?덈떎.</strong>
-            <p class="draft-panel__empty-body">?붾줈?고븳 嫄곕옒泥섍? ?묒꽦??寃뚯떆湲???앷린硫??닿납???쒖떆?⑸땲??</p>
+            <strong class="draft-panel__empty-title">거래처 활동이 아직 없습니다.</strong>
+            <p class="draft-panel__empty-body">팔로우한 거래처가 작성한 게시글이 생기면 여기에 표시됩니다.</p>
         `;
         listElement.insertAdjacentElement("afterend", emptyElement);
     }
@@ -3048,7 +2820,7 @@ window.addEventListener("load", () => {
         });
 
         if (!response.ok) {
-            throw new Error(`嫄곕옒泥??쒕룞 紐⑸줉 議고쉶 ?ㅽ뙣: ${response.status}`);
+            throw new Error(`거래처 활동 목록 조회 실패: ${response.status}`);
         }
 
         return response.json();
@@ -3083,7 +2855,7 @@ window.addEventListener("load", () => {
             console.error(error);
             toggleEmpty(false);
             if (countLabel) {
-                countLabel.textContent = "議고쉶 ?ㅽ뙣";
+                countLabel.textContent = "조회 실패";
             }
             moreButton.hidden = true;
         } finally {

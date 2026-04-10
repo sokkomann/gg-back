@@ -39,6 +39,10 @@ public class EstimationDAO {
         return estimationMapper.selectById(id);
     }
 
+    public boolean updateStatus(Long id, Long receiverId, String status) {
+        return estimationMapper.updateStatus(id, receiverId, status) > 0;
+    }
+
     public List<EstimationExpertDTO> findExpertsForRequest(Long memberId, String keyword) {
         return estimationMapper.selectExpertsForRequest(memberId, keyword);
     }

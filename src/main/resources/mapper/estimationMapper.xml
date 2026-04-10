@@ -103,6 +103,14 @@
         where e.id = #{id}
     </select>
 
+    <update id="updateStatus">
+        update tbl_estimation
+        set status = cast(#{status} as estimation_status),
+            updated_datetime = now()
+        where id = #{id}
+          and receiver_id = #{receiverId}
+    </update>
+
     <select id="selectExpertsForRequest" resultType="com.app.globalgates.dto.EstimationExpertDTO">
         select m.id,
                m.member_name as memberName,
