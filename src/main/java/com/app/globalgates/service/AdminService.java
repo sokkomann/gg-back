@@ -74,6 +74,16 @@ public class AdminService {
         Criteria criteria = new Criteria(page, adminDAO.findAdminReportTotal(keyword, targetType, reportStatus));
         List<AdminReportListDTO> reports = adminDAO.findAdminReports(criteria, keyword, targetType, reportStatus);
 
+        reports.forEach(report -> {
+            if (report.getTargetType() == null || !"post".equalsIgnoreCase(report.getTargetType().getValue()) || report.getTargetId() == null) {
+                return;
+            }
+
+            List<PostFileDTO> files = new ArrayList<>(postFileDAO.findAllByPostId(report.getTargetId()));
+            files.forEach(file -> file.setFilePath(toPresignedUrlOrOriginal(file.getFilePath())));
+            report.setPostFiles(files);
+        });
+
         criteria.setHasMore(reports.size() > criteria.getRowCount());
         if (criteria.isHasMore()) {
             reports.remove(reports.size() - 1);

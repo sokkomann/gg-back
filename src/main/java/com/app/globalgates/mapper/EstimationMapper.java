@@ -24,6 +24,10 @@ public interface EstimationMapper {
 
     Optional<EstimationDTO> selectById(Long id);
 
+    int updateStatus(@Param("id") Long id,
+                     @Param("receiverId") Long receiverId,
+                     @Param("status") String status);
+
     List<EstimationExpertDTO> selectExpertsForRequest(@Param("memberId") Long memberId,
                                                       @Param("keyword") String keyword);
 

@@ -117,6 +117,19 @@ public class EstimationService {
         return estimation;
     }
 
+    @LogStatusWithReturn
+    public boolean updateStatus(Long id, Long receiverId, String status) {
+        if (id == null || receiverId == null || status == null || status.isBlank()) {
+            return false;
+        }
+
+        if (!"approve".equals(status) && !"reject".equals(status)) {
+            return false;
+        }
+
+        return estimationDAO.updateStatus(id, receiverId, status);
+    }
+
     @Transactional(readOnly = true)
     @LogStatusWithReturn
     public List<EstimationExpertDTO> getExpertsForRequest(Long memberId, String keyword) {

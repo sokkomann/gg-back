@@ -54,6 +54,10 @@
     const previewDate = document.querySelector("#previewDate");
 
     const modalImageViewer = document.querySelector("#modalImageViewer");
+    const reportImages = document.querySelector("#reportImages");
+    const reportAttachVideo = document.querySelector("#reportAttachVideo");
+    const reportAttachNone = document.querySelector("#reportAttachNone");
+    const reportVideoThumb = document.querySelector("#reportVideoThumb");
     const modalVideoViewer = document.querySelector("#modalVideoViewer");
     const modalNewsAutoSettings = document.querySelector("#modalNewsAutoSettings");
     const newsSettingsBtn = document.querySelector("#newsSettingsBtn");
@@ -164,6 +168,46 @@
         }
 
         return response.json();
+    };
+
+    const normalizeContentType = (contentType) => {
+        if (!contentType) return "";
+        return String(contentType).toLowerCase();
+    };
+
+    const renderReportAttachments = (report) => {
+        const files = Array.isArray(report?.postFiles) ? report.postFiles : [];
+        const videoViewerVideo = document.querySelector("#videoViewerVideo");
+
+        reportImages.innerHTML = "";
+        reportImages.classList.add("off");
+        reportAttachVideo.classList.add("off");
+        reportAttachNone.classList.add("off");
+        reportVideoThumb.dataset.videoUrl = "";
+        videoViewerVideo.src = "";
+
+        const imageFiles = files.filter((file) => normalizeContentType(file.contentType) === "image");
+        const videoFile = files.find((file) => normalizeContentType(file.contentType) === "video");
+
+        if (imageFiles.length) {
+            imageFiles.forEach((file) => {
+                const img = document.createElement("img");
+                img.src = file.filePath;
+                img.className = "report-attach-thumb";
+                img.alt = "첨부 이미지";
+                reportImages.appendChild(img);
+            });
+            reportImages.classList.remove("off");
+            return;
+        }
+
+        if (videoFile) {
+            reportVideoThumb.dataset.videoUrl = videoFile.filePath;
+            reportAttachVideo.classList.remove("off");
+            return;
+        }
+
+        reportAttachNone.classList.remove("off");
     };
 
     const fetchJson = (url) => requestJson(url);
@@ -886,8 +930,8 @@
         videoViewerVideo.src = "";
         postVideoThumb.dataset.videoUrl = "";
 
-        const imageFiles = files.filter((file) => file.contentType === "image");
-        const videoFile = files.find((file) => file.contentType === "video");
+        const imageFiles = files.filter((file) => normalizeContentType(file.contentType) === "image");
+        const videoFile = files.find((file) => normalizeContentType(file.contentType) === "video");
 
         if (imageFiles.length) {
             imageFiles.forEach((file) => {
@@ -1270,6 +1314,7 @@
         document.querySelector("#reportTarget").textContent = report.targetName || "-";
         document.querySelector("#reportReason").textContent = report.reason || "-";
         document.querySelector("#reportStatusBadge").innerHTML = getBadgeMarkup(report.status, reportStatusBadgeMap, "badge-pending");
+        renderReportAttachments(null);
 
         modalReportDetail.classList.remove("off");
     });
@@ -1290,6 +1335,7 @@
         document.querySelector("#reportTarget").textContent = report.targetName || "-";
         document.querySelector("#reportReason").textContent = report.reason || "-";
         document.querySelector("#reportStatusBadge").innerHTML = getBadgeMarkup(report.status, reportStatusBadgeMap, "badge-pending");
+        renderReportAttachments(report);
 
         modalReportDetail.classList.remove("off");
     });
@@ -1316,6 +1362,15 @@
     });
 
     document.querySelector("#postVideoThumb").addEventListener("click", (e) => {
+        const videoUrl = e.currentTarget.dataset.videoUrl;
+        if (!videoUrl) {
+            return;
+        }
+        document.querySelector("#videoViewerVideo").src = videoUrl;
+        modalVideoViewer.classList.remove("off");
+    });
+
+    document.querySelector("#reportVideoThumb").addEventListener("click", (e) => {
         const videoUrl = e.currentTarget.dataset.videoUrl;
         if (!videoUrl) {
             return;

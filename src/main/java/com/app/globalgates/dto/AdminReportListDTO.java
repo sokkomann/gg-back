@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -15,10 +17,12 @@ import lombok.ToString;
 @NoArgsConstructor
 public class AdminReportListDTO {
     private Long id;
+    private Long targetId;
     private String reporterName;
     private ReportTargetType targetType;
     private String targetName;
     private String reason;
     private ReportStatus status;
     private String createdDatetime;
+    private List<PostFileDTO> postFiles;
 }

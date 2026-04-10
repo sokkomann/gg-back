@@ -151,6 +151,7 @@
 
     <select id="selectAdminReports" resultType="com.app.globalgates.dto.AdminReportListDTO">
         select r.id,
+               r.target_id,
                reporter.member_name as reporter_name,
                r.target_type,
                case

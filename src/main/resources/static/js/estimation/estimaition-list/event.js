@@ -25,6 +25,8 @@ window.addEventListener("load", async () => {
 
     let activeDetailTrigger = null;
     let pendingDecision = null;
+    let activeFilterState = "all";
+    let estimationStore = [];
 
     const escapeHtml = (value = "") =>
         String(value)
@@ -49,21 +51,49 @@ window.addEventListener("load", async () => {
         return text ? escapeHtml(text) : "위치 미등록";
     };
 
+    const normalizeStatus = (status) => String(status ?? "").trim().toLowerCase();
+
     const toFilterState = (status) => {
-        switch (status) {
-            case "approve":
-                return "closed";
-            case "reject":
-                return "review";
-            default:
-                return "open";
+        const normalized = normalizeStatus(status);
+        if (normalized === "approve" || normalized === "reject") {
+            return normalized;
         }
+        return "requesting";
+    };
+
+    const formatStatusLabel = (status) => {
+        switch (normalizeStatus(status)) {
+            case "approve":
+                return "승인됨";
+            case "reject":
+                return "거절됨";
+            default:
+                return "요청중";
+        }
+    };
+
+    const normalizeDate = (value) => {
+        const text = String(value ?? "").trim();
+        if (!text) return "";
+
+        const matched = text.match(/^(\d{4}-\d{2}-\d{2})/);
+        if (matched) {
+            return matched[1];
+        }
+
+        const parsed = new Date(text);
+        if (Number.isNaN(parsed.getTime())) {
+            return "";
+        }
+
+        return formatDate(parsed);
     };
 
     const renderCard = (estimation) => `
         <div class="postCard estimation-preview-card"
              data-estimation-card
              data-filter-state="${escapeHtml(toFilterState(estimation.status))}"
+             data-created-date="${escapeHtml(normalizeDate(estimation.createdDateTime))}"
              data-estimation-detail-target="detail-${estimation.id}">
             <div class="postAvatar postAvatar--image">
                 <img src="/images/main/ad.png" alt="" class="postAvatarImage"/>
@@ -76,7 +106,7 @@ window.addEventListener("load", async () => {
                         <span class="postTime">${escapeHtml(estimation.createdDateTime || "")}</span>
                     </div>
                     <div class="estimation-preview-card__status-wrap">
-                        <span class="estimation-preview-card__status">${escapeHtml(estimation.status || "requesting")}</span>
+                        <span class="estimation-preview-card__status">${escapeHtml(formatStatusLabel(estimation.status))}</span>
                     </div>
                     <div class="estimation-more">
                         <button type="button" class="tweet-more-btn" data-estimation-more-trigger aria-expanded="false" aria-label="더보기">
@@ -153,14 +183,14 @@ window.addEventListener("load", async () => {
             </section>
             <section class="estimation-detail-panel__section">
                 <h4 class="estimation-detail-panel__section-title">상태</h4>
-                <p class="estimation-detail-panel__list">${escapeHtml(estimation.status || "requesting")}</p>
+                <p class="estimation-detail-panel__list" data-estimation-status-text="detail-${estimation.id}">${escapeHtml(formatStatusLabel(estimation.status))}</p>
             </section>
             <section class="estimation-detail-panel__section">
                 <h4 class="estimation-detail-panel__section-title">위치</h4>
                 <p class="estimation-detail-panel__list">${formatLocation(estimation.location)}</p>
             </section>
             <div class="estimation-action-slot estimation-action-slot--modal">
-                <div class="estimation-action-group estimation-action-group--modal" data-estimation-decision-group="detail-${estimation.id}">
+                <div class="estimation-action-group estimation-action-group--modal" data-estimation-decision-group="detail-${estimation.id}" ${normalizeStatus(estimation.status) === "approve" || normalizeStatus(estimation.status) === "reject" ? "hidden" : ""}>
                     <button type="button"
                             class="estimation-action-btn estimation-action-btn--approve"
                             data-estimation-decision-id="detail-${estimation.id}"
@@ -172,8 +202,8 @@ window.addEventListener("load", async () => {
                             data-estimation-decision="reject"
                             aria-pressed="false">거절</button>
                 </div>
-                <div class="estimation-approved-state" data-estimation-approved-state="detail-${estimation.id}" hidden>승인됨</div>
-                <div class="estimation-rejected-state" data-estimation-rejected-state="detail-${estimation.id}" hidden>거절됨</div>
+                <div class="estimation-approved-state" data-estimation-approved-state="detail-${estimation.id}" ${normalizeStatus(estimation.status) === "approve" ? "" : "hidden"}>승인됨</div>
+                <div class="estimation-rejected-state" data-estimation-rejected-state="detail-${estimation.id}" ${normalizeStatus(estimation.status) === "reject" ? "" : "hidden"}>거절됨</div>
             </div>
         </div>
     `;
@@ -211,9 +241,25 @@ window.addEventListener("load", async () => {
         });
     };
 
-    const applyFilter = (value) => {
+    const isWithinDateRange = (cardDateText) => {
+        const cardDate = normalizeDate(cardDateText);
+        if (!cardDate) return true;
+
+        const startDate = normalizeDate(startInput?.value);
+        const endDate = normalizeDate(endInput?.value);
+
+        if (!startDate && !endDate) return true;
+        if (startDate && cardDate < startDate) return false;
+        if (endDate && cardDate > endDate) return false;
+        return true;
+    };
+
+    const applyFilters = () => {
         qAll("[data-estimation-card]").forEach((card) => {
-            card.hidden = value !== "all" && card.dataset.filterState !== value;
+            const statusMatched =
+                activeFilterState === "all" || card.dataset.filterState === activeFilterState;
+            const dateMatched = isWithinDateRange(card.dataset.createdDate);
+            card.hidden = !(statusMatched && dateMatched);
         });
     };
 
@@ -231,7 +277,8 @@ window.addEventListener("load", async () => {
             filterLabel.textContent = label.textContent.trim();
         }
 
-        applyFilter(value);
+        activeFilterState = value;
+        applyFilters();
         closeFilterMenu();
     };
 
@@ -246,10 +293,34 @@ window.addEventListener("load", async () => {
         const days = PERIOD_DAYS[chip.dataset.periodChip];
         if (!days || !startInput || !endInput) return;
 
-        const end = new Date(endInput.value || new Date());
+        const today = new Date();
+        const end = endInput.value ? new Date(endInput.value) : today;
+        if (Number.isNaN(end.getTime())) {
+            end.setTime(today.getTime());
+        }
         const start = new Date(end);
         start.setDate(end.getDate() - (days - 1));
         startInput.value = formatDate(start);
+        endInput.value = formatDate(end);
+        applyFilters();
+    };
+
+    const initializeDateRange = () => {
+        if (!startInput || !endInput) return;
+
+        const activeChip =
+            periodChips.find((button) => button.classList.contains("period-chip--active")) || periodChips[0];
+
+        if (activeChip) {
+            endInput.value = formatDate(new Date());
+            syncPeriod(activeChip);
+            return;
+        }
+
+        const today = new Date();
+        endInput.value = formatDate(today);
+        startInput.value = formatDate(today);
+        applyFilters();
     };
 
     const hideDetailPanels = () => {
@@ -294,6 +365,48 @@ window.addEventListener("load", async () => {
         }
 
         q("[data-estimation-rejected-state]", slot)?.removeAttribute("hidden");
+    };
+
+    const updateCardStatus = (estimationId, type) => {
+        const card = q(`[data-estimation-card][data-estimation-detail-target="detail-${estimationId}"]`);
+        if (!card) return;
+
+        card.dataset.filterState = type;
+        const statusText = card.querySelector(".estimation-preview-card__status");
+        if (statusText) {
+            statusText.textContent = formatStatusLabel(type);
+        }
+    };
+
+    const updateDetailStatus = (estimationId, type) => {
+        const panel = q(`[data-estimation-detail-panel="detail-${estimationId}"]`);
+        if (!panel) return;
+
+        const statusText = q(`[data-estimation-status-text="detail-${estimationId}"]`, panel);
+        if (statusText) {
+            statusText.textContent = formatStatusLabel(type);
+        }
+    };
+
+    const persistDecision = async (estimationId, type) => {
+        const response = await fetch(`/api/estimations/${estimationId}/status`, {
+            method: "PATCH",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify({ status: type }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`견적 요청 상태 변경 실패 (${response.status})`);
+        }
+
+        const result = await response.json();
+        if (!result) {
+            throw new Error("견적 요청 상태 변경이 반영되지 않았습니다.");
+        }
     };
 
     const syncDecisionButtons = (decisionId, selectedDecision) => {
@@ -360,9 +473,10 @@ window.addEventListener("load", async () => {
 
     const renderEstimations = (estimations) => {
         if (!listRoot || !detailBody) return;
+        estimationStore = estimations;
 
         if (!estimations.length) {
-            listRoot.innerHTML = '<p class="estimation-empty">등록된 견적 요청이 없습니다.</p>';
+            listRoot.innerHTML = '<p class="estimation-empty">등록된 견적요청이 없습니다.</p>';
             detailBody.innerHTML = "";
             return;
         }
@@ -370,7 +484,8 @@ window.addEventListener("load", async () => {
         listRoot.innerHTML = estimations.map(renderCard).join("");
         detailBody.innerHTML = estimations.map(renderDetailPanel).join("");
         bindDynamicEvents();
-        applyFilter("all");
+        activeFilterState = "all";
+        applyFilters();
     };
 
     const loadEstimations = async () => {
@@ -418,12 +533,43 @@ window.addEventListener("load", async () => {
         });
     });
 
+    startInput?.addEventListener("change", () => {
+        applyFilters();
+    });
+
+    endInput?.addEventListener("change", () => {
+        applyFilters();
+    });
+
     detailCloseButtons.forEach((button) => button.addEventListener("click", closeDetailModal));
     confirmCloseButtons.forEach((button) => button.addEventListener("click", closeConfirmModal));
-    confirmSubmitButton?.addEventListener("click", () => {
+    confirmSubmitButton?.addEventListener("click", async () => {
         if (!pendingDecision) return;
-        applyDecisionState(pendingDecision.slot, pendingDecision.type);
-        closeConfirmModal();
+
+        const slot = pendingDecision.slot;
+        const type = pendingDecision.type;
+        const panel = slot?.closest("[data-estimation-detail-panel]");
+        const detailId = panel?.dataset.estimationDetailPanel || "";
+        const estimationId = Number(detailId.replace("detail-", ""));
+
+        try {
+            confirmSubmitButton.disabled = true;
+            await persistDecision(estimationId, type);
+            applyDecisionState(slot, type);
+            updateCardStatus(estimationId, type);
+            updateDetailStatus(estimationId, type);
+            const target = estimationStore.find((estimation) => estimation.id === estimationId);
+            if (target) {
+                target.status = type;
+            }
+            applyFilters();
+            closeConfirmModal();
+        } catch (error) {
+            console.error(error);
+            window.alert("견적 요청 상태 반영 중 오류가 발생했습니다.");
+        } finally {
+            confirmSubmitButton.disabled = false;
+        }
     });
 
     document.addEventListener("click", (event) => {
@@ -440,5 +586,6 @@ window.addEventListener("load", async () => {
     });
 
     setActiveTab("quotes");
+    initializeDateRange();
     await loadEstimations();
 });
