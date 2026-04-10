@@ -1,13 +1,14 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/common/layout-bookmark}">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>북마크 / X</title>
     <link rel="stylesheet" href="/css/bookmark/bookmark.css"/>
     <script th:inline="javascript">
-        const memberId = /*[[${memberId}]]*/ 0;
-        const profileImageUrl = /*[[${profileImageUrl}]]*/ '/images/profile/default_image.png';
+        const memberId = [[${memberId}]];
+        const profileImageUrl = [[${profileImageUrl}]] /*'/images/profile/default_image.png'*/;
     </script>
     <script src="/js/bookmark/service.js"></script>
     <script src="/js/bookmark/layout.js"></script>
@@ -16,6 +17,7 @@
 </head>
 <body>
 <div class="bookmark-shell">
+<th:block layout:fragment="content">
     <main class="bookmark-main">
         <header class="bookmark-header">
             <button
@@ -121,7 +123,9 @@
             </div>
         </section>
     </main>
+</th:block>
 </div>
+<th:block layout:fragment="modals">
 <!-- 하드코딩된 게시물 카드 제거됨 — JS에서 동적 생성 -->
 <template id="__DUMMY_REMOVED__"><article class="bookmark-post" data-post-id="101">
                     <div class="bookmark-post-avatar">T</div>
@@ -1160,5 +1164,6 @@
 
     </div><!-- /.tweet-modal -->
 </div><!-- /#bookmarkReplyModal -->
+</th:block>
 </body>
 </html>

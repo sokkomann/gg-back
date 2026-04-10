@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/common/layout}">
+      layout:decorate="~{/common/layout-explore}">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,8 +11,8 @@
     <script src="/js/explore/layout.js"></script>
 </head>
 <body>
-<th:block layout:fragment="content">
 <div class="pageLayout" id="mainPage">
+<th:block layout:fragment="content">
     <!-- 중앙 타임라인 패널: 탭 전환, 게시글 작성 모달, 실제 피드 카드가 이 영역을 기준으로 렌더링된다. -->
     <main class="timelinePanel" id="timelinePanel">
         <div class="exploreSticky">
@@ -136,7 +136,7 @@
             </div>
         </div>
     </main>
-</div>
 </th:block>
+</div>
 </body>
 </html>

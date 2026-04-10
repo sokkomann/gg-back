@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/common/layout-friends}">
+<head>
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,6 +13,7 @@
 </head>
 <body>
 <div class="app-layout">
+    <th:block layout:fragment="content">
     <!-- Main Content -->
     <main class="main-content">
         <!-- Header -->
@@ -64,6 +67,7 @@
 
         <div class="bottom-spacer"></div>
     </main>
+    </th:block>
 </div>
 
 <!-- 모바일 하단 탭 -->

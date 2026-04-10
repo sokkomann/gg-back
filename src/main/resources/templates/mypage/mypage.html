@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/common/layout-mypage}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +22,7 @@
 </head>
 <body>
 <div class="Page-Layout">
+<th:block layout:fragment="content">
     <div class="Primary-Column">
         <div class="Primary-Column-Inner">
             <div class="Header-Sticky">
@@ -333,8 +335,10 @@
             </div>
         </div>
     </div>
+</th:block>
 </div>
 
+<th:block layout:fragment="modals">
 <!-- main의 "연결 끊기" 확인 모달을 마이페이지에도 같은 톤으로 재사용한다.
      마이페이지는 팔로잉 카드 요약 영역이므로, 여기서는 모달 본문을 정적으로 두고
      제목만 클릭한 카드의 handle에 맞춰 event.js에서 바꿔 끼운다. -->
@@ -1226,7 +1230,6 @@
         <button type="button" class="Small-Button Cancel Delete-Product-Close">취소</button>
     </div>
 </div>
-
-</div>
+</th:block>
 </body>
 </html>

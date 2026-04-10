@@ -33,8 +33,15 @@ public class BookmarkController {
             memberId = member.getId();
             MemberProfileFileDTO profileFile = memberService.getProfileFile(memberId);
             if (profileFile != null && profileFile.getFileName() != null) {
-                profileImageUrl = s3Service.getPresignedUrl(profileFile.getFileName(), Duration.ofMinutes(10));
+                try {
+                    String presignedUrl = s3Service.getPresignedUrl(profileFile.getFileName(), Duration.ofMinutes(10));
+                    member.setFileName(presignedUrl);
+                    profileImageUrl = presignedUrl;
+                } catch (Exception e) {
+                    member.setFileName(null);
+                }
             }
+            model.addAttribute("member", member);
         } catch (Exception e) {
             memberId = 0L;
         }

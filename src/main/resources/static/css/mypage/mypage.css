@@ -126,7 +126,6 @@ body {
     flex-direction: row;
     margin: 0 auto;
     width: 100%;
-    gap: 20px;
     justify-content: center;
     min-height: 100%;
 }
@@ -145,6 +144,7 @@ body {
     border-right: 1px solid rgb(239, 243, 244);
     border-left: 1px solid rgb(239, 243, 244);
     overflow: visible;
+    margin-right: 20px;
 }
 
 .Primary-Column-Inner {
@@ -5751,6 +5751,5 @@ body.modal-open {
 
 @media (min-width: 1280px) {
     .Page-Layout {
-        gap: 28px;
     }
 }

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/common/layout}">
+      layout:decorate="~{/common/layout-explore}">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -15,8 +15,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.0.3/dist/index.min.js"></script>
 </head>
 <body>
-<th:block layout:fragment="content">
 <div class="pageLayout" id="mainPage">
+<th:block layout:fragment="content">
     <!-- 좌측 글로벌 내비게이션: 홈에서 가장 자주 쓰는 이동 링크와 빠른 작성 진입점, 계정 메뉴가 모여 있다. -->
 
 
@@ -110,6 +110,7 @@
         </section>
 
     </main>
+</th:block>
 </div>
 <div class="modal-overlay" id="disconnectModal">
     <div class="modal-dialog" role="alertdialog" aria-labelledby="disconnectModalTitle">
@@ -668,7 +669,7 @@
         </div>
     </div><!-- /.tweet-modal -->
 </div><!-- /.tweet-modal-overlay -->
-</th:block>
+
 </body>
 </html>
 

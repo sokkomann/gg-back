@@ -1,16 +1,70 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/common/layout-setting}">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>설정 / G</title>
     <link rel="stylesheet" href="/css/setting/setting.css"/>
-</head>
+    <script th:inline="javascript">
+        /*
+         * setting 화면의 최초 회원 정보는 서버가 Thymeleaf로 주입하고,
+         * event.js는 이 전역 객체를 읽어 현재 상태 객체를 초기화한다.
+         * 이 패턴을 쓰면 템플릿은 "초기값 제공", JS는 "화면 전환과 상태 동기화"만 맡게 되어
+         * 현재 repo의 window.oauthJoinData 같은 객체 주입 방식과 결이 맞는다.
+         */
+        window.settingMember = {
+            id: [[${member.id}]],
+            memberName: [[${member.memberName}]],
+            memberEmail: [[${member.memberEmail}]],
+            memberPhone: [[${member.memberPhone}]],
+            memberLanguage: [[${member.memberLanguage}]],
+            memberHandle: [[${member.memberHandle}]],
+            memberCountry: [[${member.memberCountry}]],
+            pushEnabled: [[${member.pushEnabled}]],
+            createdDatetime: [[${member.createdDatetime}]],
+            memberBio: [[${member.memberBio}]],
+            // provider 계정은 setting에서 비밀번호 재확인/생성 흐름을 별도로 분기해야 하므로
+            // 최초 렌더 시 서버가 현재 계정의 OAuth 공급자와 passwordless 여부를 함께 내려준다.
+            memberProvider: [[${member.provider}]],
+            isPasswordlessAccount: [[${
+                member
+                .provider != null
+                and(member
+                .memberPassword == null
+                or #strings.isEmpty(member.memberPassword)
+        )
+        }]]
+        }
+        ;
+
+        /*
+         * 알림 상세 초기값도 같은 방식으로 서버가 직접 주입한다.
+         * event.js는 이 객체를 읽어 화면 상태만 구성하고, 저장은 별도 settings API로 보낸다.
+         */
+        window.settingNotificationPreference = {
+            pushConnect: [[${notificationPreference.pushConnect}]],
+            pushExpert: [[${notificationPreference.pushExpert}]],
+            pushLikes: [[${notificationPreference.pushLikes}]],
+            pushPosts: [[${notificationPreference.pushPosts}]],
+            pushComments: [[${notificationPreference.pushComments}]],
+            pushChatMessages: [[${notificationPreference.pushChatMessages}]],
+            pushQuotes: [[${notificationPreference.pushQuotes}]],
+            pushSystem: [[${notificationPreference.pushSystem}]],
+            pushMentions: [[${notificationPreference.pushMentions}]]
+        };
+
+        window.block
+    </script>
+    <script src="/js/setting/service.js"></script>
+    <script src="/js/setting/layout.js"></script>
+    <script src="/js/setting/event.js"></script>
 </head>
 <body>
 <gmpx-api-loader key="AIzaSyBvskCpZg5-38p-M_xpfRiXYXYeqAF_ZD4" solution-channel="GMP_QB_addressselection_v4_cABC">
 </gmpx-api-loader>
 <main class="settings-page" role="main">
+    <th:block layout:fragment="content">
     <div class="settings-shell">
         <section
                 class="settings-panel settings-panel--navigation"
@@ -1142,10 +1196,11 @@
                         </section>
                     </section>
                 </div>
-        </section>
     </div>
+</th:block>
 </main>
 
+<th:block layout:fragment="modals">
 <div class="modal-layer" id="settingsModalLayer" hidden>
     <div class="modal-scrim" data-modal-close></div>
 
@@ -2155,61 +2210,8 @@
         </div>
     </section>
 
-    <section
+
 </div>
-
-<script th:inline="javascript">
-    /*
-     * setting 화면의 최초 회원 정보는 서버가 Thymeleaf로 주입하고,
-     * event.js는 이 전역 객체를 읽어 현재 상태 객체를 초기화한다.
-     * 이 패턴을 쓰면 템플릿은 "초기값 제공", JS는 "화면 전환과 상태 동기화"만 맡게 되어
-     * 현재 repo의 window.oauthJoinData 같은 객체 주입 방식과 결이 맞는다.
-     */
-    window.settingMember = {
-        id: [[${member.id}]],
-        memberName: [[${member.memberName}]],
-        memberEmail: [[${member.memberEmail}]],
-        memberPhone: [[${member.memberPhone}]],
-        memberLanguage: [[${member.memberLanguage}]],
-        memberHandle: [[${member.memberHandle}]],
-        memberCountry: [[${member.memberCountry}]],
-        pushEnabled: [[${member.pushEnabled}]],
-        createdDatetime: [[${member.createdDatetime}]],
-        memberBio: [[${member.memberBio}]],
-        // provider 계정은 setting에서 비밀번호 재확인/생성 흐름을 별도로 분기해야 하므로
-        // 최초 렌더 시 서버가 현재 계정의 OAuth 공급자와 passwordless 여부를 함께 내려준다.
-        memberProvider: [[${member.provider}]],
-        isPasswordlessAccount: [[${
-            member
-            .provider != null
-            and(member
-            .memberPassword == null
-            or #strings.isEmpty(member.memberPassword)
-    )
-    }]]
-    }
-    ;
-
-    /*
-     * 알림 상세 초기값도 같은 방식으로 서버가 직접 주입한다.
-     * event.js는 이 객체를 읽어 화면 상태만 구성하고, 저장은 별도 settings API로 보낸다.
-     */
-    window.settingNotificationPreference = {
-        pushConnect: [[${notificationPreference.pushConnect}]],
-        pushExpert: [[${notificationPreference.pushExpert}]],
-        pushLikes: [[${notificationPreference.pushLikes}]],
-        pushPosts: [[${notificationPreference.pushPosts}]],
-        pushComments: [[${notificationPreference.pushComments}]],
-        pushChatMessages: [[${notificationPreference.pushChatMessages}]],
-        pushQuotes: [[${notificationPreference.pushQuotes}]],
-        pushSystem: [[${notificationPreference.pushSystem}]],
-        pushMentions: [[${notificationPreference.pushMentions}]]
-    };
-
-    window.block
-</script>
-<script src="/js/setting/service.js"></script>
-<script src="/js/setting/layout.js"></script>
-<script src="/js/setting/event.js"></script>
+</th:block>
 </body>
 </html>
