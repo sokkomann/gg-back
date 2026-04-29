@@ -36,10 +36,21 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
     @GetMapping("news")
     public ResponseEntity<?> getNews() {
         List<NewsDTO> newsList = newsService.getNewsList();
-        newsList.forEach(news -> {
-            news.setCreatedDatetime(DateUtils.toRelativeTime(news.getCreatedDatetime()));
-        });
-        return ResponseEntity.ok(newsList);
+        List<NewsDTO> response = newsList.stream().map(source -> {
+            NewsDTO copy = new NewsDTO();
+            copy.setId(source.getId());
+            copy.setAdminId(source.getAdminId());
+            copy.setNewsTitle(source.getNewsTitle());
+            copy.setNewsContent(source.getNewsContent());
+            copy.setNewsSourceUrl(source.getNewsSourceUrl());
+            copy.setNewsCategory(source.getNewsCategory());
+            copy.setNewsType(source.getNewsType());
+            copy.setPublishedAt(source.getPublishedAt());
+            copy.setUpdatedDatetime(source.getUpdatedDatetime());
+            copy.setCreatedDatetime(DateUtils.toRelativeTime(source.getCreatedDatetime()));
+            return copy;
+        }).toList();
+        return ResponseEntity.ok(response);
     }
 
 //    실시간 검색어 순위 조회 (10위 까지만)

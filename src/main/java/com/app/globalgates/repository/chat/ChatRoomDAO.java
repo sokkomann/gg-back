@@ -15,6 +15,11 @@ import java.util.Optional;
 public class ChatRoomDAO {
     private final ChatRoomMapper chatRoomMapper;
 
+//    회원이 대화방 참여자인지 확인 (WebSocket 구독 권한 검증용)
+    public boolean isMember(Long conversationId, Long memberId) {
+        return chatRoomMapper.selectIsMember(conversationId, memberId);
+    }
+
 //    채팅방 목록 조회
     public List<ChatRoomDTO> findAllByMemberId(Long memberId) {
         return chatRoomMapper.selectAllByMemberId(memberId);

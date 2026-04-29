@@ -59,12 +59,13 @@ svg {
     border-right: 1px solid rgb(239, 243, 244);
 }
 
-.header {
+.news-header {
     position: sticky;
     top: 0;
     z-index: 5;
     display: flex;
     align-items: center;
+    gap: 18px;
     height: 53px;
     padding: 0 16px;
     border-bottom: 1px solid rgb(239, 243, 244);
@@ -72,30 +73,33 @@ svg {
     backdrop-filter: blur(12px);
 }
 
-.header-left {
-    display: flex;
-    align-items: center;
-    flex: 1;
-}
-
-.icon-btn {
+.news-header-back {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 34px;
     height: 34px;
     border-radius: 9999px;
+    color: #0f1419;
     transition: background-color 0.2s ease;
 }
 
-.icon-btn:hover {
+.news-header-back:hover {
     background: rgba(15, 20, 25, 0.08);
 }
 
-.icon-btn svg {
+.news-header-back svg {
     width: 20px;
     height: 20px;
     fill: currentColor;
+}
+
+.news-header-title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #0f1419;
 }
 
 .trend-title {
@@ -3366,4 +3370,82 @@ body.modal-open {
 
 body.modal-open {
     overflow: hidden;
+}
+
+.trend-meta-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
+    height: 20px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+}
+
+.trend-meta-badge--emergency {
+    background: rgb(244, 33, 46);
+    color: #ffffff;
+}
+
+.trend-meta-badge--general {
+    background: rgb(239, 243, 244);
+    color: rgb(83, 100, 113);
+}
+
+.trend-meta-category {
+    color: rgb(29, 155, 240);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.trend-meta-time {
+    color: rgb(83, 100, 113);
+    font-size: 13px;
+}
+
+.news-source-row {
+    padding: 8px 16px 12px;
+}
+
+.news-source-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid rgb(207, 217, 222);
+    border-radius: 9999px;
+    color: rgb(29, 155, 240);
+    font-size: 13px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.news-source-chip:hover {
+    background: rgba(29, 155, 240, 0.1);
+}
+
+.news-source-chip svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.news-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 88px;
+    transform: translateX(-50%);
+    z-index: 1300;
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: #1d9bf0;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(15, 20, 25, 0.2);
+}
+
+.news-toast[hidden] {
+    display: none;
 }

@@ -9,21 +9,31 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum NewsCategoryType {
-    TRADE("trade"), MARKET("market"), POLICY("policy"), TECHNOLOGY("technology"), ETC("etc");
+    TRADE("trade", "무역동향"),
+    MARKET("market", "수출입"),
+    POLICY("policy", "정책"),
+    TECHNOLOGY("technology", "전자재료"),
+    ETC("etc", "기타");
 
     private final String value;
+    private final String label;
 
     private static final Map<String, NewsCategoryType> NEWS_CATEGORY_TYPE_MAP =
             Arrays.stream(NewsCategoryType.values()).collect(Collectors.toMap(NewsCategoryType::getValue, Function.identity()));
 
     @JsonCreator
-    NewsCategoryType(String value) {
+    NewsCategoryType(String value, String label) {
         this.value = value;
+        this.label = label;
     }
 
     @JsonValue
     public String getValue() {
         return value;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     public static NewsCategoryType getNewsCategoryType(String value) {

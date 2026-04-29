@@ -9,21 +9,28 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum NewsType {
-    GENERAL("general"), EMERGENCY("emergency");
+    GENERAL("general", "일반"),
+    EMERGENCY("emergency", "속보");
 
     private final String value;
+    private final String label;
 
     private static final Map<String, NewsType> NEWS_TYPE_MAP =
             Arrays.stream(NewsType.values()).collect(Collectors.toMap(NewsType::getValue, Function.identity()));
 
     @JsonCreator
-    NewsType(String value) {
+    NewsType(String value, String label) {
         this.value = value;
+        this.label = label;
     }
 
     @JsonValue
     public String getValue() {
         return value;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     public static NewsType getNewsType(String value) {

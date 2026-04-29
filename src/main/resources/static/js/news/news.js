@@ -11,44 +11,24 @@ window.onload = () => {
         return String(num);
     }
 
-    function showToast(message, extraClass) {
-        const existing = document.querySelector(".toast");
+    let toastTimer = null;
+    function showToast(message) {
+        const toastEl = document.getElementById("newsToast");
+        if (!toastEl) return;
 
-        if (existing) {
-            existing.remove();
+        toastEl.textContent = message;
+        toastEl.hidden = false;
+
+        if (toastTimer) {
+            window.clearTimeout(toastTimer);
         }
-
-        const toast = document.createElement("div");
-        toast.className = "toast";
-        if (extraClass) {
-            toast.classList.add(extraClass);
-        }
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        window.setTimeout(function () {
-            toast.remove();
-        }, 2500);
-    }
-
-    function showShareToast(message) {
-        const existing = document.querySelector(".share-toast");
-
-        if (existing) {
-            existing.remove();
-        }
-
-        const toast = document.createElement("div");
-        toast.className = "share-toast";
-        toast.setAttribute("role", "status");
-        toast.setAttribute("aria-live", "polite");
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        window.setTimeout(function () {
-            toast.remove();
+        toastTimer = window.setTimeout(() => {
+            toastEl.hidden = true;
+            toastTimer = null;
         }, 3000);
     }
+
+    const showShareToast = showToast;
 
     function closeSortMenu() {
         if (!sortButton || !sortDropdown) {
@@ -241,7 +221,7 @@ window.onload = () => {
                 return;
             }
 
-            window.location.href = "/news";
+            window.location.href = "/explore?tab=news";
         });
     }
 
@@ -600,36 +580,21 @@ window.onload = () => {
 
 // Post-Card 인터랙션 (Like / Bookmark / Share)
     (function () {
-        function showToast(message, extraClass) {
-            const existing = document.querySelector(".toast");
-            if (existing) {
-                existing.remove();
+        let innerToastTimer = null;
+        function showToast(message) {
+            const toastEl = document.getElementById("newsToast");
+            if (!toastEl) return;
+            toastEl.textContent = message;
+            toastEl.hidden = false;
+            if (innerToastTimer) {
+                window.clearTimeout(innerToastTimer);
             }
-            const toast = document.createElement("div");
-            toast.className = "toast";
-            if (extraClass) {
-                toast.classList.add(extraClass);
-            }
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(function () {
-                toast.remove();
-            }, 2500);
-        }
-
-        function showShareToast(message) {
-            const existing = document.querySelector(".share-toast");
-            if (existing) {
-                existing.remove();
-            }
-            const toast = document.createElement("div");
-            toast.className = "share-toast";
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(function () {
-                toast.remove();
+            innerToastTimer = window.setTimeout(() => {
+                toastEl.hidden = true;
+                innerToastTimer = null;
             }, 3000);
         }
+        const showShareToast = showToast;
 
         function setBookmarkButtonState(button, isActive) {
             if (!button) {

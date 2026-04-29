@@ -10,6 +10,9 @@ import java.util.Optional;
 
 @Mapper
 public interface ChatRoomMapper {
+//    회원이 대화방 참여자인지 확인 (WebSocket 구독 권한 검증용)
+    boolean selectIsMember(@Param("conversationId") Long conversationId,
+                           @Param("memberId") Long memberId);
 //    채팅방 목록 조회 (조인 결과 -> DTO)
     List<ChatRoomDTO> selectAllByMemberId(@Param("memberId") Long memberId);
 //    두 회원 간 기존 채팅방 조회

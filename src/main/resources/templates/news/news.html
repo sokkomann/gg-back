@@ -9,53 +9,63 @@
     <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.0.3/dist/index.min.js"></script>
 </head>
 <body>
+<th:block layout:fragment="content">
 <div class="news-page">
     <main class="news-shell">
-        <th:block layout:fragment="content">
-        <header class="header">
-            <div class="header-left">
-                <button type="button" class="icon-btn" id="newsBackButton" aria-label="뒤로 가기">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <g>
-                            <path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path>
-                        </g>
-                    </svg>
-                </button>
-            </div>
+        <header class="news-header">
+            <button type="button" class="news-header-back" id="newsBackButton" aria-label="뒤로 가기">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <g>
+                        <path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path>
+                    </g>
+                </svg>
+            </button>
+            <h1 class="news-header-title">뉴스</h1>
         </header>
 
         <section class="trend-title">
-            <h1>[속보] 코스피 8% 폭락…3거래일 만에 서킷브레이커 발동</h1>
+            <h1 th:text="${news != null ? news.newsTitle : ''}">뉴스 제목</h1>
             <div class="trend-meta">
-                <span>2시간 전</span>
+                <span th:if="${news != null and news.newsType != null and news.newsType.value == 'emergency'}"
+                      class="trend-meta-badge trend-meta-badge--emergency">속보</span>
+                <span th:if="${news != null and news.newsType != null and news.newsType.value != 'emergency'}"
+                      class="trend-meta-badge trend-meta-badge--general">일반</span>
+                <span th:if="${news != null and news.newsCategory != null}"
+                      class="trend-meta-category"
+                      th:text="${news.newsCategory.label}">category</span>
+                <span class="trend-meta-time" th:text="${createdRelative}">방금 전</span>
             </div>
         </section>
 
-        <p class="ai-summary">
-            유가증권시장에 서킷브레이커가 발동됐다고 공시했다. 당시 코스피 지수는 전 거래일보다 8.1% 하락한 5132.07이었다. 이란 사태 장기화 가능성이 부각되면서 특히 반도체주가 급락 중이다. 유가
-            상승은 달러 수요를 늘리는 페트로달러 효과를 통해 원화값 하락 압력으로 이어질 수 있다. 이날 원·달러 환율은 급등하며 1500원 선을 위협하고 있다. 오전 10시 45분 현재 달러에 대한
-            원화가치는 전 거래일보다 12원 내린 1497.00원을 나타내고 있다.
-        </p>
+        <p class="ai-summary" th:text="${news != null ? news.newsContent : ''}">뉴스 내용</p>
         <p class="ai-disclaimer">이 게시물은 Xport AI에서 요약한 내용입니다. AI는 실수할 수 있습니다.</p>
+        <div class="news-source-row" th:if="${news != null and news.newsSourceUrl != null and !#strings.isEmpty(news.newsSourceUrl)}">
+            <a class="news-source-chip" th:href="${news.newsSourceUrl}" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M11.96 14.945a4.49 4.49 0 0 0 3.296-1.32 4.49 4.49 0 0 0 0-6.366l-2.64-2.64a4.49 4.49 0 0 0-6.367 0 4.49 4.49 0 0 0 0 6.367l1.06 1.06 1.415-1.414-1.06-1.06a2.49 2.49 0 0 1 0-3.54 2.49 2.49 0 0 1 3.538 0l2.64 2.64a2.49 2.49 0 0 1 0 3.54 2.49 2.49 0 0 1-1.882.732zm-1.92-5.89a4.49 4.49 0 0 0-3.296 1.32 4.49 4.49 0 0 0 0 6.366l2.64 2.64a4.49 4.49 0 0 0 6.367 0 4.49 4.49 0 0 0 0-6.366l-1.06-1.06-1.415 1.414 1.06 1.06a2.49 2.49 0 0 1 0 3.54 2.49 2.49 0 0 1-3.538 0l-2.64-2.64a2.49 2.49 0 0 1 0-3.54 2.49 2.49 0 0 1 1.882-.732z"></path>
+                </svg>
+                <span>원문 보기</span>
+            </a>
+        </div>
 
         <div class="post-detail-actions tweet-action-bar">
             <div class="post-detail-action-row">
                 <div class="post-detail-action-slot">
-                    <button class="post-detail-action-button tweet-action-btn" type="button" aria-label="답글 540"
+                    <button class="post-detail-action-button tweet-action-btn" type="button" aria-label="답글 0"
                             data-testid="reply">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-1.08 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path>
                         </svg>
-                        <span class="tweet-action-count">540</span>
+                        <span class="tweet-action-count">0</span>
                     </button>
                 </div>
                 <div class="post-detail-action-slot">
                     <button class="post-detail-action-button post-detail-action-button-like tweet-action-btn tweet-action-btn-like"
-                            type="button" aria-label="마음 2천" data-count="2000">
+                            type="button" aria-label="마음 0" data-count="0">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path>
                         </svg>
-                        <span class="tweet-action-count">2.0K</span>
+                        <span class="tweet-action-count">0</span>
                     </button>
                 </div>
                 <div class="post-detail-action-slot">
@@ -79,7 +89,7 @@
             </div>
         </div>
 
-        <section class="post-detail-reply-box">
+        <section class="post-detail-reply-box" hidden>
             <div class="post-detail-reply-avatar">나</div>
             <label class="post-detail-reply-input-wrap">
                 <input class="post-detail-reply-input" type="text" placeholder="답글 게시하기">
@@ -87,21 +97,22 @@
             <button class="post-detail-reply-submit disabled" type="button" disabled>등록</button>
         </section>
 
-        <div class="post-detail-sort">
-            <button class="post-detail-sort-button" type="button" aria-expanded="false">
-                <span>관련순</span>
+        <div class="post-detail-sort" hidden>
+            <button class="post-detail-sort-button" type="button" aria-expanded="false" data-sort="latest">
+                <span>최신순</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M3.543 8.96l1.414-1.42L12 14.59l7.043-7.05 1.414 1.42L12 17.41 3.543 8.96z"></path>
                 </svg>
             </button>
             <div class="post-detail-sort-menu dropdown-menu">
-                <button class="dropdown-item" type="button">관련순</button>
-                <button class="dropdown-item" type="button">최신순</button>
-                <button class="dropdown-item" type="button">인기순</button>
+                <button class="dropdown-item" type="button" data-sort="latest">최신순</button>
+                <button class="dropdown-item" type="button" data-sort="popular">인기순</button>
             </div>
         </div>
 
-        <section class="post-detail-replies" aria-label="답글 목록">
+        <div class="news-toast" id="newsToast" role="status" aria-live="polite" hidden></div>
+
+        <section class="post-detail-replies" aria-label="답글 목록" hidden>
             <div class="postCard" id="postCard101" data-post-id="101">
                 <div class="postAvatar">T</div>
                 <div class="postBody">
@@ -574,7 +585,6 @@
                 </div>
             </div>
         </section>
-        </th:block>
     </main>
 </div>
 <div id="layers"></div>
@@ -1124,7 +1134,8 @@
         </div>
     </div><!-- /.tweet-modal -->
 </div><!-- /.tweet-modal-overlay -->
-<script src="../../static/js/news/news.js"></script>
-<script src="../../static/js/news/news-repost.js"></script>
+<script src="/js/news/news.js"></script>
+<script src="/js/news/news-repost.js"></script>
+</th:block>
 </body>
 </html>

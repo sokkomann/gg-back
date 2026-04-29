@@ -59,3 +59,8 @@ logs/
 ### 환경변수 ###
 .env
 .env.*
+
+### Agent skill files (개인 Claude Code 설정 — 팀에 영향 없게) ###
+CLAUDE.md
+AGENTS.md
+docs/agents/
