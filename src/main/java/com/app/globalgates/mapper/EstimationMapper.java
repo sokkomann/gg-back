@@ -29,7 +29,8 @@ public interface EstimationMapper {
                      @Param("status") String status);
 
     List<EstimationExpertDTO> selectExpertsForRequest(@Param("memberId") Long memberId,
-                                                      @Param("keyword") String keyword);
+                                                      @Param("keyword") String keyword,
+                                                      @Param("offset") int offset);
 
     void insertTag(EstimationTagDTO estimationTagDTO);
 

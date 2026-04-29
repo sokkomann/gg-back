@@ -126,8 +126,7 @@
                    limit 1
                ) as memberProfileFileName
         from tbl_member m
-        where m.member_role = 'expert'
-          and m.member_status = 'active'
+        where m.member_status = 'active'
           and m.id != #{memberId}
           <if test="keyword != null and keyword != ''">
               and (
@@ -138,7 +137,7 @@
                   )
           </if>
         order by m.created_datetime desc
-        limit 20
+        limit 20 offset #{offset}
     </select>
 
     <insert id="insertTag" useGeneratedKeys="true" keyProperty="id">

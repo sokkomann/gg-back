@@ -66,7 +66,11 @@
     <!-- 기본 작성 뷰: 실제 게시글 입력, 첨부, 태그, 위치, 제출이 모두 이 화면 안에서 이뤄진다. -->
     <div class="tweet-modal__compose-view" id="composerComposeView">
         <form class="composerForm" id="postComposerForm">
-            <div class="composerAvatar" id="composerAvatar">K</div>
+            <div class="composerAvatar" id="composerAvatar">
+                <img th:src="${loginMemberProfileImageUrl}"
+                     alt=""
+                     style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />
+            </div>
             <div class="composerBody tweet-modal__input-wrap">
                 <!-- 게시판/커뮤니티 선택 영역: 게시글이 어느 보드에 발행될지 정하고 hidden input과 동기화한다. -->
                 <div class="composerAudience">
@@ -74,13 +78,15 @@
                         <div class="composerProfileLink" aria-hidden="true">
                             <div class="composerProfileLinkPerson">
                                 <img
-                                        src="/images/main/ad.png"
+                                        th:src="${loginMemberProfileImageUrl}"
                                         alt=""
                                         class="composerProfileLinkAvatar"
                                 />
                                 <span class="composerProfileLinkEmail"
-                                >trade@gates.com</span
-                                >
+                                      th:text="${loginMember != null and loginMember.memberHandle != null
+                                                 ? '@' + loginMember.memberHandle
+                                                 : ''}"
+                                >@handle</span>
                             </div>
                             <button
                                     type="button"
@@ -932,10 +938,10 @@
 </div>
 </div>
 </body>
-<!--<script src="/js/main/event.js"></script>-->
-<script src="/js/estimation/estimation-regist/eventwo.js"></script>
-<!-- 폼 내부 로직(유효성, 태그, 상품, 위치, 제출)은 공용 모듈이 담당한다. -->
-<script src="/js/estimation/estimation-form.js"></script>
-<!-- 독립 페이지 전용 모달 제어 + auto-open -->
+<!-- 견적 API 호출 -->
+<script src="/js/estimation/estimation-regist/service.js"></script>
+<!-- HTML 렌더 헬퍼 (상품/전문가 카드) -->
+<script src="/js/estimation/estimation-regist/layout.js"></script>
+<!-- 모달 인터랙션 + 폼 제출 (독립 페이지에서 auto-open 포함) -->
 <script src="/js/estimation/estimation-regist/event.js"></script>
 </html>

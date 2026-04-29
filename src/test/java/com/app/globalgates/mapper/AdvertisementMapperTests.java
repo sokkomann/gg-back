@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @SpringBootTest
 @Slf4j
-public class AdvertisementMapperTests {
+public class    AdvertisementMapperTests {
     @Autowired
     private AdvertisementMapper advertisementMapper;
 

@@ -109,3 +109,6 @@ select * from tbl_subscription;
 select * from tbl_estimation;
 select * from tbl_post;
 
+SELECT COUNT(*)
+FROM tbl_member
+WHERE member_status = 'active' AND id != 15;

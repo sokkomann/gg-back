@@ -1233,13 +1233,13 @@
     </div>
 </div>
 <!-- 견적요청 모달: 상대가 EXPERT일 때만 삽입.
-     모달 열기/닫기는 mypage/event.js의 openEstimationModal/closeEstimationModal이 담당하고,
-     폼 내부 로직은 estimation-form.js가 담당한다.
-     독립 페이지 전용 auto-open(estimation-regist/event.js)은 여기서 로드하지 않는다. -->
+     event.js는 마이페이지에서 auto-open을 가드하므로 같은 파일을 그대로 로드해도 안전하다.
+     (URL이 /mypage로 시작하면 자동 오픈을 건너뛰고, 트리거 클릭 시에만 모달을 연다.) -->
 <th:block th:if="${member.memberRole != null and member.memberRole.name() == 'EXPERT'}">
     <div th:replace="~{estimation/estimation-regist :: estimationModal}"></div>
-    <script src="/js/estimation/estimation-regist/eventwo.js"></script>
-    <script src="/js/estimation/estimation-form.js"></script>
+    <script src="/js/estimation/estimation-regist/service.js"></script>
+    <script src="/js/estimation/estimation-regist/layout.js"></script>
+    <script src="/js/estimation/estimation-regist/event.js"></script>
 </th:block>
 </th:block>
 </body>

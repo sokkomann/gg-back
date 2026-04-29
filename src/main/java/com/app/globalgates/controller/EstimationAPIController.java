@@ -6,17 +6,24 @@ import com.app.globalgates.dto.EstimationExpertDTO;
 import com.app.globalgates.dto.EstimationWithPagingDTO;
 import com.app.globalgates.dto.PostProductDTO;
 import com.app.globalgates.service.EstimationService;
+import com.app.globalgates.service.S3Service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/estimations/**")
 public class EstimationAPIController {
     private final EstimationService estimationService;
+    private final S3Service s3Service;
 
     @PostMapping("write")
     public void write(@RequestBody EstimationDTO estimationDTO,
@@ -50,13 +57,52 @@ public class EstimationAPIController {
     }
 
     @GetMapping("experts")
-    public List<EstimationExpertDTO> getExperts(@RequestParam(required = false) String keyword,
+    public List<EstimationExpertDTO> getExperts(@RequestParam(defaultValue = "1") int page,
+                                                @RequestParam(required = false) String keyword,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return estimationService.getExpertsForRequest(userDetails != null ? userDetails.getId() : null, keyword);
+        List<EstimationExpertDTO> experts = estimationService.getExpertsForRequest(
+                page,
+                userDetails != null ? userDetails.getId() : null,
+                keyword);
+
+        // DB의 raw S3 key를 브라우저가 직접 쓸 수 있는 presigned URL로 변환.
+        // mypage가 게시글 프로필 이미지를 변환하는 흐름과 동일한 패턴이다.
+        experts.forEach(expert -> {
+            if (expert.getMemberProfileFileName() != null && !expert.getMemberProfileFileName().isBlank()) {
+                expert.setMemberProfileFileName(
+                        toPresignedUrlOrOriginal(expert.getMemberProfileFileName())
+                );
+            }
+        });
+        return experts;
     }
 
     @GetMapping("products")
-    public List<PostProductDTO> getProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return estimationService.getProductsForRequest(userDetails != null ? userDetails.getId() : null);
+    public List<PostProductDTO> getProducts(@RequestParam(required = false) Long memberId) {
+        List<PostProductDTO> products = estimationService.getProductsForRequest(memberId);
+
+        // 상품 썸네일도 동일하게 presigned URL로 내려준다.
+        products.forEach(product -> {
+            if (product.getPostFiles() == null || product.getPostFiles().isEmpty()) return;
+            product.setPostFiles(
+                    product.getPostFiles().stream()
+                            .map(this::toPresignedUrlOrOriginal)
+                            .collect(Collectors.toList())
+            );
+        });
+        return products;
+    }
+
+    private String toPresignedUrlOrOriginal(String filePath) {
+        if (filePath == null || filePath.isBlank()) {
+            return filePath;
+        }
+
+        try {
+            return s3Service.getPresignedUrl(filePath, Duration.ofMinutes(10));
+        } catch (IOException e) {
+            log.warn("estimation presigned URL 생성 실패. 원본 경로를 그대로 반환합니다. filePath={}", filePath, e);
+            return filePath;
+        }
     }
 }

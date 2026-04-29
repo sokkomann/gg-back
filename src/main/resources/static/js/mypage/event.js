@@ -2230,33 +2230,10 @@ window.onload = function () {
     }
 
     // === 견적요청 모달 ===
-    // 이 모달의 열기/닫기/확인창("게시물을 삭제하시겠어요?")은 모두 eventwo.js가 담당한다.
-    // 마이페이지는 두 가지 일만 하면 된다:
-    //   (1) "견적요청" 버튼이 눌리면 eventwo.js가 연결해둔 숨겨진 작성 버튼(#createPostButton)을
-    //       대신 클릭해서 모달을 연다.
-    //   (2) 모달이 열려 있는 동안 배경(body)의 스크롤이 막히도록 body.modal-open 클래스를 붙여준다.
-    //       eventwo.js는 overlay.hidden 속성만 바꾸고 body 클래스는 건드리지 않기 때문에
-    //       여기서 대신 관리한다.
-    //
-    // 이렇게 위임하면:
-    //   - eventwo.js의 "입력 중이면 닫기 전에 확인" 로직이 그대로 동작한다(예전 코드는 이걸 우회했다).
-    //   - 열기/닫기 처리가 한 곳(eventwo.js)에 모여 유지보수가 쉬워진다.
-    const composerOverlay = document.getElementById("composerModalOverlay");
-
-    // overlay.hidden 속성이 바뀔 때마다 body.modal-open 클래스를 맞춰준다.
-    // MutationObserver를 쓰면 어떤 경로(X 버튼/overlay 클릭/확인창 확인)로 닫히더라도
-    // 자동으로 동기화되므로 각 이벤트마다 일일이 연결하지 않아도 된다.
-    if (composerOverlay) {
-        const syncBodyModalClass = () => {
-            document.body.classList.toggle(BODY_MODAL_OPEN_CLASS, !composerOverlay.hidden);
-        };
-        new MutationObserver(syncBodyModalClass).observe(composerOverlay, {
-            attributes: true,
-            attributeFilter: ["hidden"],
-        });
-    }
-
-    // "견적요청" 버튼 클릭 → 숨겨진 작성 버튼을 대신 눌러 eventwo.js의 열기 로직을 실행한다.
+    // 모달 열기/닫기 + body.modal-open 토글 + 폼 제출 등 모든 흐름은
+    // estimation-regist/event.js가 담당한다. 여기서는 마이페이지의
+    // "견적요청" 버튼이 모달의 숨겨진 작성 버튼(#createPostButton)을
+    // 대신 클릭하도록 다리만 연결해 둔다.
     document.querySelector(".Profile-Edit-Btn.Request")
         ?.addEventListener("click", () => {
             document.getElementById("createPostButton")?.click();

@@ -130,11 +130,26 @@ public class MypageController {
             }
         });
 
+        // 견적요청 모달의 작성자 아바타에 쓰일 로그인 사용자 프로필 이미지.
+        // page 주인의 profileImageUrl과는 별개. 방문자(=작성자) 본인을 표시하기 위함이다.
+        String loginMemberProfileImageUrl = "/images/profile/default_image.png";
+        MemberProfileFileDTO loginProfileFile = memberProfileFileDAO.findByMemberId(loginMember.getId());
+        if (loginProfileFile != null) {
+            try {
+                loginMemberProfileImageUrl = s3Service.getPresignedUrl(
+                        loginProfileFile.getFileName(), Duration.ofMinutes(10));
+            } catch (Exception ignored) {
+                // 변환 실패 시 default_image.png 그대로 둠.
+            }
+        }
+
         // mypage 템플릿에서는 member + 이미지 url 모델을 같이 사용한다.
         model.addAttribute("member", member);
         model.addAttribute("isOwner", isOwner);
         model.addAttribute("isFollowing", isFollowing);
+        model.addAttribute("loginMember", loginMember);
         model.addAttribute("loginMemberId", loginMember.getId());
+        model.addAttribute("loginMemberProfileImageUrl", loginMemberProfileImageUrl);
         model.addAttribute("subscriptionTier", subscriptionTier);
         model.addAttribute("profileImageUrl", profileImageUrl);
         model.addAttribute("bannerImageUrl", bannerImageUrl);

@@ -132,7 +132,7 @@ public class EstimationService {
 
     @Transactional(readOnly = true)
     @LogStatusWithReturn
-    public List<EstimationExpertDTO> getExpertsForRequest(Long memberId, String keyword) {
+    public List<EstimationExpertDTO> getExpertsForRequest(int page, Long memberId, String keyword) {
         if (memberId == null) {
             return List.of();
         }
@@ -142,7 +142,9 @@ public class EstimationService {
             normalizedKeyword = null;
         }
 
-        return estimationDAO.findExpertsForRequest(memberId, normalizedKeyword);
+        // page는 1부터, offset은 (page - 1) * pageSize. 음수는 막는다.
+        int offset = Math.max(0, (page - 1) * 20);
+        return estimationDAO.findExpertsForRequest(memberId, normalizedKeyword, offset);
     }
 
     @Transactional(readOnly = true)
