@@ -485,17 +485,8 @@ window.addEventListener("load", function () {
         const panel = subPanel({
             panel: productSelectModal,
             onOpen: async () => {
-                // 회원이 아직 선택되지 않았으면 안내 후 빈 목록 노출.
-                if (!state.selectedMemberId) {
-                    estimationLayout.showProductList([]);
-                    state.productItems = [];
-                    const empty = document.getElementById("productSelectEmpty");
-                    if (empty) empty.textContent = "먼저 회원을 선택해 주세요";
-                    syncProductSelection();
-                    return;
-                }
                 try {
-                    const products = await estimationService.getProducts(state.selectedMemberId);
+                    const products = await estimationService.getProducts();
                     estimationLayout.showProductList(products);
                     state.productItems = Array.from(
                         productSelectList?.querySelectorAll(".productSelectModal__item") ?? []

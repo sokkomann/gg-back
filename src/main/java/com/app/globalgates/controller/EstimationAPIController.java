@@ -64,9 +64,7 @@ public class EstimationAPIController {
                 page,
                 userDetails != null ? userDetails.getId() : null,
                 keyword);
-
-        // DB의 raw S3 key를 브라우저가 직접 쓸 수 있는 presigned URL로 변환.
-        // mypage가 게시글 프로필 이미지를 변환하는 흐름과 동일한 패턴이다.
+        // 전문가 프로필 이미지를 presigned URL로 내려준다.
         experts.forEach(expert -> {
             if (expert.getMemberProfileFileName() != null && !expert.getMemberProfileFileName().isBlank()) {
                 expert.setMemberProfileFileName(
@@ -78,10 +76,11 @@ public class EstimationAPIController {
     }
 
     @GetMapping("products")
-    public List<PostProductDTO> getProducts(@RequestParam(required = false) Long memberId) {
-        List<PostProductDTO> products = estimationService.getProductsForRequest(memberId);
-
-        // 상품 썸네일도 동일하게 presigned URL로 내려준다.
+    public List<PostProductDTO> getProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<PostProductDTO> products = estimationService.getProductsForRequest(
+                userDetails != null ? userDetails.getId() : null
+        );
+        // 상품 이미지도 presigned URL로 내려준다.
         products.forEach(product -> {
             if (product.getPostFiles() == null || product.getPostFiles().isEmpty()) return;
             product.setPostFiles(

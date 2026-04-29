@@ -35,7 +35,7 @@ public class EstimationController {
 
     @GetMapping("regist")
     public String goToRegist(HttpServletRequest request, Model model) {
-        // 견적요청 모달의 작성자 아바타에 로그인 사용자 프로필을 채워야 한다.
+        // 견적 요청 모달의 작성자 영역에 로그인 사용자 프로필을 표시한다.
         String token = jwtTokenProvider.parseTokenFromHeader(request);
         String loginId = jwtTokenProvider.getUsername(token);
         MemberDTO loginMember = memberService.getMember(loginId);
@@ -47,7 +47,7 @@ public class EstimationController {
                 loginMemberProfileImageUrl = s3Service.getPresignedUrl(
                         loginProfileFile.getFileName(), Duration.ofMinutes(10));
             } catch (Exception ignored) {
-                // 변환 실패 시 default_image.png 그대로 둠.
+                // 변환 실패 시 기본 이미지를 사용한다.
             }
         }
 

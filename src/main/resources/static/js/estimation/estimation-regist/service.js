@@ -1,8 +1,8 @@
 const estimationService = (() => {
 
-    // 선택한 회원의 등록 상품 목록 조회 (견적 요청 대상 회원의 상품)
-    const getProducts = async (memberId, callback) => {
-        const response = await fetch(`/api/estimations/products?memberId=${memberId}`);
+    // 로그인한 사용자의 등록 상품 목록 조회
+    const getProducts = async (callback) => {
+        const response = await fetch("/api/estimations/products");
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -45,7 +45,8 @@ const estimationService = (() => {
             throw new Error(errorText || "Fetch error");
         }
 
-        return await response.json();
+        const text = await response.text();
+        return text ? JSON.parse(text) : true;
     };
 
     return {
