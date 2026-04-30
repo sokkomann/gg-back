@@ -97,6 +97,30 @@ const layout = (() => {
             hashtagHtml = `<div class="postHashtags">${hashtagHtml}</div>`;
         }
 
+        let productHtml = "";
+        if (post.productId) {
+            const productImg = post.productImage || '/images/main/global-gates-logo.png';
+            const productPrice = post.productPrice != null ? post.productPrice.toLocaleString() : "0";
+            const productStock = post.productStock != null ? post.productStock : 0;
+            const productTitle = post.productTitle || "";
+            const productHashtags = post.productHashtags || "";
+            const tagsHtml = productHashtags
+                ? productHashtags.split(",").map(t => `<span class="Category-Tag">#${t}</span>`).join("")
+                : "";
+            productHtml = `      
+                <div class="Post-Product-Info">  
+                    <div class="Post-Product-Image">
+                        <img src="${productImg}">
+                    </div>
+                    <div class="Post-Product-Detail">
+                        <strong class="Post-Title">${productTitle}</strong>
+                        <span name="stock" class="Detail-Value">수량 ${productStock}</span>
+                        <span name="price" class="Detail-Value">개당 ${productPrice}원</span>
+                    </div>
+                </div>
+                    `;
+        }
+
         return `
             <div class="postCard" data-post-id="${post.id}" data-member-id="${post.memberId}">
                 ${avatarHtml}
@@ -143,6 +167,7 @@ const layout = (() => {
                         <span class="postLocation__text">${post.location}</span>
                     </div>` : ''}
                     ${hashtagHtml}
+                    ${productHtml}
                     ${mediaHtml}
                     <footer class="postMetrics">
                         <div class="tweet-action-bar">
