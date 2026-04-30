@@ -16,6 +16,8 @@ from tbl_video_recoding vr
 join tbl_file f on vr.id = f.id;
 
 
+drop view if exists view_post_feed;
+
 -- 게시물 관련된 모든 정보 조회하는 view
 create view view_post_feed as
 select p.id,
@@ -39,11 +41,28 @@ select p.id,
        p.post_read_count,
        bg.badge_type,
        p.community_id,
-       c.community_name
+       c.community_name,
+       rel.product_post_id    as product_id,
+       pp.product_price       as product_price,
+       pp.product_stock       as product_stock,
+       ap.title               as product_title,
+       ap.content             as product_content,
+       (select string_agg(h.tag_name, ',' order by r.id)
+        from tbl_post_hashtag h
+        join tbl_post_hashtag_rel r on h.id = r.hashtag_id
+        where r.post_id = rel.product_post_id) as product_hashtags,
+       (select f.file_path from tbl_post_file pf
+           join tbl_file f on pf.file_id = f.id
+        where pf.post_id = rel.product_post_id
+        order by f.id asc
+        limit 1) as product_image
 from tbl_post p
          join tbl_member m on p.member_id = m.id
          left join tbl_badge bg on bg.member_id = p.member_id
          left join tbl_community c on p.community_id = c.id
+         left join tbl_post_product_rel rel on rel.post_id = p.id
+         left join tbl_post_product pp on pp.id = rel.product_post_id
+         left join tbl_post ap on ap.id = rel.product_post_id
 where p.post_status = 'active'
   and p.reply_post_id is null;
 

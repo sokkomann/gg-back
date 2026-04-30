@@ -54,6 +54,15 @@ public class PostDTO {
     private String communityName;
     private String categoryName;
 
+    // 첨부 상품
+    private Long productId;
+    private int productPrice;
+    private int productStock;
+    private String productTitle;
+    private String productContent;
+    private String productImage;
+    private String productHashtags;
+
     // 속보타입 뉴스
     private String newsTitle;
     private String newsContent;

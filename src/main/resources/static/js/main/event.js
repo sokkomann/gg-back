@@ -978,6 +978,12 @@ window.onload = () => {
             formData.append("location", location);
         }
 
+        // 첨부 상품
+        const attachedProduct = composeCtx.getSelectedProduct();
+        if (attachedProduct) {
+            formData.append("productId", attachedProduct.id);
+        }
+
         // 멘션 handle 전송
         const mentionHandles = collectMentionHandles(composeEditor);
         mentionHandles.forEach((h, i) => {
@@ -1023,7 +1029,7 @@ window.onload = () => {
             const sourceAvatarImg = card.querySelector(".postAvatarImage");
             const sourceInitial = card.querySelector(".postAvatar")?.textContent?.trim() || "?";
 
-            document.getElementById("replyContextButton").textContent = sourceName + " " + sourceHandle + " 님에게 보내는 답글";
+            document.getElementById("replyContextButton").textContent = sourceName + " @" + sourceHandle + " 님에게 보내는 답글";
             document.getElementById("replySourceName").textContent = sourceName;
             document.getElementById("replySourceHandle").textContent = sourceHandle;
             document.getElementById("replySourceTime").textContent = sourceTime;
@@ -1080,6 +1086,11 @@ window.onload = () => {
             const replyFormData = new FormData();
             replyFormData.append("memberId", memberId);
             replyFormData.append("postContent", replyEditor.textContent);
+            // 첨부 상품
+            const attachedProduct = replyCtx.getSelectedProduct();
+            if (attachedProduct) {
+                replyFormData.append("productId", attachedProduct.id);
+            }
             // 멘션 handle 전송
             const replyMentionHandles = collectMentionHandles(replyEditor);
             replyMentionHandles.forEach((h, i) => {
@@ -1329,7 +1340,7 @@ window.onload = () => {
             }
         }
 
-        function addTag(rawTag) {
+        function addTag(rawTag, fromProduct) {
             const tag = (rawTag || "").trim();
             if (!tag) { return false; }
             if (getTagDivs().length >= 5) { alert("태그는 최대 5개까지 추가할 수 있어요"); if (tagField) { tagField.value = ""; } return false; }
@@ -1340,6 +1351,7 @@ window.onload = () => {
             }
             const span = document.createElement("span");
             span.className = "tagDiv";
+            if (fromProduct) { span.setAttribute("data-from-product", "true"); }
             span.textContent = "#" + tag;
             if (tagInput) { tagInput.appendChild(span); }
             if (tagField) { tagField.value = ""; }
@@ -1691,8 +1703,10 @@ window.onload = () => {
         const productList = productView ? productView.querySelector("[data-product-select-list]") : null;
         const productEmpty = productView ? productView.querySelector("[data-product-empty]") : null;
         let selectedProduct = null;
+        let cachedProducts = [];
 
         function renderProductList(products) {
+            cachedProducts = products || [];
             if (!productList) { return; }
             if (!products || products.length === 0) { productList.innerHTML = ""; if (productEmpty) { productEmpty.classList.remove("off"); } return; }
             if (productEmpty) { productEmpty.classList.add("off"); }
@@ -1727,7 +1741,14 @@ window.onload = () => {
                 '<div class="selected-product__info"><strong class="selected-product__name">' + selectedProduct.name + '</strong><span class="selected-product__price">' + selectedProduct.price + '</span></div>' +
                 '<button type="button" class="selected-product__remove"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g></svg></button></div>';
             card.querySelector(".selected-product__remove").addEventListener("click", (e) => {
-                selectedProduct = null; card.remove(); if (productBtn) { productBtn.disabled = false; }
+                selectedProduct = null;
+                card.remove();
+                if (productBtn) { productBtn.disabled = false; }
+                if (tagInput) {
+                    const fromProductTags = tagInput.querySelectorAll('.tagDiv[data-from-product="true"]');
+                    for (let i = 0; i < fromProductTags.length; i++) { fromProductTags[i].remove(); }
+                    syncTagUI();
+                }
             });
             editorWrap.appendChild(card);
         }
@@ -1744,14 +1765,29 @@ window.onload = () => {
             productComplete.addEventListener("click", (e) => {
                 const checkedItem = productList ? productList.querySelector(".draft-panel__item--selected") : null;
                 if (checkedItem) {
+                    const productId = checkedItem.getAttribute("data-product-id");
+                    const product = cachedProducts.find(p => String(p.id) === String(productId));
+                    const productTagCount = product && product.hashtags ? product.hashtags.length : 0;
+
+                    // 합산 5개 초과 검증
+                    if (getTagDivs().length + productTagCount > 5) {
+                        alert("게시글 태그와 상품 태그를 합쳐 최대 5개까지만 가능해요.\n게시글 태그를 줄이거나 다른 상품을 선택하세요.");
+                        return;
+                    }
+
                     selectedProduct = {
                         name: checkedItem.querySelector(".draft-panel__text").textContent,
                         price: checkedItem.querySelector(".draft-panel__date").textContent,
                         image: checkedItem.querySelector(".draft-panel__avatar") ? checkedItem.querySelector(".draft-panel__avatar").src : "",
-                        id: checkedItem.getAttribute("data-product-id")
+                        id: productId
                     };
                     renderSelectedProduct();
                     if (productBtn) { productBtn.disabled = true; }
+
+                    // 상품 태그를 게시글 태그 칩으로 자동 추가 (data-from-product 마킹)
+                    if (product && product.hashtags) {
+                        product.hashtags.forEach(h => addTag(h.tagName, true));
+                    }
                 }
                 backToCompose();
             });

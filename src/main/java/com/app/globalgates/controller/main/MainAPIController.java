@@ -69,6 +69,7 @@ public class MainAPIController implements MainAPIControllerDocs {
                     }
                 });
                 convertProfileUrl(post);
+                convertProductImageUrl(post);
         });
         return result;
     }
@@ -182,6 +183,10 @@ public class MainAPIController implements MainAPIControllerDocs {
         replies.forEach(reply -> {
             convertPostFilesUrl(reply);
             convertProfileUrl(reply);
+            convertProductImageUrl(reply);
+            if (reply.getSubReplies() != null) {
+                reply.getSubReplies().forEach(sub -> convertProductImageUrl(sub));
+            }
         });
         return replies;
     }
@@ -435,6 +440,17 @@ public class MainAPIController implements MainAPIControllerDocs {
         }
         if (post.getSubReplies() != null) {
             post.getSubReplies().forEach(sub -> convertPostFilesUrl(sub));
+        }
+    }
+
+    // 첨부 상품 이미지 URL 변환 ──
+    private void convertProductImageUrl(PostDTO post) {
+        if (post.getProductImage() != null) {
+            try {
+                post.setProductImage(s3Service.getPresignedUrl(post.getProductImage(), Duration.ofMinutes(10)));
+            } catch (IOException e) {
+                throw new RuntimeException("Presigned URL 생성 실패", e);
+            }
         }
     }
 
