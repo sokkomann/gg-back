@@ -283,7 +283,19 @@ public class MainAPIController implements MainAPIControllerDocs {
     @LogStatusWithReturn
     public List<PostProductDTO> getMyProducts(@PathVariable Long memberId) {
         log.info("내 판매품목 조회해요 내아이디(memberId): {}", memberId);
-        return postProductService.getMyProducts(memberId);
+        List<PostProductDTO> products = postProductService.getMyProducts(memberId);
+        products.forEach(product -> {
+            List<String> presigned = new ArrayList<>();
+            product.getPostFiles().forEach(key -> {
+                try {
+                    presigned.add(s3Service.getPresignedUrl(key, Duration.ofMinutes(10)));
+                } catch (IOException e) {
+                    // 변환 실패 키는 생략
+                }
+            });
+            product.setPostFiles(presigned);
+        });
+        return products;
     }
 
 

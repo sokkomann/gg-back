@@ -1713,7 +1713,7 @@ window.onload = () => {
             let html = "";
             for (let i = 0; i < products.length; i++) {
                 const p = products[i];
-                const img = (p.postFiles && p.postFiles.length > 0) ? p.postFiles[0].filePath : "";
+                const img = (p.postFiles && p.postFiles.length > 0) ? p.postFiles[0] : "";
                 const tags = (p.hashtags && p.hashtags.length > 0) ? p.hashtags.map(t => "#" + t.tagName).join(" ") : "";
                 html += '<button type="button" class="draft-panel__item draft-panel__item--selectable" data-product-id="' + p.id + '">' +
                     '<span class="draft-panel__checkbox"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M9 20c-.264 0-.518-.104-.707-.293l-4.785-4.785 1.414-1.414L9 17.586 19.072 7.5l1.42 1.416L9.708 19.7c-.188.19-.442.3-.708.3z"></path></g></svg></span>' +

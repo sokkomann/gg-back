@@ -2020,6 +2020,7 @@ a.post-detail-reply-card {
     inset: 0;
     z-index: 1200;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 16px;
@@ -2244,7 +2245,7 @@ a.post-detail-reply-card {
 .draft-panel__empty {
     max-width: 360px;
     margin: 0 auto;
-    padding: 40px 29px 0;
+    padding: 40px 29px;
 }
 
 .draft-panel__empty-title {
@@ -2259,6 +2260,10 @@ a.post-detail-reply-card {
     font-size: 15px;
     line-height: 20px;
     color: #536471;
+}
+
+.draft-panel__empty.off {
+    display: none;
 }
 
 /* ── 선택된 상품 카드 ────────────────────────────────────────── */
