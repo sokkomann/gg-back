@@ -374,6 +374,18 @@ public class PostService {
             relDTO.setPostId(postDTO.getId());
             relDTO.setProductPostId(postDTO.getProductId());
             postProductRelDAO.save(relDTO);
+
+            // 답글 모달에는 태그 입력 영역이 없으므로
+            // 상품 태그를 답글 태그로 서버에서 자동 복사 (이미 들어온 태그와 중복되면 스킵)
+            List<Long> existingHashtagIds = new ArrayList<>();
+            if (postDTO.getHashtags() != null) {
+                postDTO.getHashtags().forEach(h -> existingHashtagIds.add(h.getId()));
+            }
+            postHashtagDAO.findAllByPostId(postDTO.getProductId()).forEach(tag -> {
+                if (!existingHashtagIds.contains(tag.getId())) {
+                    postHashtagDAO.saveRel(postDTO.getId(), tag.getId());
+                }
+            });
         }
     }
 

@@ -1351,6 +1351,18 @@ window.onload = () => {
         window.history.back();
     });
 
+    // 댓글 카드 안 해시태그(span) 클릭 시 검색 페이지로 이동 (outer <a> 카드 클릭 차단)
+    // 본문의 <a class="postHashtag">는 data-keyword 없으므로 default 동작 그대로 둠
+    document.addEventListener("click", (e) => {
+        const tag = e.target.closest(".postHashtag");
+        if (!tag) return;
+        const keyword = tag.dataset.keyword;
+        if (!keyword) return;
+        e.preventDefault();
+        e.stopPropagation();
+        location.href = `/explore/search?keyword=${encodeURIComponent(keyword)}`;
+    });
+
     // ── 10. ESC / 스크롤 시 메뉴 닫기 ──
     document.addEventListener("keydown", (e) => {
         if (e.key !== "Escape") return;

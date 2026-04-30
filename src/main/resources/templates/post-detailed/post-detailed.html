@@ -87,11 +87,6 @@
                             <img th:src="${post.productImage != null ? post.productImage : '/images/main/global-gates-logo.png'}">
                         </div>
                         <div class="Post-Product-Detail">
-                            <div class="Detail-Category-Tags">
-                                <span th:if="${post.productHashtags != null and post.productHashtags != ''}"
-                                      th:each="tag : ${#strings.arraySplit(post.productHashtags, ',')}"
-                                      class="Category-Tag" th:text="'#' + ${tag}"></span>
-                            </div>
                             <span name="stock" class="Detail-Value" th:text="'수량 ' + ${post.productStock}"></span>
                             <span name="price" class="Detail-Value" th:text="'개당 ' + ${#numbers.formatInteger(post.productPrice, 0, 'COMMA')} + '원'"></span>
                         </div>

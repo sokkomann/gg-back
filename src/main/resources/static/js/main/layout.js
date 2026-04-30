@@ -107,15 +107,13 @@ const layout = (() => {
             const tagsHtml = productHashtags
                 ? productHashtags.split(",").map(t => `<span class="Category-Tag">#${t}</span>`).join("")
                 : "";
-            productHtml = `
-                <strong class="Post-Title">${productTitle}</strong>       
+            productHtml = `      
                 <div class="Post-Product-Info">  
                     <div class="Post-Product-Image">
                         <img src="${productImg}">
                     </div>
-                    <div class="Post-Product-Detail">   
-                        <div class="Detail-Category-Tags">${tagsHtml}
-                         </div>
+                    <div class="Post-Product-Detail">
+                        <strong class="Post-Title">${productTitle}</strong>
                         <span name="stock" class="Detail-Value">수량 ${productStock}</span>
                         <span name="price" class="Detail-Value">개당 ${productPrice}원</span>
                     </div>

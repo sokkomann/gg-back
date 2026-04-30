@@ -1086,6 +1086,11 @@ window.onload = () => {
             const replyFormData = new FormData();
             replyFormData.append("memberId", memberId);
             replyFormData.append("postContent", replyEditor.textContent);
+            // 위치
+            const replyLocation = replyCtx.getSelectedLocation();
+            if (replyLocation) {
+                replyFormData.append("location", replyLocation);
+            }
             // 첨부 상품
             const attachedProduct = replyCtx.getSelectedProduct();
             if (attachedProduct) {
