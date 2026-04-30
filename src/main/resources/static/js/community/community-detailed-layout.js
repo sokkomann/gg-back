@@ -75,11 +75,6 @@ const CommunityDetailLayout = {
 
         return `
         <article class="postCard communityPostCard" data-post-id="${post.id}" data-member-id="${post.memberId}" data-is-followed="${post.isFollowed ? 'true' : 'false'}">
-            <div class="communityPostMeta">
-                <span class="communityPostMeta__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><path d="M7.471 21H.472l.029-1.027c.184-6.618 3.736-8.977 7-8.977.963 0 1.95.212 2.87.672-.761.992-1.339 2.159-1.693 3.46-.349 1.284-.449 2.637-.283 3.872H7.471zm-3.59-2h1.79c.281-3.072 1.985-5.606 4.476-6.726A5.7 5.7 0 0 0 7.5 12.004c-2.246 0-4.86 1.607-5.06 6.996h.441zM7.5 12.002c-2.59 0-4.669-2.108-4.669-4.699C2.831 4.681 4.91 2.58 7.5 2.58c2.59 0 4.668 2.1 4.668 4.723 0 2.591-2.078 4.699-4.668 4.699zm0-7.39a2.67 2.67 0 0 0-2.669 2.691c0 1.481 1.192 2.699 2.669 2.699 1.477 0 2.668-1.218 2.668-2.699A2.67 2.67 0 0 0 7.5 4.612zM21.412 21H13.56l.03-1.027c.184-6.618 3.736-8.977 7-8.977s6.816 2.358 7 8.977L27.62 21h-6.208zm-5.443-2h7.893c-.2-5.389-2.815-6.996-5.06-6.996-2.246 0-4.86 1.607-5.06 6.996h2.227zm2.803-7.998c-2.59 0-4.669-2.108-4.669-4.699 0-2.622 2.078-4.723 4.669-4.723 2.59 0 4.668 2.1 4.668 4.723 0 2.591-2.078 4.699-4.668 4.699zm0-7.39a2.67 2.67 0 0 0-2.669 2.691c0 1.481 1.192 2.699 2.669 2.699 1.477 0 2.668-1.218 2.668-2.699a2.67 2.67 0 0 0-2.668-2.691z"></path></svg>
-                </span>
-            </div>
             <div class="postAvatar">
                 <img class="postAvatarImage" src="${post.memberProfileFileName || '/images/profile/default_image.png'}" alt="" onerror="this.src='/images/profile/default_image.png'">
             </div>

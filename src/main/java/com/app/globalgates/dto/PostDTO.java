@@ -54,6 +54,9 @@ public class PostDTO {
     private String communityName;
     private String categoryName;
 
+    // 첨부된 판매글 (게시 시 클라이언트가 전달)
+    private Long productPostId;
+
     // 속보타입 뉴스
     private String newsTitle;
     private String newsContent;

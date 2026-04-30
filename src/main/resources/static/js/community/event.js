@@ -34,7 +34,7 @@ window.onload = () => {
         chip.classList.add(chip.dataset.isSub ? "sub-active" : "active");
     };
 
-    document.querySelector(".communityTopbar .communityIconButton")?.addEventListener("click", () => history.back());
+    document.querySelector('.communityTopbar .communityIconButton[aria-label="뒤로 가기"]')?.addEventListener("click", () => window.history.back());
 
     // ===== 새 커뮤니티 만들기 모달 =====
     const createCommunityModal   = document.querySelector("[data-create-community-modal]");
@@ -1434,36 +1434,6 @@ window.onload = () => {
         path.setAttribute("d", isActive ? (path.dataset.pathActive ?? path.getAttribute("d")) : (path.dataset.pathInactive ?? path.getAttribute("d")));
     }
 
-    function getShareUserRows() {
-        const cards = document.querySelectorAll(".communityPostCard"), seen = new Set();
-        const users = Array.from(cards).map((card, i) => {
-            const name = card.querySelector(".postName")?.textContent?.trim() ?? "";
-            const handle = card.querySelector(".postHandle")?.textContent?.trim() ?? "";
-            const avatar = card.querySelector(".postAvatar img")?.getAttribute("src") ?? "";
-            if (!name || !handle || seen.has(handle)) return null;
-            seen.add(handle);
-            return { id: `${handle.replace("@", "") || "user"}-${i}`, name, handle, avatar };
-        }).filter(Boolean);
-        if (users.length === 0) return `<div class="share-sheet__empty"><p>전송할 수 있는 사용자가 없습니다.</p></div>`;
-        return users.map(u => `<button type="button" class="share-sheet__user" data-share-user-id="${escapeHtml(u.id)}"><span class="share-sheet__user-avatar"><img src="${escapeHtml(u.avatar)}" alt="${escapeHtml(u.name)}" /></span><span class="share-sheet__user-body"><span class="share-sheet__user-name">${escapeHtml(u.name)}</span><span class="share-sheet__user-handle">${escapeHtml(u.handle)}</span></span></button>`).join("");
-    }
-
-    function openShareChatModal(button) {
-        closeShareDropdown(); closeShareModal();
-        const modal = document.createElement("div");
-        modal.className = "share-sheet";
-        modal.innerHTML = `<div class="share-sheet__backdrop" data-share-close="true"></div><div class="share-sheet__card" role="dialog" aria-modal="true" aria-labelledby="share-chat-title"><div class="share-sheet__header"><button type="button" class="share-sheet__icon-btn" data-share-close="true" aria-label="돌아가기"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path></g></svg></button><h2 id="share-chat-title" class="share-sheet__title">공유하기</h2><span class="share-sheet__header-spacer"></span></div><div class="share-sheet__search"><input type="text" class="share-sheet__search-input" placeholder="검색" aria-label="검색" /></div><div class="share-sheet__list">${getShareUserRows()}</div></div>`;
-        modal.addEventListener("click", (e) => {
-            if (e.target.closest("[data-share-close='true']") || e.target.classList.contains("share-sheet__backdrop")) { e.preventDefault(); closeShareModal(); return; }
-            if (e.target.closest(".share-sheet__user")) {
-                e.preventDefault();
-                const userName = e.target.closest(".share-sheet__user")?.querySelector(".share-sheet__user-name")?.textContent || "사용자";
-                showShareToast(`${userName}에게 전송함`); closeShareModal();
-            }
-        });
-        document.body.appendChild(modal); document.body.classList.add("modal-open"); activeShareModal = modal;
-    }
-
     function openShareBookmarkModal(button) {
         const { bookmarkButton } = getSharePostMeta(button);
         closeShareDropdown(); closeShareModal();
@@ -1500,7 +1470,6 @@ window.onload = () => {
             if (!item) { e.stopPropagation(); return; }
             e.preventDefault(); e.stopPropagation();
             if (item.classList.contains("share-menu-item--copy")) { copyShareLink(activeShareButton ?? button); return; }
-            if (item.classList.contains("share-menu-item--chat")) { openShareChatModal(activeShareButton ?? button); return; }
             if (item.classList.contains("share-menu-item--bookmark")) { openShareBookmarkModal(activeShareButton ?? button); return; }
             closeShareDropdown();
         });

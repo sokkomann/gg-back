@@ -22,6 +22,8 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
     private final PostLikeService postLikeService;
     private final BookmarkService bookmarkService;
     private final NewsService newsService;
+    private final NewsLikeService newsLikeService;
+    private final NewsBookmarkService newsBookmarkService;
     private final SearchService searchService;
 
 //    추천 상품 목록 조회
@@ -34,7 +36,8 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
 
 //    뉴스 목록 조회
     @GetMapping("news")
-    public ResponseEntity<?> getNews() {
+    public ResponseEntity<?> getNews(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long memberId = userDetails != null ? userDetails.getId() : null;
         List<NewsDTO> newsList = newsService.getNewsList();
         List<NewsDTO> response = newsList.stream().map(source -> {
             NewsDTO copy = new NewsDTO();
@@ -48,6 +51,10 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
             copy.setPublishedAt(source.getPublishedAt());
             copy.setUpdatedDatetime(source.getUpdatedDatetime());
             copy.setCreatedDatetime(DateUtils.toRelativeTime(source.getCreatedDatetime()));
+            copy.setLikeCount(newsLikeService.getLikeCount(source.getId()));
+            copy.setBookmarkCount(newsBookmarkService.getBookmarkCount(source.getId()));
+            copy.setLiked(memberId != null && newsLikeService.getLike(memberId, source.getId()).isPresent());
+            copy.setBookmarked(memberId != null && newsBookmarkService.getBookmark(memberId, source.getId()).isPresent());
             return copy;
         }).toList();
         return ResponseEntity.ok(response);

@@ -127,15 +127,18 @@ public class BookmarkRestController implements BookmarkRestControllerDocs {
 
     private void applyPostFiles(List<BookmarkDTO> bookmarks) {
         bookmarks.forEach(b -> {
-            List<PostFileDTO> files = postFileDAO.findAllByPostId(b.getPostId());
-            b.setPostFiles(files);
-            files.forEach(pf -> {
-                try {
-                    pf.setFilePath(s3Service.getPresignedUrl(pf.getFilePath(), Duration.ofMinutes(10)));
-                } catch (IOException e) {
-                    log.warn("Presigned URL 생성 실패: {}", pf.getFilePath());
-                }
-            });
+            // 뉴스 북마크는 첨부파일이 없고 postId도 null이므로 스킵
+            if (b.getPostId() != null) {
+                List<PostFileDTO> files = postFileDAO.findAllByPostId(b.getPostId());
+                b.setPostFiles(files);
+                files.forEach(pf -> {
+                    try {
+                        pf.setFilePath(s3Service.getPresignedUrl(pf.getFilePath(), Duration.ofMinutes(10)));
+                    } catch (IOException e) {
+                        log.warn("Presigned URL 생성 실패: {}", pf.getFilePath());
+                    }
+                });
+            }
             if (b.getMemberProfileFileName() != null) {
                 try {
                     b.setMemberProfileFileName(s3Service.getPresignedUrl(b.getMemberProfileFileName(), Duration.ofMinutes(10)));
