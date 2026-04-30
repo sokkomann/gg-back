@@ -452,8 +452,17 @@ window.onload = () => {
         selectStageOneRoom(targetRoom);
     }
 
-    // 4-6.뒤로가기 버튼
-    backBtn.addEventListener("click", () => closeChatRoom());
+    // 4-6.뒤로가기 버튼: 직전 페이지로 이동
+    backBtn.addEventListener("click", () => {
+        // 모바일에서 채팅방이 열려 있으면 URL 정리만 하고 그대로 history.back
+        if (typeof currentRoomId !== "undefined" && currentRoomId) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete("conversationId");
+            url.searchParams.delete("partnerId");
+            window.history.replaceState({}, "", url.toString());
+        }
+        window.history.back();
+    });
 
     // 4-7.반응형 리사이즈 처리
     window.addEventListener("resize", () => {

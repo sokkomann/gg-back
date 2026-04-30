@@ -20,13 +20,13 @@ public class NewsBookmarkService {
     private final NewsBookmarkDAO newsBookmarkDAO;
 
     @LogStatus
-    @CacheEvict(value = {"news:list", "news"}, allEntries = true)
+    @CacheEvict(value = {"news:list", "news", "bookmark:list"}, allEntries = true)
     public void addBookmark(NewsBookmarkDTO newsBookmarkDTO) {
         newsBookmarkDAO.save(newsBookmarkDTO);
     }
 
     @LogStatus
-    @CacheEvict(value = {"news:list", "news"}, allEntries = true)
+    @CacheEvict(value = {"news:list", "news", "bookmark:list"}, allEntries = true)
     public void deleteBookmark(Long memberId, Long newsId) {
         newsBookmarkDAO.deleteByMemberIdAndNewsId(memberId, newsId);
     }

@@ -416,64 +416,284 @@ window.onload = () => {
       if (e.key === "Escape") closePreview();
   });
 
-  // ─── 게시글 작성 폼 셋업 ───
-  function setupPostForm() {
-      const form = document.getElementById("communityPostForm");
-      if (!form) return;
+  // ─── 게시글 작성 모달 (FAB) — 메인 페이지와 동일한 tweet-modal ───
+  const composeOverlay = document.querySelector("[data-community-compose-modal]");
+  const composeEditor = composeOverlay?.querySelector(".tweet-modal__editor");
+  const composeSubmitBtn = composeOverlay?.querySelector("[data-community-compose-submit]");
+  const composeGaugeText = composeOverlay?.querySelector("[data-community-compose-gauge-text]");
+  const composeGauge = composeOverlay?.querySelector("[data-community-compose-gauge]");
+  const composeFileBtn = composeOverlay?.querySelector("[data-community-compose-file-btn]");
+  const composeFileInput = composeOverlay?.querySelector("[data-community-compose-file-input]");
+  const composeAttachPreview = composeOverlay?.querySelector("[data-community-compose-attachment-preview]");
+  const composeAttachMedia = composeOverlay?.querySelector("[data-community-compose-attachment-media]");
+  const composeProductBtn = composeOverlay?.querySelector("[data-community-compose-product-btn]");
+  const composeProductView = composeOverlay?.querySelector("[data-community-compose-product-view]");
+  const composeProductClose = composeOverlay?.querySelector("[data-community-compose-product-close]");
+  const composeProductComplete = composeOverlay?.querySelector("[data-community-compose-product-complete]");
+  const composeProductList = composeOverlay?.querySelector("[data-community-compose-product-list]");
+  const composeProductEmpty = composeOverlay?.querySelector("[data-community-compose-product-empty]");
+  const composeMainView = composeOverlay?.querySelector(".tweet-modal__compose-view");
+  const composeEmojiBtn = composeOverlay?.querySelector("[data-community-compose-emoji-btn]");
+  const composeMaxLength = 500;
+  let composeAttachedFiles = [];
+  let composeAttachedUrls = [];
+  let composeSelectedProduct = null;
+  let composeEmojiPicker = null;
 
-      const contentDiv = form.querySelector("[contenteditable]");
-      const submitBtn = form.querySelector(".communityPostComposer__submit");
-      const fileInput = form.querySelector("input[name='files']");
-      const filePreview = document.getElementById("filePreview");
-
-      contentDiv?.addEventListener("input", () => {
-          const hasContent = contentDiv.textContent.trim().length > 0;
-          if (submitBtn) submitBtn.disabled = !hasContent;
-      });
-
-      fileInput?.addEventListener("change", () => {
-          if (!filePreview) return;
-          filePreview.innerHTML = "";
-          Array.from(fileInput.files).forEach(file => {
-              if (!file.type.startsWith("image/")) return;
-              const reader = new FileReader();
-              reader.onload = (ev) => {
-                  const img = document.createElement("img");
-                  img.src = ev.target.result;
-                  img.className = "communityPostComposer__previewImg";
-                  filePreview.appendChild(img);
-              };
-              reader.readAsDataURL(file);
-          });
-      });
-
-      form.addEventListener("submit", async (ev) => {
-          ev.preventDefault();
-          const formData = new FormData();
-          formData.append("postTitle", form.querySelector("[name='postTitle']").value);
-          formData.append("postContent", contentDiv.textContent.trim());
-          if (fileInput?.files) {
-              Array.from(fileInput.files).forEach(f => formData.append("files", f));
-          }
-
-          try {
-              await CommunityDetailService.createPost(communityId, formData);
-              form.reset();
-              contentDiv.textContent = "";
-              if (filePreview) filePreview.innerHTML = "";
-              if (submitBtn) submitBtn.disabled = true;
-              detailState.posts = { page: 1, isLoading: false, hasMore: true };
-              detailState.latest = { page: 1, isLoading: false, hasMore: true };
-              if (postFeedSection) postFeedSection.innerHTML = "";
-              if (latestFeedSection) latestFeedSection.innerHTML = "";
-              setupInfiniteScroll(postFeedSection, loadPosts, detailState.posts);
-              setupInfiniteScroll(latestFeedSection, loadLatestPosts, detailState.latest);
-              loadPosts();
-          } catch (err) {
-              console.error("게시글 작성 실패:", err);
-          }
-      });
+  function clearComposeAttachUrls() {
+      composeAttachedUrls.forEach(u => { try { URL.revokeObjectURL(u); } catch {} });
+      composeAttachedUrls = [];
   }
+
+  function renderComposeAttachment() {
+      if (!composeAttachMedia || !composeAttachPreview) return;
+      if (composeAttachedFiles.length === 0) {
+          composeAttachMedia.innerHTML = "";
+          composeAttachPreview.hidden = true;
+          return;
+      }
+      composeAttachPreview.hidden = false;
+      clearComposeAttachUrls();
+      composeAttachedUrls = composeAttachedFiles.map(f => URL.createObjectURL(f));
+      const cell = (i, url, cls, isVideo, type) => {
+          const media = isVideo
+              ? `<video class="tweet-modal__attachment-video" controls preload="metadata"><source src="${url}" type="${type}"></video>`
+              : `<div class="media-bg" style="background-image:url('${url}');"></div><img src="${url}" class="media-img" />`;
+          return `<div class="media-cell ${cls}"><div class="media-cell-inner"><div class="media-img-container">${media}</div><button type="button" class="media-btn-delete" data-community-compose-remove-index="${i}"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g></svg></button></div></div>`;
+      };
+      const n = composeAttachedFiles.length;
+      const isVid = composeAttachedFiles[0].type.startsWith("video/");
+      let html = "";
+      if (isVid) {
+          html = `<div class="media-aspect-ratio media-aspect-ratio--single"></div><div class="media-absolute-layer">${cell(0, composeAttachedUrls[0], "media-cell--single", true, composeAttachedFiles[0].type)}</div>`;
+      } else if (n === 1) {
+          html = `<div class="media-aspect-ratio media-aspect-ratio--single"></div><div class="media-absolute-layer">${cell(0, composeAttachedUrls[0], "media-cell--single", false)}</div>`;
+      } else if (n === 2) {
+          html = `<div class="media-aspect-ratio"></div><div class="media-absolute-layer"><div class="media-row"><div class="media-col">${cell(0, composeAttachedUrls[0], "media-cell--left", false)}</div><div class="media-col">${cell(1, composeAttachedUrls[1], "media-cell--right", false)}</div></div></div>`;
+      } else if (n === 3) {
+          html = `<div class="media-aspect-ratio"></div><div class="media-absolute-layer"><div class="media-row"><div class="media-col">${cell(0, composeAttachedUrls[0], "media-cell--left-tall", false)}</div><div class="media-col">${cell(1, composeAttachedUrls[1], "media-cell--right-top", false)}${cell(2, composeAttachedUrls[2], "media-cell--right-bottom", false)}</div></div></div>`;
+      } else {
+          html = `<div class="media-aspect-ratio"></div><div class="media-absolute-layer"><div class="media-row"><div class="media-col">${cell(0, composeAttachedUrls[0], "media-cell--top-left", false)}${cell(2, composeAttachedUrls[2], "media-cell--bottom-left", false)}</div><div class="media-col">${cell(1, composeAttachedUrls[1], "media-cell--top-right", false)}${cell(3, composeAttachedUrls[3], "media-cell--bottom-right", false)}</div></div></div>`;
+      }
+      composeAttachMedia.innerHTML = html;
+  }
+
+  function renderComposeSelectedProduct() {
+      composeOverlay?.querySelector("[data-community-compose-selected-product]")?.remove();
+      if (!composeSelectedProduct || !composeEditor) return;
+      const wrap = composeEditor.parentElement; if (!wrap) return;
+      const card = document.createElement("div");
+      card.setAttribute("data-community-compose-selected-product", "");
+      card.className = "tweet-modal__selected-product";
+      const img = composeSelectedProduct.image ? `<img class="selected-product__image" src="${composeSelectedProduct.image}" alt="">` : "";
+      card.innerHTML = `<div class="selected-product__card">${img}<div class="selected-product__info"><strong class="selected-product__name">${composeSelectedProduct.name}</strong><span class="selected-product__price">${composeSelectedProduct.price}</span></div><button type="button" class="selected-product__remove" aria-label="판매글 제거"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><g><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path></g></svg></button></div>`;
+      card.querySelector(".selected-product__remove")?.addEventListener("click", () => {
+          composeSelectedProduct = null;
+          card.remove();
+          if (composeProductBtn) composeProductBtn.disabled = false;
+      });
+      wrap.appendChild(card);
+  }
+
+  function renderComposeProductList(products) {
+      if (!composeProductList) return;
+      if (!products || products.length === 0) {
+          composeProductList.innerHTML = "";
+          if (composeProductEmpty) composeProductEmpty.hidden = false;
+          return;
+      }
+      if (composeProductEmpty) composeProductEmpty.hidden = true;
+      composeProductList.innerHTML = products.map(p => {
+          const img = (p.postFiles && p.postFiles.length > 0) ? p.postFiles[0].filePath : "";
+          const tags = (p.hashtags && p.hashtags.length > 0) ? p.hashtags.map(t => "#" + t.tagName).join(" ") : "";
+          const price = (p.productPrice ?? 0).toLocaleString();
+          const stock = p.productStock ?? 0;
+          return `<button type="button" class="draft-panel__item draft-panel__item--selectable" data-product-id="${p.id}" aria-pressed="false"><span class="draft-panel__checkbox"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M9 20c-.264 0-.518-.104-.707-.293l-4.785-4.785 1.414-1.414L9 17.586 19.072 7.5l1.42 1.416L9.708 19.7c-.188.19-.442.3-.708.3z"></path></g></svg></span>${img ? `<img class="draft-panel__avatar" src="${img}">` : ''}<span class="draft-panel__item-body"><span class="draft-panel__text">${p.postTitle ?? ''}</span><span class="draft-panel__meta">${tags}</span><span class="draft-panel__date">₩${price} · ${stock}개</span></span></button>`;
+      }).join("");
+  }
+
+  function showComposeProductView() {
+      if (composeMainView) composeMainView.hidden = true;
+      if (composeProductView) composeProductView.hidden = false;
+  }
+  function backToComposeMainView() {
+      if (composeProductView) composeProductView.hidden = true;
+      if (composeMainView) composeMainView.hidden = false;
+  }
+
+  function resetComposeModal() {
+      if (composeEditor) composeEditor.innerHTML = "";
+      if (composeGaugeText) { composeGaugeText.textContent = composeMaxLength; composeGaugeText.style.color = ""; }
+      if (composeGauge) composeGauge.style.setProperty("--gauge-progress", "0deg");
+      if (composeSubmitBtn) composeSubmitBtn.disabled = true;
+      composeAttachedFiles = [];
+      clearComposeAttachUrls();
+      if (composeAttachMedia) composeAttachMedia.innerHTML = "";
+      if (composeAttachPreview) composeAttachPreview.hidden = true;
+      if (composeFileInput) composeFileInput.value = "";
+      composeSelectedProduct = null;
+      composeOverlay?.querySelector("[data-community-compose-selected-product]")?.remove();
+      if (composeProductBtn) composeProductBtn.disabled = false;
+      if (composeProductList) composeProductList.querySelectorAll(".draft-panel__item--selected").forEach(el => { el.classList.remove("draft-panel__item--selected"); el.setAttribute("aria-pressed", "false"); el.querySelector(".draft-panel__checkbox")?.classList.remove("draft-panel__checkbox--checked"); });
+      if (composeProductComplete) composeProductComplete.disabled = true;
+      backToComposeMainView();
+  }
+
+  function openComposeModal() {
+      if (!composeOverlay) return;
+      composeOverlay.classList.remove("off");
+      document.body.classList.add("modal-open");
+      window.requestAnimationFrame(() => composeEditor?.focus());
+  }
+  function closeComposeModal() {
+      if (!composeOverlay) return;
+      composeOverlay.classList.add("off");
+      document.body.classList.remove("modal-open");
+      resetComposeModal();
+  }
+
+  composeOverlay?.addEventListener("click", (e) => {
+      if (e.target === composeOverlay) { closeComposeModal(); return; }
+      if (e.target.closest("[data-community-compose-close]")) { closeComposeModal(); return; }
+  });
+  document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || !composeOverlay || composeOverlay.classList.contains("off")) return;
+      if (composeProductView && !composeProductView.hidden) { backToComposeMainView(); return; }
+      closeComposeModal();
+  });
+
+  // 입력 → 게이지/제출 동기화
+  composeEditor?.addEventListener("input", () => {
+      const length = composeEditor.textContent.length;
+      const remaining = composeMaxLength - length;
+      if (composeGaugeText) composeGaugeText.textContent = remaining;
+      if (composeGauge) {
+          const ratio = Math.min(length / composeMaxLength, 1);
+          composeGauge.style.setProperty("--gauge-progress", `${ratio * 360}deg`);
+      }
+      if (composeGaugeText) {
+          if (remaining < 0) composeGaugeText.style.color = "rgb(244, 33, 46)";
+          else if (remaining < 20) composeGaugeText.style.color = "rgb(255, 173, 31)";
+          else composeGaugeText.style.color = "";
+      }
+      if (composeSubmitBtn) composeSubmitBtn.disabled = length === 0 || remaining < 0;
+  });
+
+  // 파일 첨부
+  composeFileBtn?.addEventListener("click", (e) => { e.preventDefault(); composeFileInput?.click(); });
+  composeFileInput?.addEventListener("change", (e) => {
+      const next = Array.from(e.target.files ?? []);
+      if (next.length === 0) return;
+      const MAX_FILE_SIZE = 10 * 1024 * 1024;
+      for (const f of next) {
+          if (f.size > MAX_FILE_SIZE) { showToast("10MB 이하 파일만 업로드 가능합니다"); e.target.value = ""; return; }
+          if (!f.type.startsWith("image/") && !f.type.startsWith("video/")) { showToast("이미지 또는 동영상만 업로드 가능합니다"); e.target.value = ""; return; }
+      }
+      const vid = next.find(f => f.type.startsWith("video/"));
+      if (vid) composeAttachedFiles = [vid];
+      else composeAttachedFiles = [...composeAttachedFiles.filter(f => f.type.startsWith("image/")), ...next.filter(f => f.type.startsWith("image/"))].slice(0, 4);
+      e.target.value = "";
+      renderComposeAttachment();
+  });
+  composeAttachMedia?.addEventListener("click", (e) => {
+      const rm = e.target.closest("[data-community-compose-remove-index]");
+      if (!rm) return;
+      const idx = parseInt(rm.getAttribute("data-community-compose-remove-index"), 10);
+      if (idx >= 0) {
+          composeAttachedFiles = composeAttachedFiles.filter((_, i) => i !== idx);
+          renderComposeAttachment();
+      }
+  });
+
+  // 판매글 선택
+  composeProductBtn?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+          const products = await fetch(`/api/main/products/members/${memberId}`).then(r => r.ok ? r.json() : []);
+          renderComposeProductList(products);
+      } catch (err) {
+          console.error("상품 목록 조회 실패:", err);
+          renderComposeProductList([]);
+      }
+      showComposeProductView();
+  });
+  composeProductClose?.addEventListener("click", () => backToComposeMainView());
+  composeProductList?.addEventListener("click", (e) => {
+      const item = e.target.closest(".draft-panel__item"); if (!item) return;
+      const wasSelected = item.classList.contains("draft-panel__item--selected");
+      composeProductList.querySelectorAll(".draft-panel__item--selected").forEach(el => {
+          el.classList.remove("draft-panel__item--selected");
+          el.setAttribute("aria-pressed", "false");
+          el.querySelector(".draft-panel__checkbox")?.classList.remove("draft-panel__checkbox--checked");
+      });
+      if (!wasSelected) {
+          item.classList.add("draft-panel__item--selected");
+          item.setAttribute("aria-pressed", "true");
+          item.querySelector(".draft-panel__checkbox")?.classList.add("draft-panel__checkbox--checked");
+      }
+      if (composeProductComplete) composeProductComplete.disabled = !composeProductList.querySelector(".draft-panel__item--selected");
+  });
+  composeProductComplete?.addEventListener("click", () => {
+      const checkedItem = composeProductList?.querySelector(".draft-panel__item--selected");
+      if (checkedItem) {
+          composeSelectedProduct = {
+              id: checkedItem.dataset.productId ?? "",
+              name: checkedItem.querySelector(".draft-panel__text")?.textContent ?? "",
+              price: checkedItem.querySelector(".draft-panel__date")?.textContent ?? "",
+              image: checkedItem.querySelector(".draft-panel__avatar")?.src ?? "",
+          };
+          renderComposeSelectedProduct();
+          if (composeProductBtn) composeProductBtn.disabled = true;
+      }
+      backToComposeMainView();
+  });
+
+  // 이모지
+  composeEmojiBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (typeof EmojiButton === "undefined" || !composeEditor) return;
+      if (!composeEmojiPicker) {
+          composeEmojiPicker = new EmojiButton({ position: "top-start", rootElement: composeOverlay.querySelector(".tweet-modal") });
+          composeEmojiPicker.on("emoji", (emoji) => {
+              composeEditor.focus();
+              const text = (typeof emoji === "string") ? emoji : (emoji?.emoji ?? "");
+              if (!text) return;
+              document.execCommand("insertText", false, text);
+              composeEditor.dispatchEvent(new Event("input"));
+          });
+      }
+      composeEmojiPicker.togglePicker(composeEmojiBtn);
+  });
+
+  // 제출
+  composeSubmitBtn?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (composeSubmitBtn.disabled) return;
+      const content = composeEditor?.textContent?.trim() ?? "";
+      if (!content) return;
+      const formData = new FormData();
+      formData.append("postContent", content);
+      composeAttachedFiles.forEach(f => formData.append("files", f));
+      if (composeSelectedProduct?.id) {
+          formData.append("productPostId", composeSelectedProduct.id);
+      }
+      try {
+          await CommunityDetailService.createPost(communityId, formData);
+          closeComposeModal();
+          detailState.posts = { page: 1, isLoading: false, hasMore: true };
+          detailState.latest = { page: 1, isLoading: false, hasMore: true };
+          if (postFeedSection) postFeedSection.innerHTML = "";
+          if (latestFeedSection) latestFeedSection.innerHTML = "";
+          setupInfiniteScroll(postFeedSection, loadPosts, detailState.posts);
+          setupInfiniteScroll(latestFeedSection, loadLatestPosts, detailState.latest);
+          loadDetail();
+          loadPosts();
+      } catch (err) {
+          console.error("게시글 작성 실패:", err);
+      }
+  });
+
+  function setupPostForm() { /* tweet-modal 컴포저로 대체됨 */ }
 
   // ─── 관리자 메뉴 ───
   document.addEventListener("click", async (e) => {
@@ -520,6 +740,19 @@ window.onload = () => {
   if (latestFeedSection) setupInfiniteScroll(latestFeedSection, loadLatestPosts, detailState.latest);
   if (mediaSection) setupInfiniteScroll(mediaSection, loadMedia, detailState.media);
   if (memberSection) setupInfiniteScroll(memberSection, loadMembers, detailState.members);
+
+  // ─── 뒤로가기/bfcache 복원 시 좋아요·북마크 등 최신 상태 동기화 ───
+  window.addEventListener("pageshow", (e) => {
+      if (!e.persisted) return;
+      detailState.posts = { page: 1, isLoading: false, hasMore: true };
+      detailState.latest = { page: 1, isLoading: false, hasMore: true };
+      if (popularFeedSection) popularFeedSection.innerHTML = "";
+      if (latestFeedSection) latestFeedSection.innerHTML = "";
+      setupInfiniteScroll(popularFeedSection, loadPosts, detailState.posts);
+      setupInfiniteScroll(latestFeedSection, loadLatestPosts, detailState.latest);
+      loadDetail();
+      loadPosts();
+  });
 
   // ===== Toast =====
   const showToast = (msg) => {
@@ -1212,19 +1445,6 @@ window.onload = () => {
     button.setAttribute('aria-label', isActive ? '북마크에 추가됨' : '북마크');
     path.setAttribute('d', isActive ? (path.dataset.pathActive ?? path.getAttribute('d')) : (path.dataset.pathInactive ?? path.getAttribute('d')));
   }
-  function getShareUserRows() {
-    const cards = document.querySelectorAll('.communityPostCard'), seen = new Set();
-    const users = Array.from(cards).map((card, i) => { const name = card.querySelector('.postName')?.textContent?.trim() ?? ''; const handle = card.querySelector('.postHandle')?.textContent?.trim() ?? ''; const avatar = card.querySelector('.postAvatar img')?.getAttribute('src') ?? ''; if (!name || !handle || seen.has(handle)) return null; seen.add(handle); return { id:`${handle.replace('@','') || 'user'}-${i}`, name, handle, avatar }; }).filter(Boolean);
-    if (users.length === 0) return `<div class="share-sheet__empty"><p>전송할 수 있는 사용자가 없습니다.</p></div>`;
-    return users.map(u => `<button type="button" class="share-sheet__user" data-share-user-id="${escapeHtml(u.id)}"><span class="share-sheet__user-avatar"><img src="${escapeHtml(u.avatar)}" alt="${escapeHtml(u.name)}" /></span><span class="share-sheet__user-body"><span class="share-sheet__user-name">${escapeHtml(u.name)}</span><span class="share-sheet__user-handle">${escapeHtml(u.handle)}</span></span></button>`).join('');
-  }
-  function openShareChatModal(button) {
-    closeShareDropdown(); closeShareModal();
-    const modal = document.createElement('div'); modal.className = 'share-sheet';
-    modal.innerHTML = `<div class="share-sheet__backdrop" data-share-close="true"></div><div class="share-sheet__card" role="dialog" aria-modal="true" aria-labelledby="share-chat-title"><div class="share-sheet__header"><button type="button" class="share-sheet__icon-btn" data-share-close="true" aria-label="돌아가기"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path></g></svg></button><h2 id="share-chat-title" class="share-sheet__title">공유하기</h2><span class="share-sheet__header-spacer"></span></div><div class="share-sheet__search"><input type="text" class="share-sheet__search-input" placeholder="검색" aria-label="검색" /></div><div class="share-sheet__list">${getShareUserRows()}</div></div>`;
-    modal.addEventListener('click', (e) => { if (e.target.closest("[data-share-close='true']") || e.target.classList.contains('share-sheet__backdrop')) { e.preventDefault(); closeShareModal(); return; } if (e.target.closest('.share-sheet__user')) { e.preventDefault(); showShareToast(`${e.target.closest('.share-sheet__user')?.querySelector('.share-sheet__user-name')?.textContent || '사용자'}에게 전송함`); closeShareModal(); } });
-    document.body.appendChild(modal); document.body.classList.add('modal-open'); activeShareModal = modal;
-  }
   function openShareBookmarkModal(button) {
     const { bookmarkButton } = getSharePostMeta(button); closeShareDropdown(); closeShareModal();
     const isBookmarked = bookmarkButton?.classList.contains('active') ?? false;
@@ -1243,7 +1463,7 @@ window.onload = () => {
     const rect = button.getBoundingClientRect(), top = rect.bottom + window.scrollY + 8, right = Math.max(16, window.innerWidth - rect.right);
     const lc = document.createElement('div'); lc.className = 'layers-dropdown-container';
     lc.innerHTML = `<div class="layers-overlay"></div><div class="layers-dropdown-inner"><div role="menu" class="dropdown-menu" style="top:${top}px;right:${right}px;"><div class="dropdown-inner"><button type="button" role="menuitem" class="menu-item share-menu-item--copy"><span class="menu-item__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M18.36 5.64c-1.95-1.96-5.11-1.96-7.07 0L9.88 7.05 8.46 5.64l1.42-1.42c2.73-2.73 7.16-2.73 9.9 0 2.73 2.74 2.73 7.17 0 9.9l-1.42 1.42-1.41-1.42 1.41-1.41c1.96-1.96 1.96-5.12 0-7.07zm-2.12 3.53l-7.07 7.07-1.41-1.41 7.07-7.07 1.41 1.41zm-12.02.71l1.42-1.42 1.41 1.42-1.41 1.41c-1.96 1.96-1.96 5.12 0 7.07 1.95 1.96 5.11 1.96 7.07 0l1.41-1.41 1.42 1.41-1.42 1.42c-2.73 2.73-7.16 2.73-9.9 0-2.73-2.74-2.73-7.17 0-9.9z"></path></g></svg></span><span class="menu-item__label">링크 복사하기</span></button><button type="button" role="menuitem" class="menu-item share-menu-item--bookmark"><span class="menu-item__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M18 3V0h2v3h3v2h-3v3h-2V5h-3V3zm-7.5 1a.5.5 0 00-.5.5V7h3.5A2.5 2.5 0 0116 9.5v3.48l3 2.1V11h2v7.92l-5-3.5v7.26l-6.5-3.54L3 22.68V9.5A2.5 2.5 0 015.5 7H8V4.5A2.5 2.5 0 0110.5 2H12v2zm-5 5a.5.5 0 00-.5.5v9.82l4.5-2.46 4.5 2.46V9.5a.5.5 0 00-.5-.5z"></path></g></svg></span><span class="menu-item__label">폴더에 북마크 추가하기</span></button></div></div></div>`;
-    lc.addEventListener('click', (e) => { const item = e.target.closest('.menu-item'); if (!item) { e.stopPropagation(); return; } e.preventDefault(); e.stopPropagation(); if (item.classList.contains('share-menu-item--copy')) { copyShareLink(activeShareButton ?? button); return; } if (item.classList.contains('share-menu-item--chat')) { openShareChatModal(activeShareButton ?? button); return; } if (item.classList.contains('share-menu-item--bookmark')) { openShareBookmarkModal(activeShareButton ?? button); return; } closeShareDropdown(); });
+    lc.addEventListener('click', (e) => { const item = e.target.closest('.menu-item'); if (!item) { e.stopPropagation(); return; } e.preventDefault(); e.stopPropagation(); if (item.classList.contains('share-menu-item--copy')) { copyShareLink(activeShareButton ?? button); return; } if (item.classList.contains('share-menu-item--bookmark')) { openShareBookmarkModal(activeShareButton ?? button); return; } closeShareDropdown(); });
     layersRoot.appendChild(lc); activeShareDropdown = lc; activeShareButton = button; button.setAttribute('aria-expanded','true');
   }
 
@@ -1335,7 +1555,7 @@ window.onload = () => {
 
   // ===== Global document click =====
   document.addEventListener('click', (e) => {
-    if (e.target.closest('[data-compose]')) { e.preventDefault(); openReplyModal(null); return; }
+    if (e.target.closest('[data-compose]')) { e.preventDefault(); openComposeModal(); return; }
 
     const replyBtn = e.target.closest("[data-testid='reply']");
     if (replyBtn) { e.preventDefault(); e.stopPropagation(); openReplyModal(replyBtn); return; }

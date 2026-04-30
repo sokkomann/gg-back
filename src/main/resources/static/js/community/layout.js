@@ -60,17 +60,14 @@ const CommunityLayout = {
 
         return `
         <article class="postCard communityPostCard" data-post-id="${post.id}" data-member-id="${post.memberId}" data-community-id="${post.communityId}" data-is-followed="${post.isFollowed ? 'true' : 'false'}">
-            <div class="communityPostMeta">
-                <span class="communityPostMeta__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><path d="M7.471 21H.472l.029-1.027c.184-6.618 3.736-8.977 7-8.977.963 0 1.95.212 2.87.672-.761.992-1.339 2.159-1.693 3.46-.349 1.284-.449 2.637-.283 3.872H7.471zm-3.59-2h1.79c.281-3.072 1.985-5.606 4.476-6.726A5.7 5.7 0 0 0 7.5 12.004c-2.246 0-4.86 1.607-5.06 6.996h.441zM7.5 12.002c-2.59 0-4.669-2.108-4.669-4.699C2.831 4.681 4.91 2.58 7.5 2.58c2.59 0 4.668 2.1 4.668 4.723 0 2.591-2.078 4.699-4.668 4.699zm0-7.39a2.67 2.67 0 0 0-2.669 2.691c0 1.481 1.192 2.699 2.669 2.699 1.477 0 2.668-1.218 2.668-2.699A2.67 2.67 0 0 0 7.5 4.612z"></path></svg>
-                </span>
-                <a class="communityPostMeta__text" href="/community/${post.communityId}">${communityName}</a>
-                ${post.categoryName ? `<span class="communityPostMeta__category">${this.escapeHtml(post.categoryName)}</span>` : ''}
-            </div>
             <div class="postAvatar">
                 <img class="postAvatarImage" src="${post.memberProfileFileName || '/images/profile/default_image.png'}" alt="" onerror="this.src='/images/profile/default_image.png'">
             </div>
             <div class="postBody">
+                <div class="communityPostMeta">
+                    <a class="communityPostMeta__text" href="/community/${post.communityId}">${communityName}</a>
+                    ${post.categoryName ? `<span class="communityPostMeta__category">${this.escapeHtml(post.categoryName)}</span>` : ''}
+                </div>
                 <header class="postHeader">
                     <div class="postIdentity">
                         <strong class="postName">${nickname}</strong>
@@ -91,7 +88,9 @@ const CommunityLayout = {
                             <span class="tweet-action-count">${post.replyCount ?? 0}</span>
                         </button>
                         <button class="tweet-action-btn tweet-action-btn--like ${post.isLiked ? 'active' : ''}" data-post-id="${post.id}">
-                            <svg class="tweet-action-icon" viewBox="0 0 24 24"><g><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></g></svg>
+                            <svg class="tweet-action-icon" viewBox="0 0 24 24"><g><path d="${post.isLiked
+                                ? 'M20.884 13.19c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z'
+                                : 'M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z'}"></path></g></svg>
                             <span class="tweet-action-count">${post.likeCount ?? 0}</span>
                         </button>
                         <button class="tweet-action-btn tweet-action-btn--views" aria-label="북마크 ${post.bookmarkCount ?? 0}">
@@ -100,7 +99,9 @@ const CommunityLayout = {
                         </button>
                         <div class="tweet-action-right">
                             <button class="tweet-action-btn tweet-action-btn--bookmark ${post.isBookmarked ? 'active' : ''}" data-post-id="${post.id}">
-                                <svg class="tweet-action-icon" viewBox="0 0 24 24"><g><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"></path></g></svg>
+                                <svg class="tweet-action-icon" viewBox="0 0 24 24"><g><path d="${post.isBookmarked
+                                    ? 'M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z'
+                                    : 'M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z'}"></path></g></svg>
                             </button>
                             <button class="tweet-action-btn tweet-action-btn--share">
                                 <svg class="tweet-action-icon" viewBox="0 0 24 24"><g><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"></path></g></svg>
