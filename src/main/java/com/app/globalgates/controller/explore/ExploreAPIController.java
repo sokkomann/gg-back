@@ -35,20 +35,25 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
     public ResponseEntity<?> getRecommends(@PathVariable int page,
                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
         PostProductWithPagingDTO posts = postProductService.getRecommendProducts(page, userDetails.getId());
-        posts.getPosts().forEach(product -> {
-            // 상품 이미지(S3 객체 키 → presigned URL)
-            if (product.getPostFiles() != null) {
-                product.setPostFiles(
-                        product.getPostFiles().stream()
-                                .map(this::toPresigned)
-                                .collect(Collectors.toList())
+
+        posts.getPosts().forEach(post -> {
+            if (post.getMemberProfile() != null && !post.getMemberProfile().isBlank()) {
+                post.setMemberProfile(
+                        toPresignedUrlOrOriginal(post.getMemberProfile())
                 );
             }
-            // 작성자 프로필
-            if (product.getMemberProfile() != null) {
-                product.setMemberProfile(toPresigned(product.getMemberProfile()));
+
+            if(post.getPostFiles() == null || post.getPostFiles().isEmpty()) {
+                return;
             }
+            post.setPostFiles(
+                    post.getPostFiles().stream()
+                            .map(this::toPresignedUrlOrOriginal)
+                            .collect(Collectors.toList())
+            );
+
         });
+
         return ResponseEntity.ok(posts);
     }
 
@@ -130,6 +135,19 @@ public class ExploreAPIController implements ExploreAPIControllerDocs {
         } else {
             bookmarkService.deleteBookmark(exising.get().getId());
             return ResponseEntity.ok("북마크를 제거했습니다.");
+        }
+    }
+
+    private String toPresignedUrlOrOriginal(String filePath) {
+        if (filePath == null || filePath.isBlank()) {
+            return filePath;
+        }
+
+        try {
+            return s3Service.getPresignedUrl(filePath, Duration.ofMinutes(10));
+        } catch (IOException e) {
+            log.warn("mypage presigned URL 생성 실패. 원본 경로를 그대로 반환합니다. filePath={}", filePath, e);
+            return filePath;
         }
     }
 

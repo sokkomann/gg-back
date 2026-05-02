@@ -352,6 +352,7 @@ const exploreLayout = (() => {
             const card = document.createElement("div");
             card.className = "user-card";
             card.dataset.handle = `${handle}`;
+            card.dataset.profileId = member.id;
             card.innerHTML = `
             <div class="user-avatar">${avatarHtml}</div>
             <div class="user-info">
